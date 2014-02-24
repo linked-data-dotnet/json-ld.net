@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30110.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonLD", "src\JsonLD\JsonLD.csproj", "{C2DC1FFE-CD13-430E-B2FF-01574F72CACD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{BADA6FA2-85B9-40C9-A4E4-C64F01F6AB99}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonLD.Test", "tests\JsonLD.Test\JsonLD.Test.csproj", "{8BAC5CEF-6505-4DFC-9D78-3A55EAB9B9DE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C2DC1FFE-CD13-430E-B2FF-01574F72CACD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2DC1FFE-CD13-430E-B2FF-01574F72CACD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2DC1FFE-CD13-430E-B2FF-01574F72CACD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2DC1FFE-CD13-430E-B2FF-01574F72CACD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BAC5CEF-6505-4DFC-9D78-3A55EAB9B9DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BAC5CEF-6505-4DFC-9D78-3A55EAB9B9DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BAC5CEF-6505-4DFC-9D78-3A55EAB9B9DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BAC5CEF-6505-4DFC-9D78-3A55EAB9B9DE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
