@@ -44,6 +44,7 @@ namespace JsonLD.Core
 		public Context(JToken context, JsonLdOptions opts) : base(context is JObject ? 
 			(JObject)context : null)
 		{
+            Init(opts);
 		}
 
 		// TODO: load remote context
@@ -919,10 +920,8 @@ namespace JsonLD.Core
 
 		public object Clone()
 		{
-			JsonLD.Core.Context rval = (JsonLD.Core.Context)base.MemberwiseClone();
-			// TODO: is this shallow copy enough? probably not, but it passes all
-			// the tests!
-			rval.termDefinitions = new JObject(this.termDefinitions);
+			JsonLD.Core.Context rval = new Context(base.DeepClone(),options);
+			rval.termDefinitions = (JObject)termDefinitions.DeepClone();
 			return rval;
 		}
 
@@ -1210,7 +1209,7 @@ namespace JsonLD.Core
 			JObject rval = new JObject();
 			JObject td = GetTermDefinition(activeProperty);
 			// 1)
-			if (td != null && "@id".Equals(td["@type"]))
+			if (td != null && td["@type"].SafeCompare("@id"))
 			{
 				// TODO: i'm pretty sure value should be a string if the @type is
 				// @id

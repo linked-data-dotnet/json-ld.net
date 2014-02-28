@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using JsonLD.Util;
 using Newtonsoft.Json.Linq;
@@ -233,12 +234,14 @@ namespace JsonLD.Util
             // remove path segments that match
             IList<string> baseSegments = new List<string>(System.Linq.Enumerable.ToList(@base
                 .normalizedPath.Split("/")));
+            baseSegments = baseSegments.Where(seg => seg != "").ToList();
             if (@base.normalizedPath.EndsWith("/"))
             {
                 baseSegments.Add(string.Empty);
             }
             IList<string> iriSegments = new List<string>(System.Linq.Enumerable.ToList(rel.normalizedPath
                 .Split("/")));
+            iriSegments = iriSegments.Where(seg => seg != "").ToList();
             if (rel.normalizedPath.EndsWith("/"))
             {
                 iriSegments.Add(string.Empty);
@@ -321,7 +324,7 @@ namespace JsonLD.Util
                     // drop fragment from uri if it has one
                     if (uri.Fragment != null)
                     {
-                        uri = new Uri(uri.Scheme + uri.Authority + uri.AbsolutePath);
+                        uri = new Uri(uri.Scheme + "://" + uri.Authority + uri.AbsolutePath);
                     }
                     // add query to the end manually (as URI.resolve does it wrong)
                     return uri.ToString() + pathToResolve;
@@ -333,12 +336,13 @@ namespace JsonLD.Util
                 {
                     path = URL.RemoveDotSegments(uri.AbsolutePath, true);
                 }
-                return new Uri(uri.Scheme + uri.Authority + path + uri.Query + uri.Fragment).ToString
+                // TODO(sblom): This line is wrong, but works.
+                return new Uri(uri.Scheme + "://" + uri.Authority + path + uri.Query + uri.Fragment).ToString
                     ();
             }
             catch
             {
-                return null;
+                return pathToResolve;
             }
         }
 

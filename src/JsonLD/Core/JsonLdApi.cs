@@ -196,7 +196,8 @@ namespace JsonLD.Core
 									if (!(result[property] is JArray))
 									{
                                         JArray tmp = new JArray();
-										tmp.Add(result[property] = tmp);
+                                        tmp.Add(result[property]);
+										result[property] = tmp;
 									}
 									if (value is JArray)
 									{
@@ -356,7 +357,8 @@ namespace JsonLD.Core
 								if (!(mapObject[mapKey] is JArray))
 								{
 									tmp = new JArray();
-									tmp.Add(mapObject[mapKey] = tmp);
+                                    tmp.Add(mapObject[mapKey]);
+                                    mapObject[mapKey] = tmp;
 								}
 								else
 								{
@@ -388,7 +390,8 @@ namespace JsonLD.Core
                                 if (!(result[itemActiveProperty] is JArray))
 								{
                                     JArray tmp = new JArray();
-									tmp.Add(result[itemActiveProperty] = tmp);
+									tmp.Add(result[itemActiveProperty]);
+                                    result[itemActiveProperty] = tmp;
 								}
                                 if (compactedItem is JArray)
 								{
@@ -763,7 +766,7 @@ namespace JsonLD.Core
 						else
 						{
 							// 7.5
-							if ("@language".Equals(activeCtx.GetContainer(key)) && value is IDictionary)
+							if ("@language".Equals(activeCtx.GetContainer(key)) && value is JObject)
 							{
 								// 7.5.1)
                                 expandedValue = new JArray();
@@ -1088,7 +1091,8 @@ namespace JsonLD.Core
 			}
             JObject graph = (JObject)nodeMap[activeGraph
 				];
-            JObject node = (JObject)(activeSubject.IsNull() ? null : graph[(string)activeSubject]);
+            JObject node = (JObject)((activeSubject.IsNull() || activeSubject.Type != JTokenType.String) 
+                ? null : graph[(string)activeSubject]);
 			// 3)
 			if (elem.ContainsKey("@type"))
 			{
@@ -1715,7 +1719,7 @@ namespace JsonLD.Core
 							);
 					}
 				}
-				if (((JArray)types).Count == 1 && ((JArray)types)[0] is IDictionary
+				if (((JArray)types).Count == 1 && ((JArray)types)[0] is JObject
 					 && ((JObject)((JArray)types)[0]).Count == 0)
 				{
 					return !((JArray)nodeTypes).IsEmpty();
