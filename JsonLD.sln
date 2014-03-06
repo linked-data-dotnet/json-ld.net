@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{BADA6F
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonLD.Test", "tests\JsonLD.Test\JsonLD.Test.csproj", "{8BAC5CEF-6505-4DFC-9D78-3A55EAB9B9DE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonLD.Test", "tests\JsonLD.Test\JsonLD.Test.csproj", "{D41C622A-4470-4BE1-AB20-D9862B628840}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,10 +24,10 @@ Global
 		{C2DC1FFE-CD13-430E-B2FF-01574F72CACD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C2DC1FFE-CD13-430E-B2FF-01574F72CACD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C2DC1FFE-CD13-430E-B2FF-01574F72CACD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8BAC5CEF-6505-4DFC-9D78-3A55EAB9B9DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8BAC5CEF-6505-4DFC-9D78-3A55EAB9B9DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8BAC5CEF-6505-4DFC-9D78-3A55EAB9B9DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8BAC5CEF-6505-4DFC-9D78-3A55EAB9B9DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D41C622A-4470-4BE1-AB20-D9862B628840}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D41C622A-4470-4BE1-AB20-D9862B628840}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D41C622A-4470-4BE1-AB20-D9862B628840}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D41C622A-4470-4BE1-AB20-D9862B628840}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

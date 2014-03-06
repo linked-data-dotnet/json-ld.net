@@ -153,7 +153,7 @@ namespace JsonLD.Core
 
 		public string outputForm = null;
 
-		//public DocumentLoader documentLoader = new DocumentLoader();
+		public DocumentLoader documentLoader = new DocumentLoader();
 		// TODO: THE FOLLOWING ONLY EXIST SO I DON'T HAVE TO DELETE A LOT OF CODE,
 		// REMOVE IT WHEN DONE
 	}

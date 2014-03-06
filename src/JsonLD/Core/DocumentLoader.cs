@@ -1,27 +1,27 @@
-//using System;
-//using System.Collections;
-//using System.IO;
-//using JsonLDNet.Core;
-//using JsonLDNet.Util;
+using System;
+using System.Collections;
+using System.IO;
+using JsonLD.Core;
+using JsonLD.Util;
 
-//namespace JsonLDNet.Core
-//{
-//    public class DocumentLoader
-//    {
-//        /// <exception cref="JsonLDNet.Core.JsonLdError"></exception>
-//        public virtual RemoteDocument LoadDocument(string url)
-//        {
-//            RemoteDocument doc = new RemoteDocument(url, null);
-//            try
-//            {
-//                doc.Document = FromURL(new URL(url));
-//            }
-//            catch (Exception)
-//            {
-//                new JsonLdError(JsonLdError.Error.LoadingRemoteContextFailed, url);
-//            }
-//            return doc;
-//        }
+namespace JsonLD.Core
+{
+    public class DocumentLoader
+    {
+        /// <exception cref="JsonLDNet.Core.JsonLdError"></exception>
+        public virtual RemoteDocument LoadDocument(string url)
+        {
+            RemoteDocument doc = new RemoteDocument(url, null);
+            try
+            {
+                doc.Document = JSONUtils.FromURL(new Uri(url));
+            }
+            catch (Exception)
+            {
+                throw new JsonLdError(JsonLdError.Error.LoadingRemoteContextFailed, url);
+            }
+            return doc;
+        }
 
 //        /// <summary>An HTTP Accept header that prefers JSONLD.</summary>
 //        /// <remarks>An HTTP Accept header that prefers JSONLD.</remarks>
@@ -159,5 +159,5 @@
 //                httpClient = nextHttpClient;
 //            }
 //        }
-//    }
-//}
+    }
+}

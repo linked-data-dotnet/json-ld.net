@@ -134,12 +134,11 @@ namespace JsonLD.Core
 		/// <returns></returns>
 		/// <exception cref="JsonLdError">JsonLdError</exception>
 		/// <exception cref="JsonLD.Core.JsonLdError"></exception>
-		public virtual JsonLD.Core.Context Parse(JToken localContext, JArray remoteContexts
-			)
+		public virtual JsonLD.Core.Context Parse(JToken localContext, List<string> remoteContexts)
 		{
 			if (remoteContexts == null)
 			{
-				remoteContexts = new JArray();
+				remoteContexts = new List<string>();
 			}
 			// 1. Initialize result to the result of cloning active context.
 			JsonLD.Core.Context result = ((JsonLD.Core.Context)this.Clone());
@@ -181,7 +180,7 @@ namespace JsonLD.Core
 							}
 							remoteContexts.Add(uri);
 							// 3.2.3: Dereference context
-                            RemoteDocument rd = null; // this.options.documentLoader.LoadDocument(uri);
+                            RemoteDocument rd = this.options.documentLoader.LoadDocument(uri);
 							JToken remoteContext = rd.document;
                             if (!(remoteContext is JObject) || !((JObject)remoteContext
 								).ContainsKey("@context"))
@@ -305,7 +304,7 @@ namespace JsonLD.Core
 		/// <exception cref="JsonLD.Core.JsonLdError"></exception>
 		public virtual JsonLD.Core.Context Parse(JToken localContext)
 		{
-			return this.Parse(localContext, new JArray());
+			return this.Parse(localContext, new List<string>());
 		}
 
 		/// <summary>

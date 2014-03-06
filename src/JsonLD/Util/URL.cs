@@ -114,8 +114,7 @@ namespace JsonLD.Util
                 }
                 rval.pathname = rval.path;
                 ParseAuthority(rval);
-                rval.normalizedPath = RemoveDotSegments(rval.pathname, !string.Empty.Equals(rval.
-                    authority));
+                rval.normalizedPath = RemoveDotSegments(rval.pathname, !string.Empty.Equals(rval.authority));
                 if (!string.Empty.Equals(rval.query))
                 {
                     rval.path += "?" + rval.query;

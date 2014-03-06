@@ -49,7 +49,7 @@ namespace JsonLD.Util
             
             using (var reader = new JsonTextReader(r))
             {
-                var result = (JObject)serializer.Deserialize(reader);
+                var result = (JToken)serializer.Deserialize(reader);
                 return result;
             }
 		}
@@ -148,10 +148,10 @@ namespace JsonLD.Util
 		/// 	</exception>
 		/// <exception cref="System.IO.IOException">If there was an error resolving the resource.
 		/// 	</exception>
-        public static JToken FromURL(URL url)
+        public static JToken FromURL(Uri url)
 		{
-            var req = HttpWebRequest.Create(new Uri(url.ToString()));
-            req.Headers.Add("Accept", AcceptHeader);
+            HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
+            req.Accept = AcceptHeader;
             WebResponse resp = req.GetResponse();
             Stream stream = resp.GetResponseStream();
             return FromInputStream(stream);
