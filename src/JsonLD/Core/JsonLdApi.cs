@@ -120,7 +120,7 @@ namespace JsonLD.Core
 				// 6)
 				JObject result = new JObject();
 				// 7)
-                JArray keys = new JArray(elem.Keys);
+                JArray keys = new JArray(element.GetKeys());
 				keys.SortInPlace();
 				foreach (string expandedProperty in keys)
 				{
@@ -170,7 +170,7 @@ namespace JsonLD.Core
 						// 7.2.1)
 						JObject compactedValue = (JObject)Compact(activeCtx, "@reverse", expandedValue, compactArrays);
 						// 7.2.2)
-                        List<string> properties = new List<string>(((IDictionary<string, JToken>)compactedValue).Keys);
+                        List<string> properties = new List<string>(compactedValue.GetKeys());
 						foreach (string property in properties)
 						{
 							JToken value = compactedValue[property];
@@ -489,7 +489,7 @@ namespace JsonLD.Core
 					// 6)
                     JObject result = new JObject();
 					// 7)
-                    JArray keys = new JArray(elem.Keys);
+                    JArray keys = new JArray(element.GetKeys());
 					keys.SortInPlace();
 					foreach (string key in keys)
 					{
@@ -679,7 +679,7 @@ namespace JsonLD.Core
                                                                 if (((IDictionary<string, JToken>)expandedValue).ContainsKey("@reverse"))
 																{
                                                                     JObject reverse = (JObject)((JObject)expandedValue)["@reverse"];
-																	foreach (string property in ((IDictionary<string,JToken>)reverse).Keys)
+																	foreach (string property in reverse.GetKeys())
 																	{
                                                                         JToken item = reverse[property];
 																		// 7.4.11.2.1)
@@ -709,7 +709,7 @@ namespace JsonLD.Core
 																	// 7.4.11.3.2)
                                                                     JObject reverseMap = (JObject)result["@reverse"];
 																	// 7.4.11.3.3)
-                                                                    foreach (string property in ((IDictionary<string,JToken>)expandedValue).Keys)
+                                                                    foreach (string property in expandedValue.GetKeys())
 																	{
 																		if ("@reverse".Equals(property))
 																		{
@@ -771,7 +771,7 @@ namespace JsonLD.Core
 								// 7.5.1)
                                 expandedValue = new JArray();
 								// 7.5.2)
-								foreach (string language in ((IDictionary<string, JToken>)value).Keys)
+								foreach (string language in value.GetKeys())
 								{
                                     JToken languageValue = ((IDictionary<string, JToken>)value)[language];
 									// 7.5.2.1)
@@ -806,7 +806,7 @@ namespace JsonLD.Core
 									// 7.6.1)
 									expandedValue = new JArray();
 									// 7.6.2)
-                                    JArray indexKeys = new JArray(((IDictionary<string,JToken>)value).Keys);
+                                    JArray indexKeys = new JArray(value.GetKeys());
 									indexKeys.SortInPlace();
 									foreach (string index in indexKeys)
 									{
@@ -926,7 +926,7 @@ namespace JsonLD.Core
 						// 8.1)
 						// TODO: is this method faster than just using containsKey for
 						// each?
-						ICollection<string> keySet = new HashSet<string>(((IDictionary<string, JToken>)result).Keys);
+						ICollection<string> keySet = new HashSet<string>(result.GetKeys());
 						keySet.Remove("@value");
 						keySet.Remove("@index");
 						bool langremoved = keySet.Remove("@language");
@@ -1250,7 +1250,7 @@ namespace JsonLD.Core
                         JObject reverseMap = (JObject)JsonLD.Collections.Remove
 							(elem, "@reverse");
 						// 6.9.3)
-						foreach (string property in ((IDictionary<string,JToken>)reverseMap).Keys)
+						foreach (string property in reverseMap.GetKeys())
 						{
 							JArray values = (JArray)reverseMap[property];
 							// 6.9.3.1)
@@ -1268,7 +1268,7 @@ namespace JsonLD.Core
 							null, null);
 					}
 					// 6.11)
-					JArray keys = new JArray(elem.Keys);
+					JArray keys = new JArray(element.GetKeys());
 					keys.SortInPlace();
 					foreach (string property_1 in keys)
 					{
@@ -1414,7 +1414,7 @@ namespace JsonLD.Core
 			bool embedOn = GetFrameFlag(frame, "@embed", state.embed);
 			bool explicicOn = GetFrameFlag(frame, "@explicit", state.@explicit);
 			// add matches to output
-			JArray ids = new JArray(((IDictionary<string,JToken>)matches).Keys);
+			JArray ids = new JArray(matches.GetKeys());
 			ids.SortInPlace();
 			foreach (string id in ids)
 			{
@@ -1477,7 +1477,7 @@ namespace JsonLD.Core
 					state.embeds[id] = embeddedNode;
 					// iterate over subject properties
 					JObject element = (JObject)matches[id];
-					JArray props = new JArray(((IDictionary<string,JToken>)element).Keys);
+					JArray props = new JArray(element.GetKeys());
 					props.SortInPlace();
 					foreach (string prop in props)
 					{
@@ -1555,7 +1555,7 @@ namespace JsonLD.Core
 						}
 					}
 					// handle defaults
-					props = new JArray(((IDictionary<string,JToken>)frame).Keys);
+					props = new JArray(frame.GetKeys());
 					props.SortInPlace();
 					foreach (string prop_1 in props)
 					{
@@ -1684,7 +1684,7 @@ namespace JsonLD.Core
 		private JObject FilterNodes(JsonLdApi.FramingContext state, JObject nodes, JObject frame)
 		{
 			JObject rval = new JObject();
-			foreach (string id in ((IDictionary<string,JToken>)nodes).Keys)
+			foreach (string id in nodes.GetKeys())
 			{
 				JObject element = (JObject)nodes[id];
 				if (element != null && FilterNode(state, element, frame))
@@ -1741,7 +1741,7 @@ namespace JsonLD.Core
 			}
 			else
 			{
-				foreach (string key in ((IDictionary<string,JToken>)frame).Keys)
+				foreach (string key in frame.GetKeys())
 				{
 					if ("@id".Equals(key) || !JsonLdUtils.IsKeyword(key) && !(node.ContainsKey(key)))
 					{
@@ -1817,7 +1817,7 @@ namespace JsonLD.Core
 							s = new JObject();
 							s["@id"] = sid;
 						}
-						foreach (string prop in ((IDictionary<string,JToken>)s).Keys)
+						foreach (string prop in s.GetKeys())
 						{
 							// copy keywords
 							if (JsonLdUtils.IsKeyword(prop))
@@ -2005,7 +2005,7 @@ namespace JsonLD.Core
 				}
 			}
 			// 4)
-			foreach (string name_1 in ((IDictionary<string,JToken>)graphMap).Keys)
+			foreach (string name_1 in graphMap.GetKeys())
 			{
 				JObject graph = (JObject)graphMap[name_1];
 				// 4.1)
@@ -2077,7 +2077,7 @@ namespace JsonLD.Core
 			// 5)
 			JArray result = new JArray();
 			// 6)
-            JArray ids = new JArray(((IDictionary<string,JToken>)defaultGraph).Keys);
+            JArray ids = new JArray(defaultGraph.GetKeys());
 			ids.SortInPlace();
 			foreach (string subject_1 in ids)
 			{
@@ -2088,7 +2088,7 @@ namespace JsonLD.Core
 					// 6.1.1)
                     node["@graph"] = new JArray();
 					// 6.1.2)
-                    JArray keys = new JArray(((IDictionary<string,JToken>)graphMap[subject_1]).Keys);
+                    JArray keys = new JArray(graphMap[subject_1].GetKeys());
 					keys.SortInPlace();
 					foreach (string s in keys)
 					{
@@ -2125,7 +2125,7 @@ namespace JsonLD.Core
 			nodeMap["@default"] = new JObject();
 			GenerateNodeMap(this.value, nodeMap);
 			RDFDataset dataset = new RDFDataset(this);
-			foreach (string graphName in ((IDictionary<string,JToken>)nodeMap).Keys)
+			foreach (string graphName in nodeMap.GetKeys())
 			{
 				// 4.1)
 				if (JsonLdUtils.IsRelativeIri(graphName))
@@ -2151,7 +2151,7 @@ namespace JsonLD.Core
 			// create quads and map bnodes to their associated quads
 			JArray quads = new JArray();
 			JObject bnodes = new JObject();
-			foreach (string graphName in ((IDictionary<string,JToken>)dataset).Keys)
+			foreach (string graphName in dataset.GetKeys())
 			{
                 var eachGraphName = graphName;
                 JArray triples = (JArray)dataset[eachGraphName];
@@ -2198,7 +2198,7 @@ namespace JsonLD.Core
 			// mapping complete, start canonical naming
 			NormalizeUtils normalizeUtils = new NormalizeUtils(quads, bnodes, new UniqueNamer
 				("_:c14n"), opts);
-			return normalizeUtils.HashBlankNodes(((IDictionary<string,JToken>)bnodes).Keys);
+			return normalizeUtils.HashBlankNodes(bnodes.GetKeys());
 		}
 
 		private sealed class _Dictionary_1910 : JObject

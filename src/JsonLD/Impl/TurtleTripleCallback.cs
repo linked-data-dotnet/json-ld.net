@@ -45,7 +45,7 @@ namespace JsonLD.Impl
 			int tabs = 0;
 			JObject refs = new JObject();
 			JObject ttl = new JObject();
-			foreach (string graphName in ((IDictionary<string,JToken>)dataset).Keys)
+			foreach (string graphName in dataset.GetKeys())
 			{
                 string localGraphName = graphName;
 				IList<RDFDataset.Quad> triples = (IList<RDFDataset.Quad>)dataset.GetQuads(localGraphName);
@@ -135,7 +135,7 @@ namespace JsonLD.Impl
 				}
 			}
 			JObject collections = new JObject();
-			JArray subjects = new JArray(((IDictionary<string,JToken>)ttl).Keys);
+			JArray subjects = new JArray(ttl.GetKeys());
 			// find collections
 			foreach (string subj in subjects)
 			{
@@ -176,7 +176,7 @@ namespace JsonLD.Impl
 			}
 			// process refs (nesting referenced bnodes if only one reference to them
 			// in the whole graph)
-			foreach (string id in ((IDictionary<string,JToken>)refs).Keys)
+			foreach (string id in refs.GetKeys())
 			{
 				// skip items if there is more than one reference to them in the
 				// graph
@@ -198,7 +198,7 @@ namespace JsonLD.Impl
 				predicate[predicate.LastIndexOf(id)] = (JToken)@object;
 			}
 			// replace the rest of the collections
-			foreach (string id_1 in ((IDictionary<string,JToken>)collections).Keys)
+			foreach (string id_1 in collections.GetKeys())
 			{
 				JObject subj_1 = (JObject)ttl[id_1];
 				if (!subj_1.ContainsKey(ColsKey))
@@ -306,7 +306,7 @@ namespace JsonLD.Impl
 		private string GenerateTurtle(JObject ttl, int indentation, int lineLength, bool isObject)
 		{
 			string rval = string.Empty;
-			IEnumerator<string> subjIter = ((IDictionary<string,JToken>)ttl).Keys.GetEnumerator();
+			IEnumerator<string> subjIter = ttl.GetKeys().GetEnumerator();
 			while (subjIter.MoveNext())
 			{
 				string subject = subjIter.Current;
@@ -335,7 +335,8 @@ namespace JsonLD.Impl
 						{
 							rval += "( ";
 							lineLength += 2;
-							IEnumerator<JToken> objIter = ((JArray)collection).GetEnumerator();
+
+                            IEnumerator<JToken> objIter = ((JArray)collection).Children().GetEnumerator();
 							while (objIter.MoveNext())
 							{
 								JToken @object = objIter.Current;
@@ -354,13 +355,13 @@ namespace JsonLD.Impl
 					rval += GetURI(subject) + " ";
 					lineLength += subject.Length + 1;
 				}
-				IEnumerator<string> predIter = ((IDictionary<string,JToken>)ttl[subject]).Keys.GetEnumerator();
+				IEnumerator<string> predIter = ttl[subject].GetKeys().GetEnumerator();
 				while (predIter.MoveNext())
 				{
 					string predicate = predIter.Current;
 					rval += GetURI(predicate) + " ";
 					lineLength += predicate.Length + 1;
-					IEnumerator<JToken> objIter = ((JArray)ttl[subject][predicate]).GetEnumerator();
+					IEnumerator<JToken> objIter = ((JArray)ttl[subject][predicate]).Children().GetEnumerator();
 					while (objIter.MoveNext())
 					{
 						JToken @object = objIter.Current;

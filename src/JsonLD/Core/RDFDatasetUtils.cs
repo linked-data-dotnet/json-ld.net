@@ -19,10 +19,10 @@ namespace JsonLD.Core
 		{
 			// use RDFDataset.graphToRDF
 			JArray rval = new JArray();
-			foreach (string id in ((IDictionary<string,JToken>)graph).Keys)
+			foreach (string id in graph.GetKeys())
 			{
                 JObject node = (JObject)graph[id];
-				JArray properties = new JArray(((IDictionary<string,JToken>)node).Keys);
+				JArray properties = new JArray(node.GetKeys());
 				properties.SortInPlace();
                 foreach (string property in properties)
 				{

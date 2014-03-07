@@ -479,7 +479,7 @@ namespace JsonLD.Core
 		/// <param name="context"></param>
 		public virtual void ParseContext(JObject context)
 		{
-			foreach (string key in ((IDictionary<string,JToken>)context).Keys)
+			foreach (string key in context.GetKeys())
 			{
 				JToken val = context[key];
 				if ("@vocab".Equals(key))
@@ -613,7 +613,7 @@ namespace JsonLD.Core
 			// 4.2)
 			JArray triples = new JArray();
 			// 4.3)
-            JArray subjects = new JArray(((IDictionary<string,JToken>)graph).Keys);
+            JArray subjects = new JArray(graph.GetKeys());
 			// Collections.sort(subjects);
 			foreach (string id in subjects)
 			{
@@ -622,7 +622,7 @@ namespace JsonLD.Core
 					continue;
 				}
                 JObject node = (JObject)graph[id];
-                JArray properties = new JArray(((IDictionary<string,JToken>)node).Keys);
+                JArray properties = new JArray(node.GetKeys());
 				properties.SortInPlace();
 				foreach (string property in properties)
 				{
@@ -813,7 +813,7 @@ namespace JsonLD.Core
 		public virtual JArray GraphNames()
 		{
 			// TODO Auto-generated method stub
-			return new JArray(((IDictionary<string,JToken>)this).Keys);
+			return new JArray(this.GetKeys());
 		}
 
 		public virtual JArray GetQuads(string graphName)

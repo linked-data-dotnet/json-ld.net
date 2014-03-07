@@ -289,7 +289,7 @@ namespace JsonLD.Core
 				}
 				// 3.7
 				IDictionary<string, bool> defined = new Dictionary<string, bool>();
-				foreach (string key in ((IDictionary<string, JToken>)eachContext).Keys)
+				foreach (string key in eachContext.GetKeys())
 				{
 					if ("@base".Equals(key) || "@vocab".Equals(key) || "@language".Equals(key))
 					{
@@ -466,8 +466,7 @@ namespace JsonLD.Core
 					}
 					if (termDefinitions.ContainsKey(prefix))
 					{
-						definition["@id"] = ((IDictionary<string, JToken>)termDefinitions[prefix])["@id"]
-							 + suffix;
+						definition["@id"] = (string)(((IDictionary<string, JToken>)termDefinitions[prefix])["@id"]) + suffix;
 					}
 					else
 					{
@@ -479,7 +478,7 @@ namespace JsonLD.Core
 					// 15)
 					if (this.ContainsKey("@vocab"))
 					{
-						definition["@id"] = this["@vocab"] + term;
+						definition["@id"] = (string)this["@vocab"] + term;
 					}
 					else
 					{
@@ -586,7 +585,7 @@ namespace JsonLD.Core
 			// 5)
 			if (vocab && this.ContainsKey("@vocab"))
 			{
-				return this["@vocab"] + value;
+				return (string)this["@vocab"] + value;
 			}
 			else
 			{
@@ -863,7 +862,7 @@ namespace JsonLD.Core
 			// 4)
 			string compactIRI = null;
 			// 5)
-			foreach (string term_1 in ((IDictionary<string,JToken>)termDefinitions).Keys)
+			foreach (string term_1 in termDefinitions.GetKeys())
 			{
 				JToken termDefinitionToken = termDefinitions[term_1];
 				// 5.1)
@@ -954,7 +953,7 @@ namespace JsonLD.Core
 			}
 			// create term selections for each mapping in the context, ordererd by
 			// shortest and then lexicographically least
-			JArray terms = new JArray(((IDictionary<string,JToken>)termDefinitions).Keys);
+			JArray terms = new JArray(termDefinitions.GetKeys());
 			((JArray)terms).SortInPlace(new _IComparer_794());
 			foreach (string term in terms)
 			{
@@ -1212,14 +1211,14 @@ namespace JsonLD.Core
 			{
 				// TODO: i'm pretty sure value should be a string if the @type is
 				// @id
-				rval["@id"] = ExpandIri(value.ToString(), true, false, null, null);
+				rval["@id"] = ExpandIri((string)value, true, false, null, null);
 				return rval;
 			}
 			// 2)
 			if (td != null && td["@type"].SafeCompare("@vocab"))
 			{
 				// TODO: same as above
-				rval["@id"] = ExpandIri(value.ToString(), true, true, null, null);
+				rval["@id"] = ExpandIri((string)value, true, true, null, null);
 				return rval;
 			}
 			// 3)
@@ -1278,7 +1277,7 @@ namespace JsonLD.Core
 			{
 				ctx["@vocab"] = this["@vocab"];
 			}
-			foreach (string term in ((IDictionary<string,JToken>)termDefinitions).Keys)
+			foreach (string term in termDefinitions.GetKeys())
 			{
 				JObject definition = (JObject)termDefinitions[term];
 				if (definition["@language"].IsNull() && definition["@container"].IsNull() && definition

@@ -158,7 +158,7 @@ namespace JsonLD.Core
 			JObject defaultGraph = (JObject)JsonLD.Collections.Remove
 				(nodeMap, "@default");
 			// 4)
-			foreach (string graphName in ((IDictionary<string,JToken>)nodeMap).Keys)
+			foreach (string graphName in nodeMap.GetKeys())
 			{
 				JObject graph = (JObject)nodeMap[graphName];
 				// 4.1+4.2)
@@ -180,7 +180,7 @@ namespace JsonLD.Core
 				{
 					entry["@graph"] = new JArray();
 				}
-				JArray keys = new JArray(((IDictionary<string,JToken>)graph).Keys);
+				JArray keys = new JArray(graph.GetKeys());
 				keys.SortInPlace();
 				foreach (string id in keys)
 				{
@@ -194,7 +194,7 @@ namespace JsonLD.Core
 			// 5)
 			JArray flattened = new JArray();
 			// 6)
-			JArray keys_1 = new JArray(((IDictionary<string,JToken>)defaultGraph).Keys);
+			JArray keys_1 = new JArray(defaultGraph.GetKeys());
 			keys_1.SortInPlace();
 			foreach (string id_1 in keys_1)
 			{

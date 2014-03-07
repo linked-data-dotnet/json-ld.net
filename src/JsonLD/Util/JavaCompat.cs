@@ -131,6 +131,11 @@ namespace JsonLD
             return val;
         }
 
+        public static IEnumerable<string> GetKeys(this JToken obj)
+        {
+            return ((JObject)obj).Children().Cast<JProperty>().Select(x => x.Name);
+        }
+
         public static bool IsEmpty<T>(this ICollection<T> col)
         {
             return col.Count == 0;
@@ -165,10 +170,10 @@ namespace JsonLD
                 JArray arr = (JArray)list;
                 var tmp = new List<JToken>((JArray)list);
                 tmp.Sort(Comparer<JToken>.Create((s,t) => string.Compare((string)s,(string)t)));
-                for (int i = 0; i < tmp.Count; ++i)
+                arr.RemoveAll();
+                foreach (var t in tmp)
                 {
-                    arr.RemoveAt(i);
-                    arr.Insert(i, tmp[i]);
+                    arr.Add(t);
                 }
             }
             else

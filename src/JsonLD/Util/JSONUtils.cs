@@ -72,7 +72,7 @@ namespace JsonLD.Util
             var serializer = new JsonSerializer();
             using (var writer = new JsonTextWriter(w))
             {
-                serializer.Formatting = Formatting.Indented;
+                writer.Formatting = Formatting.Indented;
                 serializer.Serialize(writer, jsonObject);
             }
         }

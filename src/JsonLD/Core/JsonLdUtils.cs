@@ -72,7 +72,7 @@ namespace JsonLD.Core
 						{
 							return false;
 						}
-						foreach (string key in ((IDictionary<string,JToken>)m1).Keys)
+						foreach (string key in m1.GetKeys())
 						{
 							if (!((IDictionary<string,JToken>)m2).ContainsKey(key) ||
                                 !DeepCompare(m1[key], m2[key], listOrderMatters))
@@ -414,7 +414,7 @@ namespace JsonLD.Core
 			)
 		{
             JArray rval = new JArray();
-            IList<string> keys = new List<string>(((IDictionary<string, JToken>)languageMap).Keys);
+            IList<string> keys = new List<string>(languageMap.GetKeys());
 			keys.SortInPlace();
 			// lexicographically sort languages
 			foreach (string key in keys)
@@ -625,7 +625,7 @@ namespace JsonLD.Core
 						return input;
 					}
 					// recurse through properties
-                    foreach (string prop in ((IDictionary<string,JToken>)input).Keys)
+                    foreach (string prop in input.GetKeys())
 					{
                         JToken result = RemovePreserve(ctx, ((JObject)input)[prop], opts
 							);
@@ -899,7 +899,7 @@ namespace JsonLD.Core
 			}
 			// queue all unresolved URLs
             JArray queue = new JArray();
-			foreach (string url in ((IDictionary<string,JToken>)urls).Keys)
+			foreach (string url in urls.GetKeys())
 			{
 				if (urls[url].SafeCompare(false))
 				{
@@ -976,7 +976,7 @@ namespace JsonLD.Core
 			{
 				if (input is JObject)
 				{
-					foreach (string key in ((IDictionary<string, JToken>)input).Keys)
+					foreach (string key in input.GetKeys())
 					{
 						if (!"@context".Equals(key))
 						{

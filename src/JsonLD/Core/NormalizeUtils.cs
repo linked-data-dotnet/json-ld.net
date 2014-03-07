@@ -27,7 +27,7 @@ namespace JsonLD.Core
 
 		// generates unique and duplicate hashes for bnodes
 		/// <exception cref="JsonLD.Core.JsonLdError"></exception>
-		public virtual JToken HashBlankNodes(ICollection<string> unnamed_)
+		public virtual JToken HashBlankNodes(IEnumerable<string> unnamed_)
 		{
 			IList<string> unnamed = new List<string>(unnamed_);
 			IList<string> nextUnnamed = new List<string>();
@@ -149,7 +149,7 @@ namespace JsonLD.Core
 										// key-entry order
 										// Note: key-order is preserved in
 										// javascript
-										foreach (string key in r.pathNamer.Existing().Keys)
+										foreach (string key in r.pathNamer.Existing().GetKeys())
 										{
 											namer.GetName(key);
 										}
@@ -253,7 +253,7 @@ namespace JsonLD.Core
 					if (hpi == quads.Count)
 					{
 						// done , hash groups
-						groupHashes = new List<string>(((IDictionary<string,JToken>)groups).Keys);
+						groupHashes = new List<string>(groups.GetKeys());
 						groupHashes.SortInPlace();
 						for (int hgi = 0; ; hgi++)
 						{

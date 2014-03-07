@@ -71,7 +71,7 @@ namespace JsonLD.Core
 			return ((IDictionary<string,JToken>)this.existing).ContainsKey(oldName);
 		}
 
-		public virtual IDictionary<string, JToken> Existing()
+		public virtual JObject Existing()
 		{
 			return existing;
 		}

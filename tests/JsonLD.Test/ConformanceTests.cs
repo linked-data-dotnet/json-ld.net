@@ -69,7 +69,7 @@ namespace JsonLD.Test
                     newCase.frame = GetJson(testcase["frame"]);
                     newCase.error = testcase["expect"];
 
-                    var options = new JsonLdOptions("http://json-ld.org/test-suite/tests/" + testcase["input"]);
+                    var options = new JsonLdOptions("http://json-ld.org/test-suite/tests/" + (string)testcase["input"]);
 
                     if (manifest.StartsWith("compact"))
                     {
@@ -137,7 +137,7 @@ namespace JsonLD.Test
 
                     newCase.run = run;
 
-                    yield return new object[] { manifest + testcase["@id"], (string)testcase["name"], newCase };
+                    yield return new object[] { manifest + (string)testcase["@id"], (string)testcase["name"], newCase };
                 }
             }
         }
@@ -146,7 +146,7 @@ namespace JsonLD.Test
         {
             try {
                 if (j.Type == JTokenType.Null) return null;
-                using ( Stream manifestStream = File.OpenRead("W3C\\" + j))
+                using ( Stream manifestStream = File.OpenRead("W3C\\" + (string)j))
                 using (TextReader reader = new StreamReader(manifestStream))
                 using (JsonReader jreader = new Newtonsoft.Json.JsonTextReader(reader))
                 {
