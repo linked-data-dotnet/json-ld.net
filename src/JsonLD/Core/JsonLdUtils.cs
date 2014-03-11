@@ -199,7 +199,7 @@ namespace JsonLD.Core
 		public static bool IsAbsoluteIri(string value)
 		{
 			// TODO: this is a bit simplistic!
-			return value.Contains(":");
+			return value != null && value.Contains(":");
 		}
 
 		/// <summary>Returns true if the given value is a subject with properties.</summary>

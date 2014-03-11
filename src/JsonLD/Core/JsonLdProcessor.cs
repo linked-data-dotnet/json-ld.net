@@ -66,8 +66,25 @@ namespace JsonLD.Core
 		{
 			// 1)
 			// TODO: look into java futures/promises
-			// 2) TODO: better verification of DOMString IRI
-			if (input.Type == JTokenType.String && ((string)input).Contains(":"))
+
+            // 2) verification of DOMString IRI
+            bool isIriString = input.Type == JTokenType.String;
+            if (isIriString)
+		    {
+		        bool hasColon = false;
+		        foreach (var c in ((string) input))
+		        {
+		            if (c == ':')
+		                hasColon = true;
+		            if (!hasColon && (c == '{' || c == '['))
+		            {
+		                isIriString = false;
+                        break;
+		            }
+		        }
+		    }
+
+			if (isIriString)
 			{
 				try
 				{
