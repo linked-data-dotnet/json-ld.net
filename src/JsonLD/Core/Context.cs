@@ -180,7 +180,20 @@ namespace JsonLD.Core
 							}
 							remoteContexts.Add(uri);
 							// 3.2.3: Dereference context
-                            RemoteDocument rd = this.options.documentLoader.LoadDocument(uri);
+                            RemoteDocument rd;
+                            try
+                            {
+                                rd = this.options.documentLoader.LoadDocument(uri);
+                            }
+                            catch (JsonLdError err)
+                            {
+                                if (err.Message.StartsWith(JsonLdError.Error.LoadingDocumentFailed.ToString()))
+                                {
+                                    throw new JsonLdError(JsonLdError.Error.LoadingRemoteContextFailed);
+                                }
+                                else
+                                    throw;
+                            }
 							JToken remoteContext = rd.document;
                             if (!(remoteContext is JObject) || !((JObject)remoteContext
 								).ContainsKey("@context"))

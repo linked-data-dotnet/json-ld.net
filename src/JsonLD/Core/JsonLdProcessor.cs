@@ -71,7 +71,7 @@ namespace JsonLD.Core
 			{
 				try
 				{
-                    RemoteDocument tmp = null; // opts.documentLoader.LoadDocument((string)input);
+                    RemoteDocument tmp = opts.documentLoader.LoadDocument((string)input);
 					input = tmp.document;
 				}
 				catch (Exception e)
