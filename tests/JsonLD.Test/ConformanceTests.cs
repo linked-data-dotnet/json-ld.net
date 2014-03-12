@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 using Newtonsoft.Json.Linq;
 using Xunit;
@@ -22,11 +21,11 @@ namespace JsonLD.Test
             JToken result = conformanceCase.run();
             if (id.Contains("error"))
             {
-                Assert.True(((string)result["error"]).StartsWith((string)conformanceCase.error), "errors don't match");
+                Assert.True(((string)result["error"]).StartsWith((string)conformanceCase.error), "Resulting error doesn't match expectations.");
             }
             else
             {
-                Assert.True(JsonLdUtils.DeepCompare(result, conformanceCase.output), "returned JSON matches expectations");
+                Assert.True(JsonLdUtils.DeepCompare(result, conformanceCase.output), "Returned JSON doesn't match expectations.");
             }
         }
     }

@@ -4,7 +4,6 @@ using System.IO;
 using JsonLD.Util;
 using Newtonsoft.Json;
 using System.Net;
-using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
 namespace JsonLD.Util

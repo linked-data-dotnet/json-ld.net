@@ -7,7 +7,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace JsonLD
 {
@@ -158,6 +157,14 @@ namespace JsonLD
             }
         }
 
+        class JTokenStringCompare : Comparer<JToken>
+        {
+            public override int Compare(JToken x, JToken y)
+            {
+                return string.Compare((string)x, (string)y);
+            }
+        }
+
         public static void SortInPlace<T>(this IList<T> list)
         {
             if (list is List<T>)
@@ -168,8 +175,10 @@ namespace JsonLD
             {
                 // TODO(sblom): This is really awful; figure out how to really sort a JArray in place.
                 JArray arr = (JArray)list;
-                var tmp = new List<JToken>((JArray)list);
-                tmp.Sort(Comparer<JToken>.Create((s,t) => string.Compare((string)s,(string)t)));
+                // .Select(x => x) is a workaround for .NET 3.5's List constructor's failure to
+                // disbelieve Newtonsoft.Json when IJCollection.Count returns 0.
+                List<JToken> tmp = arr.Select(x => x).ToList();
+                tmp.Sort(new JTokenStringCompare());
                 arr.RemoveAll();
                 foreach (var t in tmp)
                 {
@@ -193,7 +202,9 @@ namespace JsonLD
                 // TODO(sblom): This is really awful; figure out how to really sort a JArray in place.
                 JArray arr = (JArray)list;
                 IComparer<JToken> comparer = (IComparer<JToken>)cmp;
-                var tmp = new List<JToken>((JArray)list);
+                // .Select(x => x) is a workaround for .NET 3.5's List constructor's failure to
+                // disbelieve Newtonsoft.Json when IJCollection.Count returns 0.
+                var tmp = arr.Select(x => x).ToList();
                 tmp.Sort(comparer);
                 tmp.Select((t, i) => arr[i] = tmp[i]);
             }
