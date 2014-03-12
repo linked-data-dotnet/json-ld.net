@@ -19,7 +19,7 @@ namespace JsonLD.Test
         public void ConformanceTestPasses(string id, string testname, ConformanceCase conformanceCase)
         {
             JToken result = conformanceCase.run();
-            if (id.Contains("error"))
+            if (conformanceCase.error != null)
             {
                 Assert.True(((string)result["error"]).StartsWith((string)conformanceCase.error), "Resulting error doesn't match expectations.");
             }
@@ -42,7 +42,7 @@ namespace JsonLD.Test
 
     public class ConformanceCases: IEnumerable<object[]>
     {
-        string[] manifests = new[] { "compact-manifest.jsonld", "error-manifest.jsonld", "expand-manifest.jsonld", "flatten-manifest.jsonld", "frame-manifest.jsonld", "normalize-manifest.jsonld" };
+        string[] manifests = new[] { "compact-manifest.jsonld", "error-manifest.jsonld", "expand-manifest.jsonld", "flatten-manifest.jsonld", "frame-manifest.jsonld", "remote-doc-manifest.jsonld" };
 
         public ConformanceCases()
         {
@@ -57,47 +57,96 @@ namespace JsonLD.Test
 
                 manifestJson = GetJson(manifest);
 
-                foreach (var testcase in manifestJson["sequence"])
+                foreach (JObject testcase in manifestJson["sequence"])
                 {
                     Func<JToken> run;
                     ConformanceCase newCase = new ConformanceCase();
 
                     newCase.input = GetJson(testcase["input"]);
-                    newCase.output = GetJson(testcase["expect"]);
                     newCase.context = GetJson(testcase["context"]);
                     newCase.frame = GetJson(testcase["frame"]);
-                    newCase.error = testcase["expect"];
 
                     var options = new JsonLdOptions("http://json-ld.org/test-suite/tests/" + (string)testcase["input"]);
 
-                    if (manifest.StartsWith("compact"))
+                    var testType = (JArray)testcase["@type"];
+
+                    if (testType.Any((s) => (string)s == "jld:NegativeEvaluationTest"))
                     {
-                        if (((string)testcase["@id"]).Contains("0070"))
-                        {
-                            options.SetCompactArrays(false);
-                        }
-                        run = () => JsonLdProcessor.Compact(newCase.input, newCase.context, options);
+                        newCase.error = testcase["expect"];
                     }
-                    else if (manifest.StartsWith("expand"))
+                    else if (testType.Any((s) => (string)s == "jld:PositiveEvaluationTest"))
                     {
-                        if (((string)testcase["@id"]).Contains("0076"))
+                        newCase.output = GetJson(testcase["expect"]);
+                    }
+                    else
+                    {
+                        throw new Exception("Expecting either positive or negative evaluation test.");
+                    }
+
+                    JToken optionToken;
+                    JToken value;
+
+                    if (testcase.TryGetValue("option", out optionToken))
+                    {
+                        JObject optionDescription = (JObject)optionToken;
+
+                        if (optionDescription.TryGetValue("compactArrays", out value))
                         {
-                            options.SetBase("http://example/base/");
+                            options.SetCompactArrays((bool)value);
                         }
-                        if (((string)testcase["@id"]).Contains("0077"))
+                        if (optionDescription.TryGetValue("base", out value))
+                        {
+                            options.SetBase((string)value);
+                        }
+                        if (optionDescription.TryGetValue("expandContext", out value))
                         {
                             newCase.context = GetJson(testcase["option"]["expandContext"]);
                             options.SetExpandContext((JObject)newCase.context);
                         }
+                    }
+
+                    if (testType.Any((s) => (string)s == "jld:CompactTest"))
+                    {
+                        run = () => JsonLdProcessor.Compact(newCase.input, newCase.context, options);
+                    }
+                    else if (testType.Any((s) => (string)s == "jld:ExpandTest"))
+                    {
                         run = () => JsonLdProcessor.Expand(newCase.input, options);
                     }
-                    else if (manifest.StartsWith("error"))
+                    else if (testType.Any((s) => (string)s == "jld:FlattenTest"))
                     {
-                        newCase.output = new JObject();
-                        newCase.output["error"] = newCase.error;
-                        run = () => {
-                            try {
-                                JsonLdProcessor.Flatten(newCase.input, newCase.context, options);
+                        run = () => JsonLdProcessor.Flatten(newCase.input, newCase.context, options);
+                    }
+                    else if (testType.Any((s) => (string)s == "jld:FrameTest"))
+                    {
+                        run = () => JsonLdProcessor.Frame(newCase.input, newCase.frame, options);
+                    }
+                    else
+                    {
+                        run = () => { throw new Exception("Couldn't find a test type, apparently."); };
+                    }
+
+                    if ((string)manifestJson["name"] == "Remote document")
+                    {
+                        Func<JToken> innerRun = run;
+                        run = () =>
+                        {
+                            var remoteDoc = options.documentLoader.LoadDocument("http://json-ld.org/test-suite/tests/" + (string)testcase["input"]);
+                            newCase.input = remoteDoc.Document;
+                            options.SetBase(remoteDoc.DocumentUrl);
+                            options.SetExpandContext((JObject)remoteDoc.Context);
+                            return innerRun();
+                        };
+                    }
+
+                    if (testType.Any((s) => (string)s == "jld:NegativeEvaluationTest"))
+                    {
+                        Func<JToken> innerRun = run;
+                        run = () =>
+                        {
+                            try
+                            {
+                                return innerRun();
                             }
                             catch (JsonLdError err)
                             {
@@ -105,33 +154,7 @@ namespace JsonLD.Test
                                 result["error"] = err.Message;
                                 return result;
                             }
-                            return new JValue((object)null);
                         };
-                    }
-                    else if (manifest.StartsWith("flatten"))
-                    {
-                        if (((string)testcase["@id"]).Contains("0044"))
-                        {
-                            options.SetCompactArrays(false);
-                        }
-                        run = () => JsonLdProcessor.Flatten(newCase.input, newCase.context, options);
-                    }
-                    else if (manifest.StartsWith("frame"))
-                    {
-                        run = () => JsonLdProcessor.Frame(newCase.input, newCase.frame, options);
-                    }
-                    else if (manifest.StartsWith("remote-doc"))
-                    {
-                        run = () =>
-                        {
-                            var doc = new DocumentLoader().LoadDocument("http://json-ld.org/test-suite/tests/" + testcase["input"]).Document;
-                            return JsonLdProcessor.Expand(doc, options);
-                        };
-                    }
-                    else 
-                    {
-                        continue;
-                        run = () => { throw new Exception(); };
                     }
 
                     newCase.run = run;
