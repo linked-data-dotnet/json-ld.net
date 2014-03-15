@@ -6,7 +6,7 @@ namespace JsonLD.Impl
 {
 	public class NQuadTripleCallback : IJSONLDTripleCallback
 	{
-		public virtual JToken Call(RDFDataset dataset)
+		public virtual object Call(RDFDataset dataset)
 		{
 			return RDFDatasetUtils.ToNQuads(dataset);
 		}

@@ -13,7 +13,10 @@ namespace JsonLD.Core
 	/// </summary>
 	/// <author>tristan</author>
 	//[System.Serializable]
-	public class Context : JObject, ICloneable
+	public class Context : JObject
+#if !PORTABLE
+        , ICloneable
+#endif
 	{
 		private JsonLdOptions options;
 

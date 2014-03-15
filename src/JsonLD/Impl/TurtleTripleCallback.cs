@@ -34,7 +34,7 @@ namespace JsonLD.Impl
 		// valid iri/bnode i
 		// hope!
 		// TODO: fill with default namespaces
-		public virtual JToken Call(RDFDataset dataset)
+		public virtual object Call(RDFDataset dataset)
 		{
 			foreach (KeyValuePair<string, string> e in dataset.GetNamespaces().GetEnumerableSelf
 				())
@@ -45,7 +45,7 @@ namespace JsonLD.Impl
 			int tabs = 0;
 			JObject refs = new JObject();
 			JObject ttl = new JObject();
-			foreach (string graphName in dataset.GetKeys())
+			foreach (string graphName in dataset.Keys)
 			{
                 string localGraphName = graphName;
 				IList<RDFDataset.Quad> triples = (IList<RDFDataset.Quad>)dataset.GetQuads(localGraphName);
@@ -218,12 +218,12 @@ namespace JsonLD.Impl
 			return (string.Empty.Equals(prefixes) ? string.Empty : prefixes + "\n") + output;
 		}
 
-		private string GenerateObject(JToken @object, string sep, bool hasNext, int indentation
+		private string GenerateObject(object @object, string sep, bool hasNext, int indentation
 			, int lineLength)
 		{
 			string rval = string.Empty;
 			string obj;
-			if (@object.Type == JTokenType.String)
+			if (@object is string)
 			{
 				obj = GetURI((string)@object);
 			}

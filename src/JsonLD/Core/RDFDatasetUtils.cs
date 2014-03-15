@@ -220,7 +220,7 @@ namespace JsonLD.Core
             foreach (string graphName in dataset.GraphNames())
 			{
                 var eachGraphName = graphName;
-                JArray triples = (JArray)dataset.GetQuads(eachGraphName);
+                IList<RDFDataset.Quad> triples = dataset.GetQuads(eachGraphName);
 				if ("@default".Equals(eachGraphName))
 				{
 					eachGraphName = null;
@@ -230,7 +230,9 @@ namespace JsonLD.Core
 					quads.Add(ToNQuad(triple, eachGraphName));
 				}
 			}
-			quads.SortInPlace();
+
+            ((List<string>)quads).Sort(StringComparer.Ordinal);
+
 			string rval = string.Empty;
 			foreach (string quad in quads)
 			{
@@ -665,14 +667,14 @@ namespace JsonLD.Core
 				// initialise graph in dataset
 				if (!dataset.ContainsKey(name))
 				{
-					JArray tmp = new JArray();
+					IList<RDFDataset.Quad> tmp = new List<RDFDataset.Quad>();
 					tmp.Add(triple);
-					dataset[name] = (JToken)tmp;
+					dataset[name] = tmp;
 				}
 				else
 				{
 					// add triple if unique to its graph
-					JArray triples = (JArray)dataset[name];
+                    IList<RDFDataset.Quad> triples = (IList<RDFDataset.Quad>)dataset[name];
 					if (!triples.Contains(triple))
 					{
 						triples.Add(triple);

@@ -25,6 +25,14 @@ namespace JsonLD.Test
             }
             else
             {
+                Console.WriteLine(id);
+                Console.WriteLine("Actual:");
+                Console.Write(JSONUtils.ToPrettyString(result));
+                Console.WriteLine("--------------------------");
+                Console.WriteLine("Expected:");
+                Console.Write(JSONUtils.ToPrettyString(conformanceCase.output));
+                Console.WriteLine("--------------------------");
+
                 Assert.True(JsonLdUtils.DeepCompare(result, conformanceCase.output), "Returned JSON doesn't match expectations.");
             }
         }
@@ -42,7 +50,17 @@ namespace JsonLD.Test
 
     public class ConformanceCases: IEnumerable<object[]>
     {
-        string[] manifests = new[] { "compact-manifest.jsonld", "error-manifest.jsonld", "expand-manifest.jsonld", "flatten-manifest.jsonld", "frame-manifest.jsonld", "remote-doc-manifest.jsonld" };
+        string[] manifests = new[] {
+            "compact-manifest.jsonld",
+            "error-manifest.jsonld",
+            "expand-manifest.jsonld",
+            "flatten-manifest.jsonld",
+            "frame-manifest.jsonld",
+            "remote-doc-manifest.jsonld",
+            "toRdf-manifest.jsonld",
+            "fromRdf-manifest.jsonld",
+            "normalize-manifest.jsonld",
+        };
 
         public ConformanceCases()
         {
@@ -76,7 +94,19 @@ namespace JsonLD.Test
                     }
                     else if (testType.Any((s) => (string)s == "jld:PositiveEvaluationTest"))
                     {
-                        newCase.output = GetJson(testcase["expect"]);
+                        if (testType.Any((s) => new List<string> {"jld:ToRDFTest", "jld:NormalizeTest"}.Contains((string)s)))
+                        {
+                            newCase.output = File.ReadAllText("W3C\\" + (string)testcase["expect"]);
+                        }
+                        else if (testType.Any((s) => (string)s == "jld:FromRDFTest"))
+                        {
+                            newCase.input = File.ReadAllText("W3C\\" + (string)testcase["input"]);
+                            newCase.output = GetJson(testcase["expect"]);
+                        }
+                        else
+                        {
+                            newCase.output = GetJson(testcase["expect"]);
+                        }
                     }
                     else
                     {
@@ -103,6 +133,18 @@ namespace JsonLD.Test
                             newCase.context = GetJson(testcase["option"]["expandContext"]);
                             options.SetExpandContext((JObject)newCase.context);
                         }
+                        if (optionDescription.TryGetValue("produceGeneralizedRdf", out value))
+                        {
+                            options.SetProduceGeneralizedRdf((bool)value);
+                        }
+                        if (optionDescription.TryGetValue("useNativeTypes", out value))
+                        {
+                            options.SetUseNativeTypes((bool)value);
+                        }
+                        if (optionDescription.TryGetValue("useRdfType", out value))
+                        {
+                            options.SetUseRdfType((bool)value);
+                        }
                     }
 
                     if (testType.Any((s) => (string)s == "jld:CompactTest"))
@@ -120,6 +162,24 @@ namespace JsonLD.Test
                     else if (testType.Any((s) => (string)s == "jld:FrameTest"))
                     {
                         run = () => JsonLdProcessor.Frame(newCase.input, newCase.frame, options);
+                    }
+                    else if (testType.Any((s) => (string)s == "jld:NormalizeTest"))
+                    {
+                        run = () => new JValue(
+                                RDFDatasetUtils.ToNQuads((RDFDataset)JsonLdProcessor.Normalize(newCase.input, options)).Replace("\n", "\r\n")
+                            );
+                    }
+                    else if (testType.Any((s) => (string)s == "jld:ToRDFTest"))
+                    {
+                        options.format = "application/nquads";
+                        run = () => new JValue(
+                            ((string)JsonLdProcessor.ToRDF(newCase.input, options)).Replace("\n", "\r\n")
+                        );
+                    }
+                    else if (testType.Any((s) => (string)s == "jld:FromRDFTest"))
+                    {
+                        options.format = "application/nquads";
+                        run = () => JsonLdProcessor.FromRDF(newCase.input,options);
                     }
                     else
                     {

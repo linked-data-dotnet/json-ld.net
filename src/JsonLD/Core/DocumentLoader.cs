@@ -14,6 +14,7 @@ namespace JsonLD.Core
         /// <exception cref="JsonLDNet.Core.JsonLdError"></exception>
         public virtual RemoteDocument LoadDocument(string url)
         {
+#if !PORTABLE
             RemoteDocument doc = new RemoteDocument(url, null);
             try
             {
@@ -58,6 +59,9 @@ namespace JsonLD.Core
                 throw new JsonLdError(JsonLdError.Error.LoadingDocumentFailed, url);
             }
             return doc;
+#else
+            throw new NotImplementedException();
+#endif
         }
 
         /// <summary>An HTTP Accept header that prefers JSONLD.</summary>

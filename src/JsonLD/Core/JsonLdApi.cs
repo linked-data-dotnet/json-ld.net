@@ -1944,7 +1944,7 @@ namespace JsonLD.Core
 			// 3/3.1)
 			foreach (string name in dataset.GraphNames())
 			{
-				JArray graph = dataset.GetQuads(name);
+				IList<RDFDataset.Quad> graph = dataset.GetQuads(name);
 				// 3.2+3.4)
 				JObject nodeMap;
 				if (!graphMap.ContainsKey(name))
@@ -2139,6 +2139,7 @@ namespace JsonLD.Core
 			return dataset;
 		}
 
+#if !PORTABLE
 		/// <summary>Performs RDF normalization on the given JSON-LD input.</summary>
 		/// <remarks>Performs RDF normalization on the given JSON-LD input.</remarks>
 		/// <param name="input">the expanded JSON-LD object to normalize.</param>
@@ -2146,33 +2147,33 @@ namespace JsonLD.Core
 		/// <param name="callback">(err, normalized) called once the operation completes.</param>
 		/// <exception cref="JSONLDProcessingError">JSONLDProcessingError</exception>
 		/// <exception cref="JsonLD.Core.JsonLdError"></exception>
-		public virtual JToken Normalize(JObject dataset)
+		public virtual object Normalize(RDFDataset dataset)
 		{
 			// create quads and map bnodes to their associated quads
-			JArray quads = new JArray();
-			JObject bnodes = new JObject();
-			foreach (string graphName in dataset.GetKeys())
+			IList<RDFDataset.Quad> quads = new List<RDFDataset.Quad>();
+			IDictionary<string,IDictionary<string,object>> bnodes = new Dictionary<string,IDictionary<string,object>>();
+			foreach (string graphName in dataset.Keys)
 			{
                 var eachGraphName = graphName;
-                JArray triples = (JArray)dataset[eachGraphName];
+                IList<RDFDataset.Quad> triples = (IList<RDFDataset.Quad>)dataset[eachGraphName];
 				if ("@default".Equals(eachGraphName))
 				{
 					eachGraphName = null;
 				}
-                foreach (JObject quad in triples)
+                foreach (RDFDataset.Quad quad in triples)
 				{
 					if (eachGraphName != null)
 					{
 						if (eachGraphName.IndexOf("_:") == 0)
 						{
-							JObject tmp = new JObject();
+                            IDictionary<string, object> tmp = new Dictionary<string, object>();
 							tmp["type"] = "blank node";
 							tmp["value"] = eachGraphName;
 							quad["name"] = tmp;
 						}
 						else
 						{
-							JObject tmp = new JObject();
+                            IDictionary<string, object> tmp = new Dictionary<string, object>();
 							tmp["type"] = "IRI";
 							tmp["value"] = eachGraphName;
 							quad["name"] = tmp;
@@ -2182,15 +2183,14 @@ namespace JsonLD.Core
 					string[] attrs = new string[] { "subject", "object", "name" };
 					foreach (string attr in attrs)
 					{
-						if (quad.ContainsKey(attr) && ((JObject)quad
-							[attr])["type"].SafeCompare("blank node"))
+						if (quad.ContainsKey(attr) && (string)((IDictionary<string,object>)quad[attr])["type"] == "blank node")
 						{
-                            string id = (string)((JObject)quad[attr])["value"];
+                            string id = (string)((IDictionary<string,object>)quad[attr])["value"];
 							if (!bnodes.ContainsKey(id))
 							{
-								bnodes[id] = new _Dictionary_1910();
+								bnodes[id] = new Dictionary<string,object> { {"quads", new List<RDFDataset.Quad>()} };
 							}
-							((JArray)((JObject)bnodes[id])["quads"]).Add(quad);
+							((IList<RDFDataset.Quad>)bnodes[id]["quads"]).Add(quad);
 						}
 					}
 				}
@@ -2198,17 +2198,8 @@ namespace JsonLD.Core
 			// mapping complete, start canonical naming
 			NormalizeUtils normalizeUtils = new NormalizeUtils(quads, bnodes, new UniqueNamer
 				("_:c14n"), opts);
-			return normalizeUtils.HashBlankNodes(bnodes.GetKeys());
+			return normalizeUtils.HashBlankNodes(bnodes.Keys);
 		}
-
-		private sealed class _Dictionary_1910 : JObject
-		{
-			public _Dictionary_1910()
-			{
-				{
-					this["quads"] = new JArray();
-				}
-			}
-		}
+#endif
 	}
 }

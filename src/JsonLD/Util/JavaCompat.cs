@@ -4,9 +4,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+
+#if !PORTABLE
+using System.Security.Cryptography;
+#endif
 
 namespace JsonLD
 {
@@ -151,6 +154,20 @@ namespace JsonLD
             {
                 ((List<T>)list).Reverse();
             }
+            else if (list is JArray)
+            {
+                // TODO(sblom): This is really awful; figure out how to really sort a JArray in place.
+                JArray arr = (JArray)list;
+                // .Select(x => x) is a workaround for .NET 3.5's List constructor's failure to
+                // disbelieve Newtonsoft.Json when IJCollection.Count returns 0.
+                List<JToken> tmp = arr.Select(x => x).ToList();
+                tmp.Reverse();
+                arr.RemoveAll();
+                foreach (var t in tmp)
+                {
+                    arr.Add(t);
+                }
+            }
             else
             {
                 throw new InvalidOperationException("Attempted to .Reverse() an unsupported type.");
@@ -262,7 +279,11 @@ namespace JsonLD
 
         public string GetPattern()
         {
+#if !PORTABLE
             return this.pattern;
+#else
+            throw new NotImplementedException();
+#endif
         }
 
         new public static bool Matches(string val, string rx)
@@ -310,7 +331,8 @@ namespace JsonLD
             {
                 this.Find();
             }
-            return (matchesEnumerator.Current as Match).Captures[i].Value;
+            var match = matchesEnumerator.Current as Match;
+            return match.Groups[i].Success ? match.Groups[i].Value : null;
         }
 
         public int End()
@@ -330,6 +352,8 @@ namespace JsonLD
         }
     }
 
+
+#if !PORTABLE
     internal class MessageDigest
     {
         HMACSHA1 md;
@@ -358,4 +382,5 @@ namespace JsonLD
             return md.ComputeHash(stream);
         }
     }
+#endif
 }

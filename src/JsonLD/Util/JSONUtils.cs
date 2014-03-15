@@ -149,11 +149,15 @@ namespace JsonLD.Util
 		/// 	</exception>
         public static JToken FromURL(Uri url)
 		{
+#if !PORTABLE
             HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
             req.Accept = AcceptHeader;
             WebResponse resp = req.GetResponse();
             Stream stream = resp.GetResponseStream();
             return FromInputStream(stream);
+#else
+            throw new NotImplementedException();
+#endif
 		}
 	}
 }

@@ -36,6 +36,6 @@ namespace JsonLD.Core
 		/// used).
 		/// </param>
 		/// <returns>the resulting RDF object in the desired format</returns>
-		JToken Call(RDFDataset dataset);
+		object Call(RDFDataset dataset);
 	}
 }

@@ -6,17 +6,18 @@ using Newtonsoft.Json.Linq;
 
 namespace JsonLD.Core
 {
+#if !PORTABLE
 	internal class NormalizeUtils
 	{
 		private readonly UniqueNamer namer;
 
-		private readonly JObject bnodes;
+		private readonly IDictionary<string,IDictionary<string,object>> bnodes;
 
-		private readonly JArray quads;
+		private readonly IList<RDFDataset.Quad> quads;
 
 		private readonly JsonLdOptions options;
 
-		public NormalizeUtils(JArray quads, JObject bnodes, UniqueNamer
+        public NormalizeUtils(IList<RDFDataset.Quad> quads, IDictionary<string, IDictionary<string, object>> bnodes, UniqueNamer
 			 namer, JsonLdOptions options)
 		{
 			this.options = options;
@@ -27,7 +28,7 @@ namespace JsonLD.Core
 
 		// generates unique and duplicate hashes for bnodes
 		/// <exception cref="JsonLD.Core.JsonLdError"></exception>
-		public virtual JToken HashBlankNodes(IEnumerable<string> unnamed_)
+		public virtual object HashBlankNodes(IEnumerable<string> unnamed_)
 		{
 			IList<string> unnamed = new List<string>(unnamed_);
 			IList<string> nextUnnamed = new List<string>();
@@ -91,22 +92,21 @@ namespace JsonLD.Core
 								// update bnode names in each quad and serialize
 								for (int cai = 0; cai < quads.Count; ++cai)
 								{
-									JObject quad = (JObject)quads[cai];
+									RDFDataset.Quad quad = quads[cai];
 									foreach (string attr in new string[] { "subject", "object", "name" })
 									{
 										if (quad.ContainsKey(attr))
 										{
-											JObject qa = (JObject)quad[attr];
-											if (qa != null && qa["type"].SafeCompare("blank node") && ((string)qa["value"]).IndexOf
+											IDictionary<string,object> qa = (IDictionary<string,object>)quad[attr];
+											if (qa != null && (string)qa["type"] == "blank node" && ((string)qa["value"]).IndexOf
 												("_:c14n") != 0)
 											{
-												qa["value"] = namer.GetName((string)qa[("value")]);
+												qa["value"] = namer.GetName((string)qa["value"]);
 											}
 										}
 									}
-									normalized.Add(RDFDatasetUtils.ToNQuad((RDFDataset.Quad)quad, quad.ContainsKey("name"
-										) && !quad["name"].IsNull() ? (string)((JObject)quad["name"])[
-										"value"] : null));
+									normalized.Add(RDFDatasetUtils.ToNQuad(quad, quad.ContainsKey("name"
+										) && !(quad["name"] == null) ? (string)((IDictionary<string,object>)((IDictionary<string,object>)quad)["name"])["value"] : null));
 								}
 								// sort normalized output
 								normalized.SortInPlace();
@@ -239,7 +239,7 @@ namespace JsonLD.Core
 		/// <param name="namer">the canonical bnode namer.</param>
 		/// <param name="pathNamer">the namer used to assign names to adjacent bnodes.</param>
 		/// <param name="callback">(err, result) called once the operation completes.</param>
-		private static NormalizeUtils.HashResult HashPaths(string id, JObject bnodes, UniqueNamer namer, UniqueNamer pathNamer)
+        private static NormalizeUtils.HashResult HashPaths(string id, IDictionary<string, IDictionary<string, object>> bnodes, UniqueNamer namer, UniqueNamer pathNamer)
 		{
 			try
 			{
@@ -247,14 +247,14 @@ namespace JsonLD.Core
 				MessageDigest md = MessageDigest.GetInstance("SHA-1");
 				JObject groups = new JObject();
 				IList<string> groupHashes;
-				JArray quads = (JArray)((JObject)bnodes[id])["quads"];
+				IList<RDFDataset.Quad> quads = (IList<RDFDataset.Quad>)bnodes[id]["quads"];
 				for (int hpi = 0; ; hpi++)
 				{
 					if (hpi == quads.Count)
 					{
 						// done , hash groups
 						groupHashes = new List<string>(groups.GetKeys());
-						groupHashes.SortInPlace();
+                        ((List<string>)groupHashes).Sort(StringComparer.CurrentCultureIgnoreCase);
 						for (int hgi = 0; ; hgi++)
 						{
 							if (hgi == groupHashes.Count)
@@ -381,8 +381,8 @@ namespace JsonLD.Core
 						}
 					}
 					// get adjacent bnode
-                    JObject quad = (JObject)quads[hpi];
-                    string bnode_2 = GetAdjacentBlankNodeName((JObject)quad["subject"
+                    IDictionary<string,object> quad = (IDictionary<string,object>)quads[hpi];
+                    string bnode_2 = GetAdjacentBlankNodeName((IDictionary<string, object>)quad["subject"
 						], id);
 					string direction = null;
 					if (bnode_2 != null)
@@ -392,7 +392,7 @@ namespace JsonLD.Core
 					}
 					else
 					{
-						bnode_2 = GetAdjacentBlankNodeName((JObject)quad["object"], id
+                        bnode_2 = GetAdjacentBlankNodeName((IDictionary<string, object>)quad["object"], id
 							);
 						if (bnode_2 != null)
 						{
@@ -424,7 +424,7 @@ namespace JsonLD.Core
 						// String toHash = direction + (String) ((Map<String,
 						// Object>) quad.get("predicate")).get("value") + name;
 						md1.Update(JsonLD.JavaCompat.GetBytesForString(direction, "UTF-8"));
-                        md1.Update(JsonLD.JavaCompat.GetBytesForString(((string)((JObject)quad["predicate"])["value"]), "UTF-8"));
+                        md1.Update(JsonLD.JavaCompat.GetBytesForString(((string)((IDictionary<string,object>)quad["predicate"])["value"]), "UTF-8"));
 						md1.Update(JsonLD.JavaCompat.GetBytesForString(name, "UTF-8"));
 						string groupHash = EncodeHex(md1.Digest());
 						if (groups.ContainsKey(groupHash))
@@ -455,28 +455,27 @@ namespace JsonLD.Core
 		/// <param name="bnodes">the mapping of bnodes to quads.</param>
 		/// <param name="namer">the canonical bnode namer.</param>
 		/// <returns>the new hash.</returns>
-		private static string HashQuads(string id, JObject bnodes, UniqueNamer
+        private static string HashQuads(string id, IDictionary<string, IDictionary<string, object>> bnodes, UniqueNamer
 			 namer)
 		{
 			// return cached hash
-			if (((JObject)bnodes[id]).ContainsKey("hash"))
+			if (bnodes[id].ContainsKey("hash"))
 			{
-				return (string)((JObject)bnodes[id])["hash"];
+				return (string)bnodes[id]["hash"];
 			}
 			// serialize all of bnode's quads
-			JArray quads = (JArray)((JObject)bnodes[id])["quads"];
+            IList<RDFDataset.Quad> quads = (IList<RDFDataset.Quad>)bnodes[id]["quads"];
 			IList<string> nquads = new List<string>();
 			for (int i = 0; i < quads.Count; ++i)
 			{
-				nquads.Add(RDFDatasetUtils.ToNQuad((RDFDataset.Quad)quads[i], quads[i]["name"] !=
-					 null ? (string)((JObject)quads[i]["name"])["value"] : null, 
-					id));
+                object name;
+                nquads.Add(RDFDatasetUtils.ToNQuad((RDFDataset.Quad)quads[i], quads[i].TryGetValue("name", out name) ? (string)((IDictionary<string,object>)name)["value"] : null, id));
 			}
 			// sort serialized quads
 			nquads.SortInPlace();
 			// return hashed quads
 			string hash = Sha1hash(nquads);
-            ((JObject)bnodes[id])["hash"] = hash;
+            ((IDictionary<string,object>)bnodes[id])["hash"] = hash;
 			return hash;
 		}
 
@@ -511,7 +510,7 @@ namespace JsonLD.Core
 			string rval = string.Empty;
 			foreach (byte b in data)
 			{
-				rval += string.Format("%02x", b);
+				rval += b.ToString("x2");
 			}
 			return rval;
 		}
@@ -528,10 +527,9 @@ namespace JsonLD.Core
 		/// <param name="node">the RDF quad node.</param>
 		/// <param name="id">the ID of the blank node to look next to.</param>
 		/// <returns>the adjacent blank node name or null if none was found.</returns>
-        private static string GetAdjacentBlankNodeName(JObject node, 
-			string id)
+        private static string GetAdjacentBlankNodeName(IDictionary<string,object> node, string id)
 		{
-			return node["type"].SafeCompare("blank node") && (!node.ContainsKey("value") || !node["value"].SafeCompare(id)) ? (string)node["value"] : null;
+			return (string)node["type"] == "blank node" && (!node.ContainsKey("value") || (string)node["value"] == id) ? (string)node["value"] : null;
 		}
 
 		private class Permutator
@@ -614,4 +612,5 @@ namespace JsonLD.Core
 			}
 		}
 	}
+#endif
 }
