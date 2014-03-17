@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F119722F-5E6A-4479-A4CF-0CE00FF29737}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>JsonLD.Portable</RootNamespace>
+    <AssemblyName>JsonLD.Portable</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Profile78</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;PORTABLE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;PORTABLE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\src\JsonLD\Core\Context.cs">
+      <Link>Context.cs</Link>
+    </Compile>
+    <Compile Include="..\src\JsonLD\Core\DocumentLoader.cs">
+      <Link>DocumentLoader.cs</Link>
+    </Compile>
+    <Compile Include="..\src\JsonLD\Core\IJSONLDTripleCallback.cs">
+      <Link>IJSONLDTripleCallback.cs</Link>
+    </Compile>
+    <Compile Include="..\src\JsonLD\Core\IRDFParser.cs">
+      <Link>IRDFParser.cs</Link>
+    </Compile>
+    <Compile Include="..\src\JsonLD\Core\JsonLdApi.cs">
+      <Link>JsonLdApi.cs</Link>
+    </Compile>
+    <Compile Include="..\src\JsonLD\Core\JSONLDConsts.cs">
+      <Link>JSONLDConsts.cs</Link>
+    </Compile>
+    <Compile Include="..\src\JsonLD\Core\JsonLdError.cs">
+      <Link>JsonLdError.cs</Link>
+    </Compile>
+    <Compile Include="..\src\JsonLD\Core\JsonLdOptions.cs">
+      <Link>JsonLdOptions.cs</Link>
+    </Compile>
+    <Compile Include="..\src\JsonLD\Core\JsonLdProcessor.cs">
+      <Link>JsonLdProcessor.cs</Link>
+    </Compile>
+    <Compile Include="..\src\JsonLD\Core\JsonLdUtils.cs">
+      <Link>JsonLdUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\src\JsonLD\Core\NormalizeUtils.cs">
+      <Link>NormalizeUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\src\JsonLD\Core\RDFDataset.cs">
+      <Link>RDFDataset.cs</Link>
+    </Compile>
+    <Compile Include="..\src\JsonLD\Core\RDFDatasetUtils.cs">
+      <Link>RDFDatasetUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\src\JsonLD\Core\Regex.cs">
+      <Link>Regex.cs</Link>
+    </Compile>
+    <Compile Include="..\src\JsonLD\Core\RemoteDocument.cs">
+      <Link>RemoteDocument.cs</Link>
+    </Compile>
+    <Compile Include="..\src\JsonLD\Core\UniqueNamer.cs">
+      <Link>UniqueNamer.cs</Link>
+    </Compile>
+    <Compile Include="..\src\JsonLD\Impl\NQuadRDFParser.cs">
+      <Link>NQuadRDFParser.cs</Link>
+    </Compile>
+    <Compile Include="..\src\JsonLD\Impl\NQuadTripleCallback.cs">
+      <Link>NQuadTripleCallback.cs</Link>
+    </Compile>
+    <Compile Include="..\src\JsonLD\Impl\TurtleRDFParser.cs">
+      <Link>TurtleRDFParser.cs</Link>
+    </Compile>
+    <Compile Include="..\src\JsonLD\Impl\TurtleTripleCallback.cs">
+      <Link>TurtleTripleCallback.cs</Link>
+    </Compile>
+    <Compile Include="..\src\JsonLD\Util\JavaCompat.cs">
+      <Link>JavaCompat.cs</Link>
+    </Compile>
+    <Compile Include="..\src\JsonLD\Util\JSONUtils.cs">
+      <Link>JSONUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\src\JsonLD\Util\Obj.cs">
+      <Link>Obj.cs</Link>
+    </Compile>
+    <Compile Include="..\src\JsonLD\Util\URL.cs">
+      <Link>URL.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.1\lib\portable-net45+wp80+win8\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

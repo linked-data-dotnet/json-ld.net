@@ -472,7 +472,7 @@ namespace JsonLD.Core
                 nquads.Add(RDFDatasetUtils.ToNQuad((RDFDataset.Quad)quads[i], quads[i].TryGetValue("name", out name) ? (string)((IDictionary<string,object>)name)["value"] : null, id));
 			}
 			// sort serialized quads
-			nquads.SortInPlace();
+			nquads.SortInPlace(StringComparer.Ordinal);
 			// return hashed quads
 			string hash = Sha1hash(nquads);
             ((IDictionary<string,object>)bnodes[id])["hash"] = hash;
@@ -529,7 +529,7 @@ namespace JsonLD.Core
 		/// <returns>the adjacent blank node name or null if none was found.</returns>
         private static string GetAdjacentBlankNodeName(IDictionary<string,object> node, string id)
 		{
-			return (string)node["type"] == "blank node" && (!node.ContainsKey("value") || (string)node["value"] == id) ? (string)node["value"] : null;
+			return (string)node["type"] == "blank node" && (!node.ContainsKey("value") || (string)node["value"] != id) ? (string)node["value"] : null;
 		}
 
 		private class Permutator

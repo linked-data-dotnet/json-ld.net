@@ -356,7 +356,7 @@ namespace JsonLD
 #if !PORTABLE
     internal class MessageDigest
     {
-        HMACSHA1 md;
+        SHA1 md;
         Stream stream;
 
         public static MessageDigest GetInstance(string algorithm)
@@ -367,7 +367,7 @@ namespace JsonLD
 
         public MessageDigest()
         {
-            md = new HMACSHA1();
+            md = new SHA1Managed();
             stream = new MemoryStream();
         }
 
