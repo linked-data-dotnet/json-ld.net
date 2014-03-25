@@ -88,7 +88,7 @@ namespace JsonLD.Core
 			{
 				try
 				{
-                    RemoteDocument tmp = null; // opts.documentLoader.LoadDocument((string)input);
+                    RemoteDocument tmp = opts.documentLoader.LoadDocument((string)input);
 					input = tmp.document;
 				}
 				catch (Exception e)
@@ -402,7 +402,7 @@ namespace JsonLD.Core
 		/// <?></?>
 		/// <param name="callback">(err, dataset) called once the operation completes.</param>
 		/// <exception cref="JsonLDNet.Core.JsonLdError"></exception>
-		public static JToken ToRDF(JToken input, IJSONLDTripleCallback callback, JsonLdOptions
+		public static object ToRDF(JToken input, IJSONLDTripleCallback callback, JsonLdOptions
 			 options)
 		{
 			JToken expandedInput = Expand(input, options);
@@ -455,23 +455,24 @@ namespace JsonLD.Core
 		}
 
 		/// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public static JToken ToRDF(JToken input, JsonLdOptions options)
+        public static object ToRDF(JToken input, JsonLdOptions options)
 		{
 			return ToRDF(input, null, options);
 		}
 
 		/// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public static JToken ToRDF(JToken input, IJSONLDTripleCallback callback)
+        public static object ToRDF(JToken input, IJSONLDTripleCallback callback)
 		{
 			return ToRDF(input, callback, new JsonLdOptions(string.Empty));
 		}
 
 		/// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public static JToken ToRDF(JToken input)
+        public static object ToRDF(JToken input)
 		{
 			return ToRDF(input, new JsonLdOptions(string.Empty));
 		}
 
+#if !PORTABLE
 		/// <summary>Performs RDF dataset normalization on the given JSON-LD input.</summary>
 		/// <remarks>
 		/// Performs RDF dataset normalization on the given JSON-LD input. The output
@@ -482,7 +483,7 @@ namespace JsonLD.Core
 		/// <param name="callback">(err, normalized) called once the operation completes.</param>
 		/// <exception cref="JSONLDProcessingError">JSONLDProcessingError</exception>
 		/// <exception cref="JsonLDNet.Core.JsonLdError"></exception>
-        public static JToken Normalize(JToken input, JsonLdOptions options)
+        public static object Normalize(JToken input, JsonLdOptions options)
 		{
 			JsonLdOptions opts = options.Clone();
 			opts.format = null;
@@ -491,9 +492,11 @@ namespace JsonLD.Core
 		}
 
 		/// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public static JToken Normalize(JToken input)
+        public static object Normalize(JToken input)
 		{
 			return Normalize(input, new JsonLdOptions(string.Empty));
 		}
+
+#endif
 	}
 }

@@ -12,8 +12,7 @@ namespace JsonLD.Core
 			}
 			set
 			{
-				string documentUrl = value;
-				this.documentUrl = documentUrl;
+                this.documentUrl = value;
 			}
 		}
 
@@ -25,8 +24,7 @@ namespace JsonLD.Core
 			}
 			set
 			{
-				JToken document = value;
-				this.document = document;
+                this.document = value;
 			}
 		}
 
@@ -38,16 +36,29 @@ namespace JsonLD.Core
 			}
 			set
 			{
-				string contextUrl = value;
-				this.contextUrl = contextUrl;
+                this.contextUrl = value;
 			}
 		}
+
+        public virtual JToken Context
+        {
+            get
+            {
+                return context;
+            }
+            set
+            {
+                this.context = value;
+            }
+        }
 
 		internal string documentUrl;
 
 		internal JToken document;
 
 		internal string contextUrl;
+
+        internal JToken context;
 
         public RemoteDocument(string url, JToken document)
             : this(url, document, null)

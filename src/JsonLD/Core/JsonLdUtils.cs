@@ -924,7 +924,7 @@ namespace JsonLD.Core
 				_cycles[url_1] = true;
 				try
 				{
-                    JObject ctx = null; //(IDictionary<string, object>)DocumentLoader.FromURL(new URL(url_1));
+                    JObject ctx = (JObject)new DocumentLoader().LoadDocument(url_1).Document;
 					if (!ctx.ContainsKey("@context"))
 					{
 						ctx = new JObject();

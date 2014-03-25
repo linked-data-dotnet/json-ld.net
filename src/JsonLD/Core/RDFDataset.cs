@@ -17,10 +17,10 @@ namespace JsonLD.Core
 	/// </remarks>
 	/// <author>Tristan</author>
 	//[System.Serializable]
-	public class RDFDataset : JObject
+	public class RDFDataset : Dictionary<string,object>
 	{
 		//[System.Serializable]
-		public class Quad : JObject, IComparable<RDFDataset.Quad>
+		public class Quad : Dictionary<string,object>, IComparable<RDFDataset.Quad>
 		{
 			public Quad(string subject, string predicate, string @object, string graph) : this
 				(subject, predicate, @object.StartsWith("_:") ? (Node)new RDFDataset.BlankNode(@object
@@ -101,7 +101,7 @@ namespace JsonLD.Core
 		}
 
 		//[System.Serializable]
-		public abstract class Node : JObject, IComparable<RDFDataset.Node
+		public abstract class Node : Dictionary<string,object>, IComparable<RDFDataset.Node
 			>
 		{
 			public abstract bool IsLiteral();
@@ -112,17 +112,20 @@ namespace JsonLD.Core
 
 			public virtual string GetValue()
 			{
-				return (string)this["value"];
+                object value;
+                return this.TryGetValue("value", out value) ? (string)value : null;
 			}
 
 			public virtual string GetDatatype()
 			{
-				return (string)this["datatype"];
+                object value;
+                return this.TryGetValue("datatype", out value) ? (string)value : null;
 			}
 
 			public virtual string GetLanguage()
 			{
-				return (string)this["language"];
+                object value;
+                return this.TryGetValue("language", out value) ? (string)value : null;
 			}
 
 			public virtual int CompareTo(RDFDataset.Node o)
@@ -171,10 +174,13 @@ namespace JsonLD.Core
 				// of a single member @id whose value is set to value.
 				if (IsIRI() || IsBlankNode())
 				{
-					return new _Dictionary_161(this);
+                    JObject obj = new JObject();
+                    obj["@id"] = GetValue();
+					return obj;
 				}
 				// convert literal object to JSON-LD
-				JObject rval = new _Dictionary_170(this);
+				JObject rval = new JObject();
+                rval["@value"] = GetValue();
 				// add language
 				if (GetLanguage() != null)
 				{
@@ -264,30 +270,6 @@ namespace JsonLD.Core
 					}
 				}
 				return rval;
-			}
-
-			private sealed class _Dictionary_161 : JObject
-			{
-                Node _enclosing;
-				public _Dictionary_161(Node node)
-				{
-                    _enclosing = node;
-					{
-						this["@id"] = this._enclosing.GetValue();
-					}
-				}
-			}
-
-			private sealed class _Dictionary_170 : JObject
-			{
-                Node _enclosing;
-				public _Dictionary_170(Node node)
-				{
-                    _enclosing = node;
-					{
-						this["@value"] = this._enclosing.GetValue();
-					}
-				}
 			}
 		}
 
@@ -430,7 +412,7 @@ namespace JsonLD.Core
 		public RDFDataset() : base()
 		{
 			// private UniqueNamer namer;
-			this["@default"] = new JArray();
+			this["@default"] = new List<Quad>();
 			context = new Dictionary<string, string>();
 		}
 
@@ -559,9 +541,9 @@ namespace JsonLD.Core
 			}
 			if (!this.ContainsKey(graph))
 			{
-				this[graph] = new JArray();
+				this[graph] = new List<Quad>();
 			}
-			((JArray)this[graph]).Add(new RDFDataset.Quad(s, p, value, datatype
+			((IList<Quad>)this[graph]).Add(new RDFDataset.Quad(s, p, value, datatype
 				, language, graph));
 		}
 
@@ -599,9 +581,9 @@ namespace JsonLD.Core
 			}
 			if (!this.ContainsKey(graph))
 			{
-				this[graph] = new JArray();
+				this[graph] = new List<Quad>();
 			}
-			((JArray)this[graph]).Add(new RDFDataset.Quad(s, p, o, graph));
+			((IList<Quad>)this[graph]).Add(new RDFDataset.Quad(s, p, o, graph));
 		}
 
 		/// <summary>Creates an array of RDF triples for the given graph.</summary>
@@ -611,9 +593,9 @@ namespace JsonLD.Core
 			)
 		{
 			// 4.2)
-			JArray triples = new JArray();
+			IList<RDFDataset.Quad> triples = new List<RDFDataset.Quad>();
 			// 4.3)
-            JArray subjects = new JArray(graph.GetKeys());
+            IEnumerable<string> subjects = graph.GetKeys();
 			// Collections.sort(subjects);
 			foreach (string id in subjects)
 			{
@@ -757,8 +739,14 @@ namespace JsonLD.Core
 					{
 						if (value.Type == JTokenType.Float || datatype.SafeCompare(JSONLDConsts.XsdDouble))
 						{
+                            // Workaround for Newtonsoft.Json's refusal to cast a JTokenType.Integer to a double.
+                            if (value.Type == JTokenType.Integer)
+                            {
+                                int number = (int)value;
+                                value = new JValue((double)number);
+                            }
 							// canonical double representation
-							return new RDFDataset.Literal(string.Format("{0:0.0###############E0}", value), datatype.IsNull() ? JSONLDConsts.XsdDouble
+							return new RDFDataset.Literal(string.Format("{0:0.0###############E0}", (double)value), datatype.IsNull() ? JSONLDConsts.XsdDouble
 								 : (string)datatype, null);
 						}
 						else
@@ -810,15 +798,14 @@ namespace JsonLD.Core
 			}
 		}
 
-		public virtual JArray GraphNames()
+		public virtual IList<string> GraphNames()
 		{
-			// TODO Auto-generated method stub
-			return new JArray(this.GetKeys());
+			return new List<string>(Keys);
 		}
 
-		public virtual JArray GetQuads(string graphName)
+		public virtual IList<Quad> GetQuads(string graphName)
 		{
-			return (JArray)this[graphName];
+			return (IList<Quad>)this[graphName];
 		}
 	}
 }

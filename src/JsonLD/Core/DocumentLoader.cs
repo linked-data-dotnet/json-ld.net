@@ -1,8 +1,11 @@
 using System;
 using System.Collections;
 using System.IO;
+using System.Linq;
 using JsonLD.Core;
 using JsonLD.Util;
+using System.Net;
+using System.Collections.Generic;
 
 namespace JsonLD.Core
 {
@@ -11,21 +14,59 @@ namespace JsonLD.Core
         /// <exception cref="JsonLDNet.Core.JsonLdError"></exception>
         public virtual RemoteDocument LoadDocument(string url)
         {
+#if !PORTABLE
             RemoteDocument doc = new RemoteDocument(url, null);
             try
             {
-                doc.Document = JSONUtils.FromURL(new Uri(url));
+                HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
+                req.Accept = AcceptHeader;
+                WebResponse resp = req.GetResponse();
+                bool isJsonld = resp.Headers[HttpResponseHeader.ContentType] == "application/ld+json";
+                if (!resp.Headers[HttpResponseHeader.ContentType].Contains("json"))
+                {
+                    throw new JsonLdError(JsonLdError.Error.LoadingDocumentFailed, url);
+                }
+
+                string[] linkHeaders = resp.Headers.GetValues("Link");
+                if (!isJsonld && linkHeaders != null)
+                {
+                    linkHeaders = linkHeaders.SelectMany((h) => h.Split(",".ToCharArray()))
+                                             .Select(h => h.Trim()).ToArray();
+                    IEnumerable<string> linkedContexts = linkHeaders.Where(v => v.EndsWith("rel=\"http://www.w3.org/ns/json-ld#context\""));
+                    if (linkedContexts.Count() > 1)
+                    {
+                        throw new JsonLdError(JsonLdError.Error.MultipleContextLinkHeaders);
+                    }
+                    string header = linkedContexts.First();
+                    string linkedUrl = header.Substring(1, header.IndexOf(">") - 1);
+                    string resolvedUrl = URL.Resolve(url, linkedUrl);
+                    var remoteContext = this.LoadDocument(resolvedUrl);
+                    doc.contextUrl = remoteContext.documentUrl;
+                    doc.context = remoteContext.document;
+                }
+
+                Stream stream = resp.GetResponseStream();
+
+                doc.DocumentUrl = req.Address.ToString();
+                doc.Document = JSONUtils.FromInputStream(stream);
+            }
+            catch (JsonLdError)
+            {
+                throw;
             }
             catch (Exception)
             {
-                throw new JsonLdError(JsonLdError.Error.LoadingRemoteContextFailed, url);
+                throw new JsonLdError(JsonLdError.Error.LoadingDocumentFailed, url);
             }
             return doc;
+#else
+            throw new NotImplementedException();
+#endif
         }
 
-//        /// <summary>An HTTP Accept header that prefers JSONLD.</summary>
-//        /// <remarks>An HTTP Accept header that prefers JSONLD.</remarks>
-//        public const string AcceptHeader = "application/ld+json, application/json;q=0.9, application/javascript;q=0.5, text/javascript;q=0.5, text/plain;q=0.2, */*;q=0.1";
+        /// <summary>An HTTP Accept header that prefers JSONLD.</summary>
+        /// <remarks>An HTTP Accept header that prefers JSONLD.</remarks>
+        public const string AcceptHeader = "application/ld+json, application/json;q=0.9, application/javascript;q=0.5, text/javascript;q=0.5, text/plain;q=0.2, */*;q=0.1";
 
 //        private static volatile IHttpClient httpClient;
 

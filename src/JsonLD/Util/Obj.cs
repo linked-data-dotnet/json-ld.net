@@ -59,7 +59,7 @@ namespace JsonLD.Util
 		{
 			foreach (string key in keys)
 			{
-				map = ((IDictionary<string, object>)map)[key];
+				map = ((IDictionary<string, JToken>)map)[key];
 				if (map == null)
 				{
 					return false;

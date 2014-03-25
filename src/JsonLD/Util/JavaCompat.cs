@@ -4,10 +4,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+
+#if !PORTABLE
+using System.Security.Cryptography;
+#endif
 
 namespace JsonLD
 {
@@ -152,9 +154,31 @@ namespace JsonLD
             {
                 ((List<T>)list).Reverse();
             }
+            else if (list is JArray)
+            {
+                // TODO(sblom): This is really awful; figure out how to really sort a JArray in place.
+                JArray arr = (JArray)list;
+                // .Select(x => x) is a workaround for .NET 3.5's List constructor's failure to
+                // disbelieve Newtonsoft.Json when IJCollection.Count returns 0.
+                List<JToken> tmp = arr.Select(x => x).ToList();
+                tmp.Reverse();
+                arr.RemoveAll();
+                foreach (var t in tmp)
+                {
+                    arr.Add(t);
+                }
+            }
             else
             {
                 throw new InvalidOperationException("Attempted to .Reverse() an unsupported type.");
+            }
+        }
+
+        class JTokenStringCompare : Comparer<JToken>
+        {
+            public override int Compare(JToken x, JToken y)
+            {
+                return string.Compare((string)x, (string)y);
             }
         }
 
@@ -168,8 +192,10 @@ namespace JsonLD
             {
                 // TODO(sblom): This is really awful; figure out how to really sort a JArray in place.
                 JArray arr = (JArray)list;
-                var tmp = new List<JToken>((JArray)list);
-                tmp.Sort(Comparer<JToken>.Create((s,t) => string.Compare((string)s,(string)t)));
+                // .Select(x => x) is a workaround for .NET 3.5's List constructor's failure to
+                // disbelieve Newtonsoft.Json when IJCollection.Count returns 0.
+                List<JToken> tmp = arr.Select(x => x).ToList();
+                tmp.Sort(new JTokenStringCompare());
                 arr.RemoveAll();
                 foreach (var t in tmp)
                 {
@@ -193,7 +219,9 @@ namespace JsonLD
                 // TODO(sblom): This is really awful; figure out how to really sort a JArray in place.
                 JArray arr = (JArray)list;
                 IComparer<JToken> comparer = (IComparer<JToken>)cmp;
-                var tmp = new List<JToken>((JArray)list);
+                // .Select(x => x) is a workaround for .NET 3.5's List constructor's failure to
+                // disbelieve Newtonsoft.Json when IJCollection.Count returns 0.
+                var tmp = arr.Select(x => x).ToList();
                 tmp.Sort(comparer);
                 tmp.Select((t, i) => arr[i] = tmp[i]);
             }
@@ -251,7 +279,11 @@ namespace JsonLD
 
         public string GetPattern()
         {
+#if !PORTABLE
             return this.pattern;
+#else
+            throw new NotImplementedException();
+#endif
         }
 
         new public static bool Matches(string val, string rx)
@@ -299,7 +331,8 @@ namespace JsonLD
             {
                 this.Find();
             }
-            return (matchesEnumerator.Current as Match).Captures[i].Value;
+            var match = matchesEnumerator.Current as Match;
+            return match.Groups[i].Success ? match.Groups[i].Value : null;
         }
 
         public int End()
@@ -319,9 +352,11 @@ namespace JsonLD
         }
     }
 
+
+#if !PORTABLE
     internal class MessageDigest
     {
-        HMACSHA1 md;
+        SHA1 md;
         Stream stream;
 
         public static MessageDigest GetInstance(string algorithm)
@@ -332,7 +367,7 @@ namespace JsonLD
 
         public MessageDigest()
         {
-            md = new HMACSHA1();
+            md = new SHA1Managed();
             stream = new MemoryStream();
         }
 
@@ -347,4 +382,5 @@ namespace JsonLD
             return md.ComputeHash(stream);
         }
     }
+#endif
 }
