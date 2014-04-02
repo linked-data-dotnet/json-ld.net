@@ -1412,7 +1412,7 @@ namespace JsonLD.Core
 			JObject matches = FilterNodes(state, nodes, frame);
 			// get flags for current frame
 			bool embedOn = GetFrameFlag(frame, "@embed", state.embed);
-			bool explicicOn = GetFrameFlag(frame, "@explicit", state.@explicit);
+			bool explicitOn = GetFrameFlag(frame, "@explicit", state.@explicit);
 			// add matches to output
 			JArray ids = new JArray(matches.GetKeys());
 			ids.SortInPlace();
@@ -1491,7 +1491,7 @@ namespace JsonLD.Core
 						if (!frame.ContainsKey(prop))
 						{
 							// if explicit is off, embed values
-							if (!explicicOn)
+							if (!explicitOn)
 							{
 								EmbedValues(state, element, prop, output);
 							}
@@ -1502,8 +1502,7 @@ namespace JsonLD.Core
 						foreach (JToken item in value)
 						{
 							// recurse into list
-                            if ((item is JObject) && ((JObject)item).ContainsKey("@list"
-								))
+                            if ((item is JObject) && ((JObject)item).ContainsKey("@list"))
 							{
 								// add empty list
 								JObject list = new JObject();
@@ -1763,8 +1762,7 @@ namespace JsonLD.Core
 		{
             if (parent is JObject)
 			{
-				JArray prop = (JArray)((JObject)parent)[property
-					];
+				JArray prop = (JArray)((JObject)parent)[property];
 				if (prop == null)
 				{
 					prop = new JArray();
@@ -1797,8 +1795,22 @@ namespace JsonLD.Core
 			foreach (JToken o in objects)
 			{
                 var eachObj = o;
-				// handle subject reference
-				if (JsonLdUtils.IsNodeReference(eachObj))
+
+                if (eachObj is JObject && ((JObject)eachObj).ContainsKey("@list"))
+                {
+                    JObject list = new JObject { { "@list", new JArray() } };
+                    if (output is JArray)
+                    {
+                        ((JArray)output).Add(list);
+                    }
+                    else
+                    {
+                        output[property] = new JArray(list);
+                    }
+                    EmbedValues(state, (JObject)eachObj, "@list", list["@list"]);
+                }
+                // handle subject reference
+                else if (JsonLdUtils.IsNodeReference(eachObj))
 				{
 					string sid = (string)((JObject)eachObj)["@id"];
 					// embed full subject if isn't already embedded
