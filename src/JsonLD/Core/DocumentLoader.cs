@@ -60,7 +60,7 @@ namespace JsonLD.Core
             }
             return doc;
 #else
-            throw new NotImplementedException();
+            throw new PlatformNotSupportedException();
 #endif
         }
 

@@ -282,7 +282,7 @@ namespace JsonLD
 #if !PORTABLE
             return this.pattern;
 #else
-            throw new NotImplementedException();
+            throw new PlatformNotSupportedException();
 #endif
         }
 
