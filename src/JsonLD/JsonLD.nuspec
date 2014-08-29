@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>https://github.com/NuGet/json-ld.net/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/NuGet/json-ld.net</projectUrl>
+    <iconUrl>http://json-ld.org/images/json-ld-logo-64.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright Outercurve Foundation 2014</copyright>
+    <tags>json-ld jsonld json linked-data rdf semantic web</tags>
+  </metadata>
+</package>
