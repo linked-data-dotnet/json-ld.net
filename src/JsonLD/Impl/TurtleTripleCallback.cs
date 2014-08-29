@@ -42,7 +42,6 @@ namespace JsonLD.Impl
 				availableNamespaces[e.Value] = e.Key;
 			}
 			usedNamespaces = new HashSet<string>();
-			int tabs = 0;
 			JObject refs = new JObject();
 			JObject ttl = new JObject();
 			foreach (string graphName in dataset.Keys)

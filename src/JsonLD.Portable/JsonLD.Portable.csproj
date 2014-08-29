@@ -35,83 +35,86 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\src\JsonLD\Core\Context.cs">
+    <Compile Include="..\CommonAssemblyInfo.cs">
+      <Link>Properties\CommonAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\JsonLD\Core\Context.cs">
       <Link>Context.cs</Link>
     </Compile>
-    <Compile Include="..\src\JsonLD\Core\DocumentLoader.cs">
+    <Compile Include="..\JsonLD\Core\DocumentLoader.cs">
       <Link>DocumentLoader.cs</Link>
     </Compile>
-    <Compile Include="..\src\JsonLD\Core\IJSONLDTripleCallback.cs">
+    <Compile Include="..\JsonLD\Core\IJSONLDTripleCallback.cs">
       <Link>IJSONLDTripleCallback.cs</Link>
     </Compile>
-    <Compile Include="..\src\JsonLD\Core\IRDFParser.cs">
+    <Compile Include="..\JsonLD\Core\IRDFParser.cs">
       <Link>IRDFParser.cs</Link>
     </Compile>
-    <Compile Include="..\src\JsonLD\Core\JsonLdApi.cs">
+    <Compile Include="..\JsonLD\Core\JsonLdApi.cs">
       <Link>JsonLdApi.cs</Link>
     </Compile>
-    <Compile Include="..\src\JsonLD\Core\JSONLDConsts.cs">
+    <Compile Include="..\JsonLD\Core\JSONLDConsts.cs">
       <Link>JSONLDConsts.cs</Link>
     </Compile>
-    <Compile Include="..\src\JsonLD\Core\JsonLdError.cs">
+    <Compile Include="..\JsonLD\Core\JsonLdError.cs">
       <Link>JsonLdError.cs</Link>
     </Compile>
-    <Compile Include="..\src\JsonLD\Core\JsonLdOptions.cs">
+    <Compile Include="..\JsonLD\Core\JsonLdOptions.cs">
       <Link>JsonLdOptions.cs</Link>
     </Compile>
-    <Compile Include="..\src\JsonLD\Core\JsonLdProcessor.cs">
+    <Compile Include="..\JsonLD\Core\JsonLdProcessor.cs">
       <Link>JsonLdProcessor.cs</Link>
     </Compile>
-    <Compile Include="..\src\JsonLD\Core\JsonLdUtils.cs">
+    <Compile Include="..\JsonLD\Core\JsonLdUtils.cs">
       <Link>JsonLdUtils.cs</Link>
     </Compile>
-    <Compile Include="..\src\JsonLD\Core\NormalizeUtils.cs">
+    <Compile Include="..\JsonLD\Core\NormalizeUtils.cs">
       <Link>NormalizeUtils.cs</Link>
     </Compile>
-    <Compile Include="..\src\JsonLD\Core\RDFDataset.cs">
+    <Compile Include="..\JsonLD\Core\RDFDataset.cs">
       <Link>RDFDataset.cs</Link>
     </Compile>
-    <Compile Include="..\src\JsonLD\Core\RDFDatasetUtils.cs">
+    <Compile Include="..\JsonLD\Core\RDFDatasetUtils.cs">
       <Link>RDFDatasetUtils.cs</Link>
     </Compile>
-    <Compile Include="..\src\JsonLD\Core\Regex.cs">
+    <Compile Include="..\JsonLD\Core\Regex.cs">
       <Link>Regex.cs</Link>
     </Compile>
-    <Compile Include="..\src\JsonLD\Core\RemoteDocument.cs">
+    <Compile Include="..\JsonLD\Core\RemoteDocument.cs">
       <Link>RemoteDocument.cs</Link>
     </Compile>
-    <Compile Include="..\src\JsonLD\Core\UniqueNamer.cs">
+    <Compile Include="..\JsonLD\Core\UniqueNamer.cs">
       <Link>UniqueNamer.cs</Link>
     </Compile>
-    <Compile Include="..\src\JsonLD\Impl\NQuadRDFParser.cs">
+    <Compile Include="..\JsonLD\Impl\NQuadRDFParser.cs">
       <Link>NQuadRDFParser.cs</Link>
     </Compile>
-    <Compile Include="..\src\JsonLD\Impl\NQuadTripleCallback.cs">
+    <Compile Include="..\JsonLD\Impl\NQuadTripleCallback.cs">
       <Link>NQuadTripleCallback.cs</Link>
     </Compile>
-    <Compile Include="..\src\JsonLD\Impl\TurtleRDFParser.cs">
+    <Compile Include="..\JsonLD\Impl\TurtleRDFParser.cs">
       <Link>TurtleRDFParser.cs</Link>
     </Compile>
-    <Compile Include="..\src\JsonLD\Impl\TurtleTripleCallback.cs">
+    <Compile Include="..\JsonLD\Impl\TurtleTripleCallback.cs">
       <Link>TurtleTripleCallback.cs</Link>
     </Compile>
-    <Compile Include="..\src\JsonLD\Util\JavaCompat.cs">
+    <Compile Include="..\JsonLD\Util\JavaCompat.cs">
       <Link>JavaCompat.cs</Link>
     </Compile>
-    <Compile Include="..\src\JsonLD\Util\JSONUtils.cs">
+    <Compile Include="..\JsonLD\Util\JSONUtils.cs">
       <Link>JSONUtils.cs</Link>
     </Compile>
-    <Compile Include="..\src\JsonLD\Util\Obj.cs">
+    <Compile Include="..\JsonLD\Util\Obj.cs">
       <Link>Obj.cs</Link>
     </Compile>
-    <Compile Include="..\src\JsonLD\Util\URL.cs">
+    <Compile Include="..\JsonLD\Util\URL.cs">
       <Link>URL.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.6.0.1\lib\portable-net45+wp80+win8\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\packages\Newtonsoft.Json.6.0.1\lib\portable-net45+wp80+win8\Newtonsoft.Json.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
