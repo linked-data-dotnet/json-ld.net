@@ -5,7 +5,6 @@ using System.Text;
 
 using Newtonsoft.Json.Linq;
 using Xunit;
-using Xunit.Extensions;
 using System.IO;
 using Newtonsoft.Json;
 using JsonLD.Core;
@@ -15,7 +14,8 @@ namespace JsonLD.Test
 {
     public class ConformanceTests
     {
-        [Theory, ClassData(typeof(ConformanceCases))]
+        [Theory]
+        [MemberData("ConformanceData")]
         public void ConformanceTestPasses(string id, string testname, ConformanceCase conformanceCase)
         {
             JToken result = conformanceCase.run();
@@ -35,6 +35,11 @@ namespace JsonLD.Test
 
                 Assert.True(JsonLdUtils.DeepCompare(result, conformanceCase.output), "Returned JSON doesn't match expectations.");
             }
+        }
+
+        public static IEnumerable<object[]> ConformanceData()
+        {
+            return new ConformanceCases();
         }
     }
 
@@ -232,6 +237,7 @@ namespace JsonLD.Test
                 using (TextReader reader = new StreamReader(manifestStream))
                 using (JsonReader jreader = new Newtonsoft.Json.JsonTextReader(reader))
                 {
+                    jreader.DateParseHandling = DateParseHandling.None; // Do not parse dates!
                     return JToken.ReadFrom(jreader);
                 }
             }

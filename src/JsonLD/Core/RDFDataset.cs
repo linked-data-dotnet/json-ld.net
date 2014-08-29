@@ -732,7 +732,8 @@ namespace JsonLD.Core
 					// convert to XSD datatype
 					if (value.Type == JTokenType.Boolean)
 					{
-						return new RDFDataset.Literal(value.ToString(), datatype.IsNull() ? JSONLDConsts.XsdBoolean
+                        // Bug: JSON and RDF generally use "true" (lowercase) but ToString() returns "True" (title case), so we lowercase the result of ToString when rendering to JSON/RDF
+						return new RDFDataset.Literal(value.ToString().ToLowerInvariant(), datatype.IsNull() ? JSONLDConsts.XsdBoolean
 							 : (string)datatype, null);
 					}
 					else
