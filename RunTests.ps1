@@ -1,3 +1,5 @@
+nuget restore .\.nuget\packages.config -o packages
+
 $config = $env:CONFIGURATION
 if(!$config) {
     $config = "Debug"
