@@ -233,11 +233,10 @@ namespace JsonLD.Test
         {
             try {
                 if (j.Type == JTokenType.Null) return null;
-                using ( Stream manifestStream = File.OpenRead("W3C\\" + (string)j))
+                using (Stream manifestStream = File.OpenRead("W3C\\" + (string)j))
                 using (TextReader reader = new StreamReader(manifestStream))
                 using (JsonReader jreader = new Newtonsoft.Json.JsonTextReader(reader))
                 {
-                    jreader.DateParseHandling = DateParseHandling.None; // Do not parse dates!
                     return JToken.ReadFrom(jreader);
                 }
             }
