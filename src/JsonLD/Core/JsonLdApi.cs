@@ -1663,9 +1663,14 @@ namespace JsonLD.Core
             , string id)
         {
             // get embed keys as a separate array to enable deleting keys in map
-            foreach (string id_dep in embeds.Keys)
+            List<string> embedsKeys = new List<string>(embeds.Keys);
+            foreach (string id_dep in embedsKeys)
             {
-                JsonLdApi.EmbedNode e = embeds[id_dep];
+                JsonLdApi.EmbedNode e;
+                if (!embeds.TryGetValue(id_dep, out e))
+                {
+                    continue;
+                }
                 JToken p = !e.parent.IsNull() ? e.parent : new JObject();
                 if (!(p is JObject))
                 {
