@@ -747,7 +747,7 @@ namespace JsonLD.Core
                                 value = new JValue((double)number);
                             }
                             // canonical double representation
-                            return new RDFDataset.Literal(string.Format("{0:0.0###############E0}", (double)value), datatype.IsNull() ? JSONLDConsts.XsdDouble
+                            return new RDFDataset.Literal(string.Format(CultureInfo.InvariantCulture, "{0:0.0###############E0}", (double)value), datatype.IsNull() ? JSONLDConsts.XsdDouble
                                  : (string)datatype, null);
                         }
                         else
