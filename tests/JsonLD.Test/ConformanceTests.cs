@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 using Newtonsoft.Json.Linq;
 using Xunit;
@@ -18,6 +20,8 @@ namespace JsonLD.Test
         [Theory, ClassData(typeof(ConformanceCases))]
         public void ConformanceTestPasses(string id, string testname, ConformanceCase conformanceCase)
         {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("pl");
+
             JToken result = conformanceCase.run();
             if (conformanceCase.error != null)
             {
