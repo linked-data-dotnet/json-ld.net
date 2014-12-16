@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using JsonLD.Core;
 using Newtonsoft.Json.Linq;
 
@@ -220,7 +221,7 @@ namespace JsonLD.Core
                                 {
                                     try
                                     {
-                                        double d = double.Parse(value);
+                                        double d = double.Parse(value, CultureInfo.InvariantCulture);
                                         if (!double.IsNaN(d) && !double.IsInfinity(d))
                                         {
                                             if (JSONLDConsts.XsdInteger.Equals(type))
