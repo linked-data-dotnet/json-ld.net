@@ -567,7 +567,7 @@ namespace JsonLD.Core
 
             public static readonly Pattern Eoln = Pattern.Compile("(?:\r\n)|(?:\n)|(?:\r)");
 
-            public static readonly Pattern Empty = Pattern.Compile("^" + Wso + "$");
+            public static readonly Pattern EmptyOrComment = Pattern.Compile("^" + Wso + "(#.*)?$");
 
             public static readonly Pattern Subject = Pattern.Compile("(?:" + Iri + "|" + Bnode
                  + ")" + Ws);
@@ -606,7 +606,7 @@ namespace JsonLD.Core
             {
                 lineNumber++;
                 // skip empty lines
-                if (RDFDatasetUtils.Regex.Empty.Matcher(line).Matches())
+                if (RDFDatasetUtils.Regex.EmptyOrComment.Matcher(line).Matches())
                 {
                     continue;
                 }
