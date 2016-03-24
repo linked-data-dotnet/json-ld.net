@@ -582,7 +582,7 @@ namespace JsonLD.Core
                  + Bnode + ")" + Wso + "\\.))");
 
             public static readonly Pattern Quad = Pattern.Compile("^" + Wso + Subject + Property
-                 + Object + Graph + Wso + "$");
+                 + Object + Graph + Wso + "(#.*)?$");
             // define partial regexes
             // final public static Pattern IRI =
             // Pattern.compile("(?:<([^:]+:[^>]*)>)");
