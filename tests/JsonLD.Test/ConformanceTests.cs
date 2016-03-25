@@ -230,7 +230,10 @@ namespace JsonLD.Test
                 if (j.Type == JTokenType.Null) return null;
                 using ( Stream manifestStream = File.OpenRead("W3C\\" + (string)j))
                 using (TextReader reader = new StreamReader(manifestStream))
-                using (JsonReader jreader = new Newtonsoft.Json.JsonTextReader(reader))
+                using (JsonReader jreader = new Newtonsoft.Json.JsonTextReader(reader)
+                {
+                    DateParseHandling = DateParseHandling.None
+                })
                 {
                     return JToken.ReadFrom(jreader);
                 }
