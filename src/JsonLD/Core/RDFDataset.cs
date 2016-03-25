@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using JsonLD.Core;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace JsonLD.Core
@@ -733,7 +734,8 @@ namespace JsonLD.Core
                     // convert to XSD datatype
                     if (value.Type == JTokenType.Boolean)
                     {
-                        return new RDFDataset.Literal(value.ToString(), datatype.IsNull() ? JSONLDConsts.XsdBoolean
+                        var serializeObject = JsonConvert.SerializeObject(value, Formatting.None).Trim('"');
+                        return new RDFDataset.Literal(serializeObject, datatype.IsNull() ? JSONLDConsts.XsdBoolean
                              : (string)datatype, null);
                     }
                     else
@@ -766,7 +768,8 @@ namespace JsonLD.Core
                     }
                     else
                     {
-                        return new RDFDataset.Literal((string)value, datatype.IsNull() ? JSONLDConsts.XsdString
+                        var serializeObject = JsonConvert.SerializeObject(value, Formatting.None).Trim('"');
+                        return new RDFDataset.Literal(serializeObject, datatype.IsNull() ? JSONLDConsts.XsdString
                              : (string)datatype, null);
                     }
                 }
