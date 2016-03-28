@@ -561,8 +561,6 @@ namespace JsonLD.Core
             public static readonly Pattern Literal = Pattern.Compile("(?:" + Plain + "(?:" + 
                 Datatype + "|" + Language + ")?)");
 
-            public static readonly Pattern Ws = Pattern.Compile("[ \\t]+");
-
             public static readonly Pattern Wso = Pattern.Compile("[ \\t]*");
 
             public static readonly Pattern Eoln = Pattern.Compile("(?:\r\n)|(?:\n)|(?:\r)");
@@ -570,10 +568,9 @@ namespace JsonLD.Core
             public static readonly Pattern EmptyOrComment = Pattern.Compile("^" + Wso + "(#.*)?$");
 
             public static readonly Pattern Subject = Pattern.Compile("(?:" + Iri + "|" + Bnode
-                 + ")" + Ws);
+                 + ")" + Wso);
 
-            public static readonly Pattern Property = Pattern.Compile(Iri.GetPattern() + Ws.GetPattern
-                ());
+            public static readonly Pattern Property = Pattern.Compile(Iri.GetPattern() + Wso);
 
             public static readonly Pattern Object = Pattern.Compile("(?:" + Iri + "|" + Bnode
                  + "|" + Literal + ")" + Wso);
