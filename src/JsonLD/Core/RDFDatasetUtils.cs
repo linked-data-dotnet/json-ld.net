@@ -553,8 +553,9 @@ namespace JsonLD.Core
             public static readonly Pattern Bnode = Pattern.Compile("(_:(?:[A-Za-z0-9](?:[A-Za-z0-9\\-\\.]*[A-Za-z0-9])?))"
                 );
 
-            public static readonly Pattern Plain = Pattern.Compile("\"([^\"\\\\]*(?:\\\\.[^\"\\\\]*)*)\""
-                );
+            public static readonly Pattern ECHAR = Pattern.Compile("\\\\[tbnrf\"'\\\\]");
+
+            public static readonly Pattern Plain = Pattern.Compile("\"((?:[^\\x22\\x5C\\x0A\\x0D]|" + ECHAR + "|" + UCHAR + ")*)\"");
 
             public static readonly Pattern Datatype = Pattern.Compile("(?:\\^\\^" + Iri + ")"
                 );
