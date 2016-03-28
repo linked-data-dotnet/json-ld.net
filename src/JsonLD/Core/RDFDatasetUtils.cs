@@ -544,7 +544,11 @@ namespace JsonLD.Core
 
         private class Regex
         {
-            public static readonly Pattern Iri = Pattern.Compile("(?:<([^>]*)>)");
+            public static readonly Pattern HEX = Pattern.Compile("[0-9A-Fa-f]");
+
+            public static readonly Pattern UCHAR = Pattern.Compile("\\\\u" + HEX + "{4}|\\\\U" + HEX + "{8}");
+
+            public static readonly Pattern Iri = Pattern.Compile("(?:<((?:[^\\x00-\\x20<>\"{}|^`\\\\]|" + UCHAR + ")*)>)");
 
             public static readonly Pattern Bnode = Pattern.Compile("(_:(?:[A-Za-z0-9](?:[A-Za-z0-9\\-\\.]*[A-Za-z0-9])?))"
                 );
@@ -618,19 +622,25 @@ namespace JsonLD.Core
                 RDFDataset.Node subject;
                 if (match.Group(1) != null)
                 {
-                    subject = new RDFDataset.IRI(Unescape(match.Group(1)));
+                    var subjectIri = Unescape(match.Group(1));
+                    AssertAbsoluteIri(subjectIri);
+                    subject = new RDFDataset.IRI(subjectIri);
                 }
                 else
                 {
                     subject = new RDFDataset.BlankNode(Unescape(match.Group(2)));
                 }
                 // get predicate
-                RDFDataset.Node predicate = new RDFDataset.IRI(Unescape(match.Group(3)));
+                var predicateIri = Unescape(match.Group(3));
+                AssertAbsoluteIri(predicateIri);
+                RDFDataset.Node predicate = new RDFDataset.IRI(predicateIri);
                 // get object
                 RDFDataset.Node @object;
                 if (match.Group(4) != null)
                 {
-                    @object = new RDFDataset.IRI(Unescape(match.Group(4)));
+                    var objectIri = Unescape(match.Group(4));
+                    AssertAbsoluteIri(objectIri);
+                    @object = new RDFDataset.IRI(objectIri);
                 }
                 else
                 {
@@ -643,6 +653,7 @@ namespace JsonLD.Core
                         string language = Unescape(match.Group(8));
                         string datatype = match.Group(7) != null ? Unescape(match.Group(7)) : match.Group
                             (8) != null ? JSONLDConsts.RdfLangstring : JSONLDConsts.XsdString;
+                        AssertAbsoluteIri(datatype);
                         string unescaped = Unescape(match.Group(6));
                         @object = new RDFDataset.Literal(unescaped, datatype, language);
                     }
@@ -652,6 +663,7 @@ namespace JsonLD.Core
                 if (match.Group(9) != null)
                 {
                     name = Unescape(match.Group(9));
+                    AssertAbsoluteIri(name);
                 }
                 else
                 {
@@ -679,6 +691,14 @@ namespace JsonLD.Core
                 }
             }
             return dataset;
+        }
+
+        private static void AssertAbsoluteIri(string iri)
+        {
+            if (Uri.IsWellFormedUriString(Uri.EscapeUriString(iri), UriKind.Absolute) == false)
+            {
+                throw new JsonLdError(JsonLdError.Error.SyntaxError, "Invalid absolute URI <" + iri + ">");
+            }
         }
     }
 }
