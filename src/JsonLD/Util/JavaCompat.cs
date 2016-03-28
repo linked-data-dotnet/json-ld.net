@@ -67,7 +67,7 @@ namespace JsonLD
         {
             try
             {
-                return token.Value<T>().Equals(val);
+                return token == null ? val == null : token.Value<T>().Equals(val);
             }
             catch
             {
