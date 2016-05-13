@@ -75,7 +75,10 @@ namespace JsonLD.Core
                 foreach (var c in ((string) input))
                 {
                     if (c == ':')
+                    {
                         hasColon = true;
+                    }
+                    
                     if (!hasColon && (c == '{' || c == '['))
                     {
                         isIriString = false;
