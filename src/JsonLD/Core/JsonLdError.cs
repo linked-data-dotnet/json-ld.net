@@ -8,9 +8,8 @@ namespace JsonLD.Core
     //[System.Serializable]
     public class JsonLdError : Exception
     {
-        internal JObject details;
-
         private JsonLdError.Error type;
+        internal JObject details = null;
 
         public JsonLdError(JsonLdError.Error type, object detail) : base(detail == null ? 
             string.Empty : detail.ToString())
@@ -170,7 +169,7 @@ namespace JsonLD.Core
             return this;
         }
 
-        public virtual JsonLdError.Error GetType()
+        public new virtual JsonLdError.Error GetType()
         {
             return type;
         }

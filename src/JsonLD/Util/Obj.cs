@@ -85,7 +85,7 @@ namespace JsonLD.Util
         /// True if the objects were both null. True if both objects were not
         /// null and v1.equals(v2). False otherwise.
         /// </returns>
-        public static bool Equals(object v1, object v2)
+        public new static bool Equals(object v1, object v2)
         {
             return v1 == null ? v2 == null : v1.Equals(v2);
         }

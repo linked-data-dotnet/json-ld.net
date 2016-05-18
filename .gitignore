@@ -8,6 +8,14 @@
 
 # Build results
 
+# Project K
+project.lock.json
+artifacts/
+
+# VSCode
+**/.vs/
+**/.vscode/
+
 [Dd]ebug/
 [Rr]elease/
 x64/
