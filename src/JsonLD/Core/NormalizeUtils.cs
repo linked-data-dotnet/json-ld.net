@@ -245,10 +245,12 @@ namespace JsonLD.Core
         private static NormalizeUtils.HashResult HashPaths(string id, IDictionary<string, IDictionary<string, object>> bnodes, UniqueNamer namer, UniqueNamer pathNamer)
         {
 #if !PORTABLE
+            MessageDigest md = null;
+
             try
             {
                 // create SHA-1 digest
-                MessageDigest md = MessageDigest.GetInstance("SHA-1");
+                md = MessageDigest.GetInstance("SHA-1");
                 JObject groups = new JObject();
                 IList<string> groupHashes;
                 IList<RDFDataset.Quad> quads = (IList<RDFDataset.Quad>)bnodes[id]["quads"];
@@ -424,22 +426,24 @@ namespace JsonLD.Core
                             }
                         }
                         // hash direction, property, end bnode name/hash
-                        MessageDigest md1 = MessageDigest.GetInstance("SHA-1");
-                        // String toHash = direction + (String) ((Map<String,
-                        // Object>) quad.get("predicate")).get("value") + name;
-                        md1.Update(JsonLD.JavaCompat.GetBytesForString(direction, "UTF-8"));
-                        md1.Update(JsonLD.JavaCompat.GetBytesForString(((string)((IDictionary<string,object>)quad["predicate"])["value"]), "UTF-8"));
-                        md1.Update(JsonLD.JavaCompat.GetBytesForString(name, "UTF-8"));
-                        string groupHash = EncodeHex(md1.Digest());
-                        if (groups.ContainsKey(groupHash))
+                        using (MessageDigest md1 = MessageDigest.GetInstance("SHA-1"))
                         {
-                            ((JArray)groups[groupHash]).Add(bnode_2);
-                        }
-                        else
-                        {
-                            JArray tmp = new JArray();
-                            tmp.Add(bnode_2);
-                            groups[groupHash] = tmp;
+                            // String toHash = direction + (String) ((Map<String,
+                            // Object>) quad.get("predicate")).get("value") + name;
+                            md1.Update(JsonLD.JavaCompat.GetBytesForString(direction, "UTF-8"));
+                            md1.Update(JsonLD.JavaCompat.GetBytesForString(((string)((IDictionary<string, object>)quad["predicate"])["value"]), "UTF-8"));
+                            md1.Update(JsonLD.JavaCompat.GetBytesForString(name, "UTF-8"));
+                            string groupHash = EncodeHex(md1.Digest());
+                            if (groups.ContainsKey(groupHash))
+                            {
+                                ((JArray)groups[groupHash]).Add(bnode_2);
+                            }
+                            else
+                            {
+                                JArray tmp = new JArray();
+                                tmp.Add(bnode_2);
+                                groups[groupHash] = tmp;
+                            }
                         }
                     }
                 }
@@ -450,6 +454,10 @@ namespace JsonLD.Core
                 // available?
                 // look into this further
                 throw;
+            }
+            finally
+            {
+                md?.Dispose();
             }
 #else
             throw new PlatformNotSupportedException();
@@ -502,10 +510,6 @@ namespace JsonLD.Core
                 }
                 return EncodeHex(md.Digest());
             }
-            //catch (NoSuchAlgorithmException e)
-            //{
-            //    throw new Exception(e);
-            //}
             catch
             {
                 throw;

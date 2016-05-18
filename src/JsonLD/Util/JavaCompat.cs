@@ -257,9 +257,11 @@ namespace JsonLD
 
     internal class Pattern: Regex
     {
+        private string _rx;
+
         public Pattern(string rx): base(rx)
         {
-
+            _rx = rx;
         }
 
         static public Pattern Compile(string rx)
@@ -279,8 +281,10 @@ namespace JsonLD
 
         public string GetPattern()
         {
-#if !PORTABLE
+#if !PORTABLE && !IS_CORECLR
             return this.pattern;
+#elif !PORTABLE
+            return _rx;
 #else
             throw new PlatformNotSupportedException();
 #endif
@@ -354,7 +358,7 @@ namespace JsonLD
 
 
 #if !PORTABLE
-    internal class MessageDigest
+    internal class MessageDigest : IDisposable
     {
         SHA1 md;
         Stream stream;
@@ -367,7 +371,7 @@ namespace JsonLD
 
         public MessageDigest()
         {
-            md = new SHA1Managed();
+            md = SHA1.Create();
             stream = new MemoryStream();
         }
 
@@ -380,6 +384,12 @@ namespace JsonLD
         {
             stream.Seek(0, SeekOrigin.Begin);
             return md.ComputeHash(stream);
+        }
+
+        public void Dispose()
+        {
+            stream.Dispose();
+            md.Dispose();
         }
     }
 #endif

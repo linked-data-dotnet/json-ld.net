@@ -52,14 +52,17 @@ namespace JsonLD.Test
     {
         string[] manifests = new[] {
             "compact-manifest.jsonld",
-            "error-manifest.jsonld",
             "expand-manifest.jsonld",
             "flatten-manifest.jsonld",
             "frame-manifest.jsonld",
-            "remote-doc-manifest.jsonld",
             "toRdf-manifest.jsonld",
             "fromRdf-manifest.jsonld",
             "normalize-manifest.jsonld",
+// Test tests are not supported on CORE CLR
+#if !PORTABLE && !IS_CORECLR
+            "error-manifest.jsonld",
+            "remote-doc-manifest.jsonld",
+#endif
         };
 
         public ConformanceCases()

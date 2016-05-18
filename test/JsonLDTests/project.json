@@ -1,0 +1,38 @@
+﻿{
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "copyToOutput": [
+      "NQuads/**",
+      "W3C/**"
+    ]
+  },
+  "dependencies": {
+    "Newtonsoft.Json": "7.0.1",
+    "xunit": "2.1.0",
+    "JsonLD": {
+      "target": "project"
+    }
+  },
+  "testRunner": "xunit",
+  "frameworks": {
+    "netcoreapp1.0": {
+      "imports": [ "dnxcore50", "portable-net45+win8" ],
+      "buildOptions": { "define": [ "IS_CORECLR" ] },
+      "dependencies": {
+        "dotnet-test-xunit": "1.0.0-rc2-build10015",
+        "Microsoft.NETCore.App": {
+          "version": "1.0.0-rc2-3002702",
+          "type": "platform"
+        }
+      }
+    },
+    "net46": {
+      "frameworkAssemblies": {
+        "System.Runtime": "",
+        "System.Threading.Tasks": ""
+      },
+      "dependencies": {
+      }
+    }
+  }
+}

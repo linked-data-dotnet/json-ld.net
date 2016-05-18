@@ -14,7 +14,7 @@ namespace JsonLD.Core
         /// <exception cref="JsonLDNet.Core.JsonLdError"></exception>
         public virtual RemoteDocument LoadDocument(string url)
         {
-#if !PORTABLE
+#if !PORTABLE && !IS_CORECLR
             RemoteDocument doc = new RemoteDocument(url, null);
             try
             {
