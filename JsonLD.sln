@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "JsonLD", "src\JsonLD\JsonLD.xproj", "{E1AB2A29-D1E4-45A1-9076-8255916F5693}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "json-ld.net", "src\json-ld.net\json-ld.net.xproj", "{E1AB2A29-D1E4-45A1-9076-8255916F5693}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "JsonLDTests", "test\JsonLDTests\JsonLDTests.xproj", "{05CBE0E2-FBD2-40D1-BD9A-D30BD7ACF219}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "json-ld.net.tests", "test\json-ld.net.tests\json-ld.net.tests.xproj", "{05CBE0E2-FBD2-40D1-BD9A-D30BD7ACF219}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

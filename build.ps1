@@ -10,6 +10,8 @@ $CLIRoot = Join-Path $RepoRoot 'cli'
 $DotNetExe = Join-Path $CLIRoot 'dotnet.exe'
 $NuGetExe = Join-Path $RepoRoot '.nuget\nuget.exe'
 
+rm -r $ArtifactsDir -Force | Out-Null
+
 New-Item -ItemType Directory -Force -Path $CLIRoot | Out-Null
 New-Item -ItemType Directory -Force -Path $ArtifactsDir | Out-Null
 
@@ -45,7 +47,7 @@ if (-not (Test-Path $DotNetExe)) {
 & $DotNetExe restore $RepoRoot
 
 # Run tests
-$TestDir = Join-Path $RepoRoot test\JsonLDTests
+$TestDir = Join-Path $RepoRoot test\json-ld.net.tests
 pushd $TestDir
 
 # core clr
@@ -62,10 +64,10 @@ if (-not $?) {
 
 $xunit = Join-Path $RepoRoot packages\xunit.runner.console.2.1.0\tools\xunit.console.x86.exe
 
-& $xunit bin\release\net46\win7-x64\JsonLDTests.dll -html (Join-Path $ArtifactsDir "testresults.html")
+& $xunit bin\release\net46\win7-x64\json-ld.net.tests.dll -html (Join-Path $ArtifactsDir "testresults.html")
 
 if (-not $?) {
-    Error-Log "Tests failed!!!"
+    Write-Host "Tests failed!!!"
     Exit 1
 }
 
@@ -75,6 +77,6 @@ popd
 
 Write-Host "Creating nupkg"
 
-& $DotNetExe pack (Join-Path $RepoRoot src\JsonLD) --configuration $Configuration --output $ArtifactsDir
+& $DotNetExe pack (Join-Path $RepoRoot src\json-ld.net) --configuration $Configuration --output $ArtifactsDir
 
 Write-Host "Success!"
