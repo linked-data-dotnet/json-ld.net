@@ -8,9 +8,10 @@
 
 # Build results
 
-# Project K
 project.lock.json
 artifacts/
+.nuget/nuget.exe
+cli/
 
 # VSCode
 **/.vs/
