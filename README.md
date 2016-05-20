@@ -1,20 +1,30 @@
-json-ld.net (PREVIEW)
+json-ld.net
 ==========
 
-A JSON-LD processor for .NET. This is a preview release.
+A JSON-LD processor for .NET. 
 
-Notes
+v1.0.5 is available on NuGet.org at https://www.nuget.org/packages/json-ld.net/
+
+#### Supported frameworks
+
+* NET 4.0
+* NETStandard 1.3
+* Portable NET 4.5, Windows 8
+
+Contributing
 =====
-This is the very first mostly working build of json-ld.net.
 
-It began life as a [Sharpen][sharpen]-based auto-port from [jsonld-java][jsonld-java].
+Pull requests for json-ld.net are welcome, to get started install the latest tools for .NET Core
 
-A few known tasks remain before 1.0:
+* https://dot.net
+* https://www.microsoft.com/net/core
 
-* W3C conformance test runner/results.
-* RemoteDocument fetching is disabled (for remote contexts, e.g.).
-* Quite a few minor bugs remain to be fixed.
+build.ps1 will create a nupkg and run tests for both .NET desktop and .NET Core.
 
+
+Origin
+=====
+This project began life as a [Sharpen][sharpen]-based auto-port from [jsonld-java][jsonld-java].
 
   [sharpen]: http://community.versant.com/Projects/html/projectspaces/db4o_product_design/sharpen.html
   [jsonld-java]: https://github.com/jsonld-java/jsonld-java
