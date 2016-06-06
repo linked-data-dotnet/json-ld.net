@@ -30,7 +30,7 @@ $env:DOTNET_INSTALL_DIR=$NuGetClientRoot
 
 New-Item -ItemType Directory -Force -Path $CLIRoot
 
-wget https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0/scripts/obtain/install.ps1 -OutFile cli/install.ps1
+wget https://raw.githubusercontent.com/dotnet/cli/5a77b03f36904670faa36c0d294237ec8841e8f1/scripts/obtain/dotnet-install.ps1 -OutFile cli/install.ps1
 
 & cli/install.ps1 -Channel beta -i $CLIRoot -Version 1.0.0-preview1-002702
 
