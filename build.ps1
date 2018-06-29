@@ -10,7 +10,10 @@ $CLIRoot = Join-Path $RepoRoot 'cli'
 $DotNetExe = Join-Path $CLIRoot 'dotnet.exe'
 $NuGetExe = Join-Path $RepoRoot '.nuget\nuget.exe'
 
-rm -r $ArtifactsDir -Force | Out-Null
+if (Test-Path $ArtifactsDir)
+{
+    rm -r $ArtifactsDir -Force | Out-Null
+}
 
 New-Item -ItemType Directory -Force -Path $CLIRoot | Out-Null
 New-Item -ItemType Directory -Force -Path $ArtifactsDir | Out-Null
