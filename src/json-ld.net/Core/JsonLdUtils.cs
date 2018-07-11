@@ -148,8 +148,12 @@ namespace JsonLD.Core
             return false;
         }
 
-        internal static void MergeValue(JObject obj, string key, JToken
-             value)
+        internal static void MergeValue(JObject obj, string key, JToken value)
+        {
+            MergeValue(obj, key, value, skipSetContainsCheck: false);
+        }
+
+        internal static void MergeValue(JObject obj, string key, JToken value, bool skipSetContainsCheck)
         {
             if (obj == null)
             {
@@ -161,8 +165,10 @@ namespace JsonLD.Core
                 values = new JArray();
                 obj[key] = values;
             }
-            if ("@list".Equals(key) || (value is JObject && ((IDictionary<string, JToken>
-                )value).ContainsKey("@list")) || !DeepContains(values, (JToken)value))
+            if (skipSetContainsCheck ||
+                "@list".Equals(key) ||
+                (value is JObject && ((IDictionary<string, JToken>)value).ContainsKey("@list")) ||
+                !DeepContains(values, (JToken)value))
             {
                 values.Add(value);
             }
