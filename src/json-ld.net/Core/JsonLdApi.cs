@@ -1073,13 +1073,33 @@ namespace JsonLD.Core
         internal virtual void GenerateNodeMap(JToken element, JObject
              nodeMap, string activeGraph, JToken activeSubject, string activeProperty, JObject list)
         {
+            GenerateNodeMap(element, nodeMap, activeGraph, activeSubject, activeProperty, list, skipSetContainsCheck: false);
+        }
+
+        private void GenerateNodeMap(JToken element, JObject nodeMap,
+            string activeGraph, JToken activeSubject, string activeProperty, JObject list, bool skipSetContainsCheck)
+        {
             // 1)
             if (element is JArray)
             {
+                JsonLdSet set = null;
+
+                if (list == null)
+                {
+                    set = new JsonLdSet();
+                }
+
                 // 1.1)
                 foreach (JToken item in (JArray)element)
                 {
-                    GenerateNodeMap(item, nodeMap, activeGraph, activeSubject, activeProperty, list);
+                    skipSetContainsCheck = false;
+
+                    if (set != null)
+                    {
+                        skipSetContainsCheck = set.Add(item);
+                    }
+
+                    GenerateNodeMap(item, nodeMap, activeGraph, activeSubject, activeProperty, list, skipSetContainsCheck);
                 }
                 return;
             }
@@ -1204,7 +1224,7 @@ namespace JsonLD.Core
                             if (list == null)
                             {
                                 // 6.6.2.1+2)
-                                JsonLdUtils.MergeValue(node, activeProperty, reference);
+                                JsonLdUtils.MergeValue(node, activeProperty, reference, skipSetContainsCheck);
                             }
                             else
                             {
