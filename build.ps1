@@ -10,6 +10,27 @@ $CLIRoot = Join-Path $RepoRoot 'cli'
 $DotNetExe = Join-Path $CLIRoot 'dotnet.exe'
 $NuGetExe = Join-Path $RepoRoot '.nuget\nuget.exe'
 
+Function Error-Log {
+    param(
+        [string]$ErrorMessage,
+        [switch]$Fatal)
+    if (-not $Fatal) {
+        Write-Error "[$(Trace-Time)]`t$ErrorMessage"
+    }
+    else {
+        Write-Error "[$(Trace-Time)]`t[FATAL] $ErrorMessage" -ErrorAction Stop
+    }
+}
+
+Function Trace-Time() {
+    $currentTime = Get-Date
+    $lastTime = $Global:LastTraceTime
+    $Global:LastTraceTime = $currentTime
+    "{0:HH:mm:ss} +{1:F0}" -f $currentTime, ($currentTime - $lastTime).TotalSeconds
+}
+
+$Global:LastTraceTime = Get-Date
+
 rm -r $ArtifactsDir -Force | Out-Null
 
 New-Item -ItemType Directory -Force -Path $CLIRoot | Out-Null
@@ -55,6 +76,7 @@ pushd $TestDir
 & $DotNetExe test --configuration $Configuration -f netcoreapp1.0
 
 if (-not $?) {
+    popd
     Error-Log "Tests failed!!!"
     Exit 1
 }
@@ -62,11 +84,12 @@ if (-not $?) {
 # net46
 & $DotNetExe build --configuration $Configuration -f net46 --runtime win7-x64
 
-$xunit = Join-Path $RepoRoot packages\xunit.runner.console.2.1.0\tools\xunit.console.x86.exe
+$xunit = Join-Path $RepoRoot packages\xunit.runner.console.2.1.0\tools\xunit.console.exe
 
-& $xunit bin\release\net46\win7-x64\json-ld.net.tests.dll -html (Join-Path $ArtifactsDir "testresults.html")
+& $xunit bin\$Configuration\net46\win7-x64\json-ld.net.tests.dll -html (Join-Path $ArtifactsDir "testresults.html")
 
 if (-not $?) {
+    popd
     Write-Host "Tests failed!!!"
     Exit 1
 }
