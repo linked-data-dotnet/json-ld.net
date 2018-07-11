@@ -88,14 +88,16 @@ namespace JsonLD.Core
                         {
                             JArray l1 = (JArray)v1;
                             JArray l2 = (JArray)v2;
-                            if (l1.Count != l2.Count)
+                            var l1Count = l1.Count;
+                            var l2Count = l2.Count;
+                            if (l1Count != l2Count)
                             {
                                 return false;
                             }
                             // used to mark members of l2 that we have already matched to avoid
                             // matching the same item twice for lists that have duplicates
-                            bool[] alreadyMatched = new bool[l2.Count];
-                            for (int i = 0; i < l1.Count; i++)
+                            bool[] alreadyMatched = new bool[l2Count];
+                            for (int i = 0; i < l1Count; i++)
                             {
                                 JToken o1 = l1[i];
                                 bool gotmatch = false;
@@ -105,7 +107,7 @@ namespace JsonLD.Core
                                 }
                                 else
                                 {
-                                    for (int j = 0; j < l2.Count; j++)
+                                    for (int j = 0; j < l2Count; j++)
                                     {
                                         if (!alreadyMatched[j] && DeepCompare(o1, l2[j], listOrderMatters))
                                         {
