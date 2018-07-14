@@ -12,7 +12,6 @@
     "iconUrl": "http://json-ld.org/images/json-ld-logo-64.png",
     "projectUrl": "https://github.com/linked-data-dotnet/json-ld.net/",
     "owners": [
-      "NuGet",
       "linked-data-dotnet"
     ]
   },
