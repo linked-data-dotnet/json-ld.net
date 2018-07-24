@@ -1,17 +1,18 @@
 ﻿{
-  "version": "1.0.5",
+  "version": "1.0.6",
   "authors": [
-    "NuGet"
+    "NuGet",
+    "linked-data-dotnet"
   ],
   "description": "JSON-LD processor for .NET\n\nImplements the W3C JSON-LD 1.0 standard.",
 
   "packOptions": {
-    "licenseUrl": "https://raw.github.com/NuGet/json-ld.net/master/LICENSE",
+    "licenseUrl": "https://raw.githubusercontent.com/linked-data-dotnet/json-ld.net/master/LICENSE",
     "tags": [ "json-ld", "jsonld", "json", "linked-data", "rdf", "semantic", "web" ],
     "iconUrl": "http://json-ld.org/images/json-ld-logo-64.png",
-    "projectUrl": "https://github.com/NuGet/json-ld.net/",
+    "projectUrl": "https://github.com/linked-data-dotnet/json-ld.net/",
     "owners": [
-      "NuGet"
+      "linked-data-dotnet"
     ]
   },
 
