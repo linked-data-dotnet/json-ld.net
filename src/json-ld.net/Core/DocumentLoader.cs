@@ -55,10 +55,8 @@ namespace JsonLD.Core
             {
                 throw;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine("Loading failed:" + url);
-                Console.WriteLine(ex.ToString());
                 throw new JsonLdError(JsonLdError.Error.LoadingDocumentFailed, url);
             }
             return doc;

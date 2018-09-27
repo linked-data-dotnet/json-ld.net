@@ -25,10 +25,6 @@ namespace JsonLD.Test
             }
             else
             {
-                if (id == "remote-doc-manifest.jsonld#t0005")
-                {
-                    Console.WriteLine(string.Empty);
-                }
                 if (!JsonLdUtils.DeepCompare(result, conformanceCase.output))
                 {
                     #if DEBUG
