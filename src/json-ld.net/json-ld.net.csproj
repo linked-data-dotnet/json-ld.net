@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>JSON-LD processor for .NET
+
+Implements the W3C JSON-LD 1.0 standard.</Description>
+    <VersionPrefix>1.0.6</VersionPrefix>
+    <Authors>NuGet;linked-data-dotnet</Authors>
+    <TargetFrameworks>net40-client;portable45-net45+win8;netstandard1.3;netstandard2.0</TargetFrameworks>
+    <AssemblyName>json-ld.net</AssemblyName>
+    <PackageId>json-ld.net</PackageId>
+    <PackageTags>json-ld;jsonld;json;linked-data;rdf;semantic;web</PackageTags>
+    <PackageIconUrl>http://json-ld.org/images/json-ld-logo-64.png</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/linked-data-dotnet/json-ld.net/</PackageProjectUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/linked-data-dotnet/json-ld.net/master/LICENSE</PackageLicenseUrl>
+    <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.3' ">$(PackageTargetFallback);dnxcore50;portable-net45+win8</PackageTargetFallback>
+    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.3' ">1.6.0</NetStandardImplicitPackageVersion>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net40-client' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'portable45-net45+win8' ">
+    <DefineConstants>$(DefineConstants);PORTABLE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
+    <DefineConstants>$(DefineConstants);IS_CORECLR</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
+    <PackageReference Include="System.Dynamic.Runtime" Version="4.0.11" />
+    <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.2.0" />
+    <PackageReference Include="System.Text.RegularExpressions" Version="4.1.0" />
+  </ItemGroup>
+
+</Project>
