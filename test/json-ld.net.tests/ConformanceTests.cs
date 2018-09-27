@@ -25,15 +25,24 @@ namespace JsonLD.Test
             }
             else
             {
-                Console.WriteLine(id);
-                Console.WriteLine("Actual:");
-                Console.Write(JSONUtils.ToPrettyString(result));
-                Console.WriteLine("--------------------------");
-                Console.WriteLine("Expected:");
-                Console.Write(JSONUtils.ToPrettyString(conformanceCase.output));
-                Console.WriteLine("--------------------------");
+                if (id == "remote-doc-manifest.jsonld#t0005")
+                {
+                    Console.WriteLine(string.Empty);
+                }
+                if (!JsonLdUtils.DeepCompare(result, conformanceCase.output))
+                {
+                    #if DEBUG
+                    Console.WriteLine(id);
+                    Console.WriteLine("Actual:");
+                    Console.Write(JSONUtils.ToPrettyString(result));
+                    Console.WriteLine("--------------------------");
+                    Console.WriteLine("Expected:");
+                    Console.Write(JSONUtils.ToPrettyString(conformanceCase.output));
+                    Console.WriteLine("--------------------------");
+                    #endif
 
-                Assert.True(JsonLdUtils.DeepCompare(result, conformanceCase.output), "Returned JSON doesn't match expectations.");
+                    Assert.True(false, "Returned JSON doesn't match expectations.");
+                }
             }
         }
     }
@@ -99,11 +108,11 @@ namespace JsonLD.Test
                     {
                         if (testType.Any((s) => new List<string> {"jld:ToRDFTest", "jld:NormalizeTest"}.Contains((string)s)))
                         {
-                            newCase.output = File.ReadAllText("W3C\\" + (string)testcase["expect"]);
+                            newCase.output = File.ReadAllText(Path.Combine("W3C", (string)testcase["expect"]));
                         }
                         else if (testType.Any((s) => (string)s == "jld:FromRDFTest"))
                         {
-                            newCase.input = File.ReadAllText("W3C\\" + (string)testcase["input"]);
+                            newCase.input = File.ReadAllText(Path.Combine("W3C", (string)testcase["input"]));
                             newCase.output = GetJson(testcase["expect"]);
                         }
                         else
@@ -194,7 +203,7 @@ namespace JsonLD.Test
                         Func<JToken> innerRun = run;
                         run = () =>
                         {
-                            var remoteDoc = options.documentLoader.LoadDocument("http://json-ld.org/test-suite/tests/" + (string)testcase["input"]);
+                            var remoteDoc = options.documentLoader.LoadDocument("https://json-ld.org/test-suite/tests/" + (string)testcase["input"]);
                             newCase.input = remoteDoc.Document;
                             options.SetBase(remoteDoc.DocumentUrl);
                             options.SetExpandContext((JObject)remoteDoc.Context);
@@ -229,9 +238,10 @@ namespace JsonLD.Test
 
         private JToken GetJson(JToken j)
         {
-            try {
-                if (j.Type == JTokenType.Null) return null;
-                using ( Stream manifestStream = File.OpenRead("W3C\\" + (string)j))
+            try
+            {
+                if (j == null || j.Type == JTokenType.Null) return null;
+                using (Stream manifestStream = File.OpenRead(Path.Combine("W3C", (string)j)))
                 using (TextReader reader = new StreamReader(manifestStream))
                 using (JsonReader jreader = new Newtonsoft.Json.JsonTextReader(reader)
                 {
@@ -241,8 +251,8 @@ namespace JsonLD.Test
                     return JToken.ReadFrom(jreader);
                 }
             }
-            catch
-            {
+            catch (Exception e)
+            { // TODO: this should not be here, figure out why this is needed or catch specific exception.
                 return null;
             }
         }

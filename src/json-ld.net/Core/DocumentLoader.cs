@@ -19,6 +19,7 @@ namespace JsonLD.Core
             try
             {
                 HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
+                req.AllowAutoRedirect = false;
                 req.Accept = AcceptHeader;
                 WebResponse resp = req.GetResponse();
                 bool isJsonld = resp.Headers[HttpResponseHeader.ContentType] == "application/ld+json";
@@ -54,8 +55,10 @@ namespace JsonLD.Core
             {
                 throw;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine("Loading failed:" + url);
+                Console.WriteLine(ex.ToString());
                 throw new JsonLdError(JsonLdError.Error.LoadingDocumentFailed, url);
             }
             return doc;

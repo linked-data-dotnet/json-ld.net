@@ -13,8 +13,8 @@ namespace JsonLD.Test
 {
     public class NQuadsParserTests
     {
-        private const string BasePath = @"NQuads\";
-        private const string ManifestPath = BasePath + "manifest.ttl";
+        private const string BasePath = @"NQuads";
+        private static readonly string ManifestPath = Path.Combine(BasePath, "manifest.ttl");
         private static readonly JObject ManifestFrame = JObject.Parse(@"
 {
     '@context': {
@@ -39,7 +39,7 @@ namespace JsonLD.Test
         public void PositiveParseTest(string path)
         {
             // given
-            string quads = File.ReadAllText(BasePath + path);
+            string quads = File.ReadAllText(Path.Combine(BasePath, path));
 
             // when
             _parser.Parse(quads);
@@ -50,7 +50,7 @@ namespace JsonLD.Test
         public void NegativeParseTest(string path)
         {
             // given
-            string quads = File.ReadAllText(BasePath + path);
+            string quads = File.ReadAllText(Path.Combine(BasePath, path));
 
             // when
             Assert.Throws<JsonLdError>(() => _parser.Parse(quads));
@@ -61,7 +61,7 @@ namespace JsonLD.Test
         {
             // given
             const string path = "rdf11blanknodes.nq";
-            string quads = File.ReadAllText(BasePath + path);
+            string quads = File.ReadAllText(Path.Combine(BasePath, path));
 
             // when
             _parser.Parse(quads);
