@@ -19,7 +19,6 @@ namespace JsonLD.Core
             try
             {
                 HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
-                req.AllowAutoRedirect = false;
                 req.Accept = AcceptHeader;
                 WebResponse resp = req.GetResponse();
                 bool isJsonld = resp.Headers[HttpResponseHeader.ContentType] == "application/ld+json";
