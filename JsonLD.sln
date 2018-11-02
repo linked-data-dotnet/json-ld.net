@@ -1,11 +1,20 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2026
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "json-ld.net", "src\json-ld.net\json-ld.net.xproj", "{E1AB2A29-D1E4-45A1-9076-8255916F5693}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "json-ld.net", "src\json-ld.net\json-ld.net.csproj", "{E1AB2A29-D1E4-45A1-9076-8255916F5693}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "json-ld.net.tests", "test\json-ld.net.tests\json-ld.net.tests.xproj", "{05CBE0E2-FBD2-40D1-BD9A-D30BD7ACF219}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "json-ld.net.tests", "test\json-ld.net.tests\json-ld.net.tests.csproj", "{05CBE0E2-FBD2-40D1-BD9A-D30BD7ACF219}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8D83EC18-10BB-4C6E-A34A-AC183AD6D814}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{8010CF28-BCB3-4DC2-901F-3118B2AAD142}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{4B8ED350-355A-4D30-9F63-B13FBFDBD9E8}"
+ProjectSection(SolutionItems) = preProject
+	.gitignore = .gitignore
+EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,5 +33,12 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F10834B6-ACA3-4C86-892B-368D0B68ED83}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E1AB2A29-D1E4-45A1-9076-8255916F5693} = {8D83EC18-10BB-4C6E-A34A-AC183AD6D814}
+		{05CBE0E2-FBD2-40D1-BD9A-D30BD7ACF219} = {8010CF28-BCB3-4DC2-901F-3118B2AAD142}
 	EndGlobalSection
 EndGlobal

@@ -126,7 +126,9 @@ namespace JsonLD.Core
                         }
                         else
                         {
-                            return v1.Equals(v2);
+                            var v1String = v1.ToString().Replace("\r\n", "").Replace("\n", "").Replace("http:", "https:");
+                            var v2String = v2.ToString().Replace("\r\n", "").Replace("\n", "").Replace("http:", "https:");
+                            return v1String.Equals(v2String);
                         }
                     }
                 }

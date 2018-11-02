@@ -167,3 +167,6 @@ $RECYCLE.BIN/
 
 # NuGet package store
 packages/
+
+# Jetbrains Rider things.
+.idea/**
