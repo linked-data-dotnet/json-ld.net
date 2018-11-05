@@ -1,0 +1,7 @@
+language: csharp
+solution: JsonLD.sln
+script: dotnet test -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude="[JsonLD.Test*]*"
+after_success:
+  - curl -s https://codecov.io/bash > codecov
+  - chmod +x codecov
+  - ./codecov -f "*opencover.xml"
