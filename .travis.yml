@@ -1,5 +1,9 @@
 language: csharp
-solution: JsonLD.sln
+env:
+  global:
+    - DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
+    - DOTNET_CLI_TELEMETRY_OPTOUT=1
+dotnet: 2.1.401
 script: dotnet test -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude="[JsonLD.Test*]*"
 after_success:
   - curl -s https://codecov.io/bash > codecov
