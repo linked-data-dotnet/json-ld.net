@@ -16,11 +16,13 @@ namespace JsonLD.Core
         {
 #if !PORTABLE && !IS_CORECLR
             RemoteDocument doc = new RemoteDocument(url, null);
+            HttpWebResponse resp;
+
             try
             {
                 HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
                 req.Accept = AcceptHeader;
-                WebResponse resp = req.GetResponse();
+                resp = (HttpWebResponse)req.GetResponse();
                 bool isJsonld = resp.Headers[HttpResponseHeader.ContentType] == "application/ld+json";
                 if (!resp.Headers[HttpResponseHeader.ContentType].Contains("json"))
                 {
@@ -31,7 +33,7 @@ namespace JsonLD.Core
                 if (!isJsonld && linkHeaders != null)
                 {
                     linkHeaders = linkHeaders.SelectMany((h) => h.Split(",".ToCharArray()))
-                                             .Select(h => h.Trim()).ToArray();
+                                                .Select(h => h.Trim()).ToArray();
                     IEnumerable<string> linkedContexts = linkHeaders.Where(v => v.EndsWith("rel=\"http://www.w3.org/ns/json-ld#context\""));
                     if (linkedContexts.Count() > 1)
                     {
@@ -53,6 +55,29 @@ namespace JsonLD.Core
             catch (JsonLdError)
             {
                 throw;
+            }
+            catch (WebException webException)
+            {
+                try
+                {
+                    resp = (HttpWebResponse)webException.Response;
+                    int baseStatusCode = (int)(Math.Floor((double)resp.StatusCode / 100)) * 100;
+                    if (baseStatusCode == 300)
+                    {
+                        string location = resp.Headers[HttpResponseHeader.Location];
+                        if (!string.IsNullOrWhiteSpace(location))
+                        {
+                            // TODO: Add recursion break or simply switch to HttpClient so we don't have to recurse on HTTP redirects.
+                            return LoadDocument(location);
+                        }
+                    }
+                }
+                catch (Exception innerException)
+                {
+                    throw new JsonLdError(JsonLdError.Error.LoadingDocumentFailed, url, innerException);
+                }
+
+                throw new JsonLdError(JsonLdError.Error.LoadingDocumentFailed, url, webException);
             }
             catch (Exception exception)
             {
