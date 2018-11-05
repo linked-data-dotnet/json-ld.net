@@ -4,13 +4,11 @@ env:
   global:
     - DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
     - DOTNET_CLI_TELEMETRY_OPTOUT=1
+    - secure: LyfZri+LDXaez/OqC/JU+HMNQeDebmf+SYPZUOGDtWeYBWsYdpsIuhQj5PgfV5aNwSMeefxjFPk/27Cw8D7M7SDcIavBoZbP5fCBqGr9FQKRWkDizaKqP1Mnmu5bFCCr7+7jgTueFk2NZ60rj6vJsmmDtIrMoGF07RzqPySgfLM=
 dotnet: 2.1.401
 install:
-  - dotnet restore
+- dotnet restore
 script:
-  - dotnet build
-  - dotnet test -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude="[JsonLD.Test*]*"
+- dotnet test -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude="[JsonLD.Test*]*"
 after_success:
-  - curl -s https://codecov.io/bash > codecov
-  - chmod +x codecov
-  - ./codecov -f "*opencover.xml"
+- bash <(curl -s https://codecov.io/bash)
