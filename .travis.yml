@@ -7,7 +7,9 @@ env:
 dotnet: 2.1.401
 install:
   - dotnet restore
-script: dotnet test -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude="[JsonLD.Test*]*"
+script:
+  - dotnet build
+  - dotnet test -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude="[JsonLD.Test*]*"
 after_success:
   - curl -s https://codecov.io/bash > codecov
   - chmod +x codecov
