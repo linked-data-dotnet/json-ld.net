@@ -31,6 +31,7 @@ build/
 # MSTest test Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
+*opencover.xml
 
 *_i.c
 *_p.c
