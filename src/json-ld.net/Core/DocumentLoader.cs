@@ -54,9 +54,9 @@ namespace JsonLD.Core
             {
                 throw;
             }
-            catch (Exception)
+            catch (Exception exception)
             {
-                throw new JsonLdError(JsonLdError.Error.LoadingDocumentFailed, url);
+                throw new JsonLdError(JsonLdError.Error.LoadingDocumentFailed, url, exception);
             }
             return doc;
 #else
