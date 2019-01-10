@@ -11,14 +11,22 @@ namespace JsonLD.Core
         private JsonLdError.Error type;
         internal JObject details = null;
 
-        public JsonLdError(JsonLdError.Error type, object detail) : base(detail == null ? 
-            string.Empty : detail.ToString())
+        public JsonLdError(JsonLdError.Error type, object detail, Exception innerException)
+            : base(detail == null ? string.Empty : detail.ToString(), innerException)
         {
             // TODO: pretty toString (e.g. print whole json objects)
             this.type = type;
         }
 
-        public JsonLdError(JsonLdError.Error type) : base(string.Empty)
+        public JsonLdError(JsonLdError.Error type, object detail)
+            : base(detail == null ? string.Empty : detail.ToString())
+        {
+            // TODO: pretty toString (e.g. print whole json objects)
+            this.type = type;
+        }
+
+        public JsonLdError(JsonLdError.Error type)
+            : base(string.Empty)
         {
             this.type = type;
         }
