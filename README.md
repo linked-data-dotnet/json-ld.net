@@ -22,8 +22,13 @@ tools for .NET Core:
 * [.NET Core][dnc]
 * [.NET Core tutorial][dnc-tutorial]
 
-`build.ps1` will create a nupkg and run tests for both .NET desktop and .NET
-Core.
+### Build and Tests
+
+On Windows, you can execute `build.ps1`, which will create a nupkg and run
+tests for both .NET desktop and .NET Core.
+
+On both Windows and all other supported operating systems, you can run
+`dotnet build` to build and `dotnet test` to run the tests.
 
 ## Origin
 
