@@ -1,6 +1,6 @@
 # json-ld.net
 
-A JSON-LD processor for .NET.
+A [JSON-LD][jsonld] processor for .NET.
 
 [![NuGet][nuget-badge]][nuget]
 [![Build Status][travis-badge]][travis]
@@ -37,6 +37,7 @@ On both Windows and all other supported operating systems, you can run
 This project began life as a [Sharpen][sharpen]-based auto-port from
 [jsonld-java][jsonld-java].
 
+  [jsonld]:         https://json-ld.org/
   [sharpen]:        http://community.versant.com/Projects/html/projectspaces/db4o_product_design/sharpen.html
   [jsonld-java]:    https://github.com/jsonld-java/jsonld-java
   [nuget]:          https://www.nuget.org/packages/json-ld.net/
