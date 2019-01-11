@@ -2,7 +2,7 @@
 
 A JSON-LD processor for .NET.
 
-[v1.0.5 is available on NuGet.org][nuget].
+[![NuGet][nuget-badge]][nuget]
 
 This project has adopted the [Microsoft Open Source Code of Conduct][coc].
 For more information see the [Code of Conduct FAQ][coc-faq] or contact
@@ -33,6 +33,7 @@ This project began life as a [Sharpen][sharpen]-based auto-port from
   [sharpen]:      http://community.versant.com/Projects/html/projectspaces/db4o_product_design/sharpen.html
   [jsonld-java]:  https://github.com/jsonld-java/jsonld-java
   [nuget]:        https://www.nuget.org/packages/json-ld.net/
+  [nuget-badge]:  https://img.shields.io/nuget/v/json-ld.net.svg
   [coc]:          https://opensource.microsoft.com/codeofconduct/
   [coc-faq]:      https://opensource.microsoft.com/codeofconduct/faq/
   [ms-mail]:      mailto:opencode@microsoft.com
