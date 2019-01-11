@@ -2,7 +2,9 @@
 
 A JSON-LD processor for .NET.
 
-[![NuGet][nuget-badge]][nuget] [![Build Status][travis-badge]][travis] [![codecov][codecov-badge]][codecov]
+[![NuGet][nuget-badge]][nuget]
+[![Build Status][travis-badge]][travis]
+[![codecov][codecov-badge]][codecov]
 
 This project has adopted the [Microsoft Open Source Code of Conduct][coc].
 For more information see the [Code of Conduct FAQ][coc-faq] or contact
