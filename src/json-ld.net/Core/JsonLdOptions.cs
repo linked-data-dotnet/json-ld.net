@@ -43,6 +43,8 @@ namespace JsonLD.Core
 
         private bool produceGeneralizedRdf = false;
 
+        private bool preserveOrder = false;
+
         // base options
         // frame options
         // rdf conversion options
@@ -145,6 +147,16 @@ namespace JsonLD.Core
         public virtual void SetProduceGeneralizedRdf(bool produceGeneralizedRdf)
         {
             this.produceGeneralizedRdf = produceGeneralizedRdf;
+        }
+
+        public virtual bool GetPreserveOrder()
+        {
+            return preserveOrder;
+        }
+
+        public virtual void SetPreserveOrder(bool preserveOrder)
+        {
+            this.preserveOrder = preserveOrder;
         }
 
         public string format = null;

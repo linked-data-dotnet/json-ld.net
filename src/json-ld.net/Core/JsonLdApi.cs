@@ -122,7 +122,12 @@ namespace JsonLD.Core
                 JObject result = new JObject();
                 // 7)
                 JArray keys = new JArray(element.GetKeys());
-                keys.SortInPlace();
+
+                if (!opts.GetPreserveOrder())
+                {
+                    keys.SortInPlace();
+                }
+
                 foreach (string expandedProperty in keys)
                 {
                     JToken expandedValue = elem[expandedProperty];
@@ -491,7 +496,12 @@ namespace JsonLD.Core
                     JObject result = new JObject();
                     // 7)
                     JArray keys = new JArray(element.GetKeys());
-                    keys.SortInPlace();
+
+                    if (!opts.GetPreserveOrder())
+                    {
+                        keys.SortInPlace();
+                    }
+
                     foreach (string key in keys)
                     {
                         JToken value = elem[key];
@@ -808,7 +818,12 @@ namespace JsonLD.Core
                                     expandedValue = new JArray();
                                     // 7.6.2)
                                     JArray indexKeys = new JArray(value.GetKeys());
-                                    indexKeys.SortInPlace();
+
+                                    if (!opts.GetPreserveOrder())
+                                    {
+                                        indexKeys.SortInPlace();
+                                    }
+
                                     foreach (string index in indexKeys)
                                     {
                                         JToken indexValue = ((JObject)value)[index];
@@ -1290,7 +1305,12 @@ namespace JsonLD.Core
                     }
                     // 6.11)
                     JArray keys = new JArray(element.GetKeys());
-                    keys.SortInPlace();
+
+                    if (!opts.GetPreserveOrder())
+                    {
+                        keys.SortInPlace();
+                    }
+
                     foreach (string property_1 in keys)
                     {
                         var eachProperty_1 = property_1;
@@ -1405,7 +1425,7 @@ namespace JsonLD.Core
             {
                 state.omitDefault = this.opts.GetOmitDefault().Value;
             }
-            // use tree map so keys are sotred by default
+            // use tree map so keys are sorted by default
             // XXX BUG BUG BUG XXX (sblom) Figure out where this needs to be sorted and use extension methods to return sorted enumerators or something!
             JObject nodes = new JObject();
             GenerateNodeMap(input, nodes);
@@ -1436,7 +1456,12 @@ namespace JsonLD.Core
             bool explicitOn = GetFrameFlag(frame, "@explicit", state.@explicit);
             // add matches to output
             JArray ids = new JArray(matches.GetKeys());
-            ids.SortInPlace();
+
+            if (!opts.GetPreserveOrder())
+            {
+                ids.SortInPlace();
+            }
+
             foreach (string id in ids)
             {
                 if (property == null)
@@ -1499,7 +1524,12 @@ namespace JsonLD.Core
                     // iterate over subject properties
                     JObject element = (JObject)matches[id];
                     JArray props = new JArray(element.GetKeys());
-                    props.SortInPlace();
+
+                    if (!opts.GetPreserveOrder())
+                    {
+                        props.SortInPlace();
+                    }
+
                     foreach (string prop in props)
                     {
                         // copy keywords to output
@@ -1576,7 +1606,12 @@ namespace JsonLD.Core
                     }
                     // handle defaults
                     props = new JArray(frame.GetKeys());
-                    props.SortInPlace();
+
+                    if (!opts.GetPreserveOrder())
+                    {
+                        props.SortInPlace();
+                    }
+
                     foreach (string prop_1 in props)
                     {
                         // skip keywords
@@ -2116,7 +2151,12 @@ namespace JsonLD.Core
             JArray result = new JArray();
             // 6)
             JArray ids = new JArray(defaultGraph.GetKeys());
-            ids.SortInPlace();
+
+            if (!opts.GetPreserveOrder())
+            {
+                ids.SortInPlace();
+            }
+
             foreach (string subject_1 in ids)
             {
                 JsonLdApi.NodeMapNode node = (NodeMapNode)defaultGraph[subject_1];
@@ -2127,7 +2167,12 @@ namespace JsonLD.Core
                     node["@graph"] = new JArray();
                     // 6.1.2)
                     JArray keys = new JArray(graphMap[subject_1].GetKeys());
-                    keys.SortInPlace();
+
+                    if (!opts.GetPreserveOrder())
+                    {
+                        keys.SortInPlace();
+                    }
+
                     foreach (string s in keys)
                     {
                         JsonLdApi.NodeMapNode n = (NodeMapNode)graphMap[subject_1][s];
