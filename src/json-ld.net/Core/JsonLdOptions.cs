@@ -42,9 +42,9 @@ namespace JsonLD.Core
 
         private bool produceGeneralizedRdf = false;
 
-        private bool sortGraphs = true;
+        private bool sortGraphsFromRdf = true;
 
-        private bool sortGraphNodes = true;
+        private bool sortGraphNodesFromRdf = true;
         // base options
         // frame options
         // rdf conversion options
@@ -149,24 +149,24 @@ namespace JsonLD.Core
             this.produceGeneralizedRdf = produceGeneralizedRdf;
         }
 
-        public virtual bool GetSortGraphs()
+        public virtual bool GetSortGraphsFromRdf()
         {
-            return sortGraphs;
+            return sortGraphsFromRdf;
         }
 
-        public virtual void SetSortGraphs(bool sortGraphs)
+        public virtual void SetSortGraphsFromRdf(bool sortGraphs)
         {
-            this.sortGraphs = sortGraphs;
+            this.sortGraphsFromRdf = sortGraphs;
         }
 
-        public virtual bool GetSortGraphNodes()
+        public virtual bool GetSortGraphNodesFromRdf()
         {
-            return sortGraphNodes;
+            return sortGraphNodesFromRdf;
         }
 
-        public virtual void SetSortGraphNodes(bool sortGraphNodes)
+        public virtual void SetSortGraphNodesFromRdf(bool sortGraphNodes)
         {
-            this.sortGraphNodes = sortGraphNodes;
+            this.sortGraphNodesFromRdf = sortGraphNodes;
         }
         public string format = null;
 

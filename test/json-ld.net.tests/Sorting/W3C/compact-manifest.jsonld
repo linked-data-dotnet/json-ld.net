@@ -1,0 +1,41 @@
+{
+    "@type": "mf:Manifest",
+    "name": "Compaction",
+    "description": "JSON-LD sorting graphs and nodes when running Compact",
+    "test-context": "compact-context.jsonld",
+    "input": "compact-in.jsonld",
+    "sequence": [
+        {
+            "@id": "#t0001",
+            "sort-type": "jld:GraphsAndNodes",
+            "test-type": "jld:Compact",
+            "name": "sort graphs and nodes",
+            "purpose": "graphs and nodes sorted when running Compact",
+            "expect": "compact-out-sort-graphs-and-nodes.jsonld"
+        },
+        {
+            "@id": "#t0002",
+            "sort-type": "jld:Graphs",
+            "test-type": "jld:Compact",
+            "name": "sort graphs only",
+            "purpose": "graphs sorted when running Compact",
+            "expect": "compact-out-sort-graphs.jsonld"
+        },
+        {
+            "@id": "#t0003",
+            "sort-type": "jld:Nodes",
+            "test-type": "jld:Compact",
+            "name": "sort graph nodes only",
+            "purpose": "graph nodes sorted when running Compact",
+            "expect": "compact-out-sort-graph-nodes.jsonld"
+        },
+        {
+            "@id": "#t0004",
+            "sort-type": "jld:None",
+            "test-type": "jld:Compact",
+            "name": "sort nothing",
+            "purpose": "sort nothing running Compact",
+            "expect": "compact-out-no-sorting.jsonld"
+        }
+    ]
+}

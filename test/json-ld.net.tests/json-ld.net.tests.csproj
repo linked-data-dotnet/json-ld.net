@@ -28,7 +28,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Sorting\W3C\fromRdf-context.jsonld">
+    <None Update="Sorting\W3C\compact-context.jsonld">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Sorting\W3C\compact-in.jsonld">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Sorting\W3C\compact-manifest.jsonld">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Sorting\W3C\fromRdf-out-sort-graph-nodes.jsonld">
@@ -47,57 +53,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Sorting\W3C\fromRdf-in.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Sorting\W3C\expand-0002-in.jsonld">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Sorting\W3C\expand-0002-out.jsonld">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Sorting\W3C\expand-manifest.jsonld">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Sorting\W3C\flatten-0002-in.jsonld">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Sorting\W3C\flatten-0002-out.jsonld">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Sorting\W3C\flatten-manifest.jsonld">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Sorting\W3C\frame-0002-in.jsonld">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Sorting\W3C\frame-0002-out.jsonld">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Sorting\W3C\normalize-0002-in.jsonld">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Sorting\W3C\normalize-0002-out.nq">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Sorting\W3C\normalize-manifest.jsonld">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Sorting\W3C\remote-doc-0002-in.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Sorting\W3C\remote-doc-0002-out.jsonld">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Sorting\W3C\remote-doc-manifest.jsonld">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Sorting\W3C\toRdf-0002-in.jsonld">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Sorting\W3C\toRdf-0002-out.nq">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Sorting\W3C\toRdf-manifest.jsonld">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

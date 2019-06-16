@@ -1,6 +1,5 @@
 ﻿using JsonLD.Core;
 using JsonLD.Util;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -21,7 +20,7 @@ namespace JsonLD.Test
             }
             else
             {
-                if (!JsonLdUtils.DeepCompare(result, testCase.output))
+                if (!JsonLdUtils.DeepCompare(result, testCase.output, true))
                 {
 #if DEBUG
                     Console.WriteLine(id);
@@ -41,8 +40,8 @@ namespace JsonLD.Test
         public class SortingTestCase
         {
             public JToken  input { get; set; }
-            public JToken context { get; set; }
             public JToken output { get; set; }
+            public JToken context { get; set; }
             public JToken frame { get; set; }
             public JToken error { get; set; }
             public Func<JToken> run { get; set; }
@@ -51,13 +50,8 @@ namespace JsonLD.Test
         private static string[] GetManifests()
         {
             return new[] {
-            //"compact-manifest.jsonld"
-            //"expand-manifest.jsonld",
-            //"flatten-manifest.jsonld",
-            //"frame-manifest.jsonld",
-            //"toRdf-manifest.jsonld",
             "fromRdf-manifest.jsonld",
-            //"normalize-manifest.jsonld"
+            //"compact-manifest.jsonld"
             };
         }
 
@@ -73,12 +67,11 @@ namespace JsonLD.Test
 
                 foreach (JObject testcase in manifestJson["sequence"])
                 {
-                    Func<JToken> run;
+                    Func<JToken> run = null;
                     SortingTestCase newCase = new SortingTestCase();
 
                     newCase.input = jsonFetcher.GetJson(manifestJson["input"], rootDirectory);
                     newCase.output = jsonFetcher.GetJson(testcase["expect"], rootDirectory);
-                    newCase.context = jsonFetcher.GetJson(manifestJson["test-context"], rootDirectory);
 
                     var options = new JsonLdOptions();
                     
@@ -86,60 +79,37 @@ namespace JsonLD.Test
 
                     if (sortType == "jld:GraphsAndNodes")
                     {
-                        options.SetSortGraphs(true);
-                        options.SetSortGraphNodes(true);
+                        options.SetSortGraphsFromRdf(true);
+                        options.SetSortGraphNodesFromRdf(true);
                     }
                     else if (sortType == "jld:Graphs")
                     {
-                        options.SetSortGraphs(true);
-                        options.SetSortGraphNodes(false);
+                        options.SetSortGraphsFromRdf(true);
+                        options.SetSortGraphNodesFromRdf(false);
                     }
                     else if (sortType == "jld:Nodes")
                     {
-                        options.SetSortGraphs(false);
-                        options.SetSortGraphNodes(true);
+                        options.SetSortGraphsFromRdf(false);
+                        options.SetSortGraphNodesFromRdf(true);
                     }
                     else if (sortType == "jld:None")
                     {
-                        options.SetSortGraphs(false);
-                        options.SetSortGraphNodes(false);
+                        options.SetSortGraphsFromRdf(false);
+                        options.SetSortGraphNodesFromRdf(false);
                     }
 
                     JsonLdApi jsonLdApi = new JsonLdApi(options);
-                    Context activeCtx = new Context(newCase.context, options);
 
                     var testType = (string)testcase["test-type"];
 
-                    //if (testType == "jld:Compact")
+                    if (testType == "jld:Compact")
                     {
-                      //  run = () => jsonLdApi.FromRDF(rdf);
+                        newCase.context = jsonFetcher.GetJson(manifestJson["test-context"], rootDirectory);
+                        Context activeCtx = new Context(newCase.context, options);
+
+                        run = () => jsonLdApi.Compact(activeCtx, null, newCase.input);
                     }
-                    //else if (testType == "jld:Expand")
-                    //{
-                    //    //run = () => JsonLdProcessor.Expand(newCase.input, options);
-                    //}
-                    //else if (testType == "jld:Flatten")
-                    //{
-                    //    //run = () => JsonLdProcessor.Flatten(newCase.input, newCase.context, options);
-                    //}
-                    //else if (testType == "jld:Frame")
-                    //{
-                    //    //run = () => JsonLdProcessor.Frame(newCase.input, newCase.frame, options);
-                    //}
-                    //else if (testType == "jld:Normalize")
-                    //{
-                    //    run = () => new JValue(
-                    //            RDFDatasetUtils.ToNQuads((RDFDataset)JsonLdProcessor.Normalize(newCase.input, options)).Replace("\n", "\r\n")
-                    //        );
-                    //}
-                    //else if (testType == "jld:ToRDF")
-                    //{
-                    //    options.format = "application/nquads";
-                    //    //run = () => new JValue(
-                    //    //    ((string)JsonLdProcessor.ToRDF(newCase.input, options)).Replace("\n", "\r\n")
-                    //    //);
-                    //}
-                    //else if (testType == "jld:FromRDF")
+                    else if (testType == "jld:FromRDF")
                     {
                         JToken quads = newCase.input["quads"];
                         RDFDataset rdf = new RDFDataset();
@@ -158,10 +128,10 @@ namespace JsonLD.Test
 
                         run = () => jsonLdApi.FromRDF(rdf);
                     }
-                    //else
-                    //{
-                    //    run = () => { throw new Exception("Couldn't find a test type, apparently."); };
-                    //}
+                    else
+                    {
+                        run = () => { throw new Exception("Couldn't find a test type, apparently."); };
+                    }
 
                     newCase.run = run;
 

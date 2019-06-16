@@ -46,10 +46,7 @@ namespace JsonLD.Core
                     bool named = false;
                     IList<string> hashes = new List<string>(unique.Keys);
 
-                    //if (!options.GetSortGraphs())
-                    {
-                        hashes.SortInPlace();
-                    }
+                    hashes.SortInPlace();
 
                     foreach (string hash in hashes)
                     {
@@ -79,10 +76,7 @@ namespace JsonLD.Core
                         // enumerate duplicate hash groups in sorted order
                         hashes = new List<string>(duplicates.Keys);
 
-                        //if (!options.GetSortGraphs())
-                        {
-                            hashes.SortInPlace();
-                        }
+                        hashes.SortInPlace();
 
                         // process each group
                         for (int pgi = 0; ; pgi++)
@@ -119,11 +113,8 @@ namespace JsonLD.Core
                                         ) && !(quad["name"] == null) ? (string)((IDictionary<string,object>)((IDictionary<string,object>)quad)["name"])["value"] : null));
                                 }
 
-                                //if (!options.GetSortGraphs())
-                                {
-                                    // sort normalized output
-                                    normalized.SortInPlace();
-                                }
+                                // sort normalized output
+                                normalized.SortInPlace();
 
                                 // handle output format
                                 if (options.format != null)
@@ -156,11 +147,8 @@ namespace JsonLD.Core
                             {
                                 if (n_2 == group.Count)
                                 {
-                                    //if (!options.GetSortGraphs())
-                                    {
-                                        // name bnodes in hash order
-                                        results.SortInPlace(new _IComparer_145());
-                                    }
+                                    // name bnodes in hash order
+                                    results.SortInPlace(new _IComparer_145());
 
                                     foreach (NormalizeUtils.HashResult r in results)
                                     {

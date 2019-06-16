@@ -1,8 +1,7 @@
 {
     "@type": "mf:Manifest",
-    "test-context": "fromRdf-context.jsonld",
     "name": "From RDF",
-    "description": "JSON-LD sorting graphs and nodes when running compact",
+    "description": "JSON-LD sorting graphs and nodes when running FromRDF",
     "input": "fromRdf-in.json",
     "sequence": [
         {

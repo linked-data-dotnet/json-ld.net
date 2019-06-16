@@ -123,10 +123,7 @@ namespace JsonLD.Core
                 // 7)
                 JArray keys = new JArray(element.GetKeys());
 
-                //if (opts.GetSortGraphNodes())
-                {
-                    keys.SortInPlace();
-                }
+                keys.SortInPlace();
 
                 foreach (string expandedProperty in keys)
                 {
@@ -496,10 +493,7 @@ namespace JsonLD.Core
                     // 7)
                     JArray keys = new JArray(element.GetKeys());
 
-                    //if (opts.GetSortGraphNodes())
-                    {
-                        keys.SortInPlace();
-                    }
+                    keys.SortInPlace();
 
                     foreach (string key in keys)
                     {
@@ -818,10 +812,7 @@ namespace JsonLD.Core
                                     // 7.6.2)
                                     JArray indexKeys = new JArray(value.GetKeys());
 
-                                    //if (opts.GetSortGraphNodes())
-                                    {
-                                        indexKeys.SortInPlace();
-                                    }
+                                    indexKeys.SortInPlace();
 
                                     foreach (string index in indexKeys)
                                     {
@@ -1305,10 +1296,7 @@ namespace JsonLD.Core
                     // 6.11)
                     JArray keys = new JArray(element.GetKeys());
 
-                    //if (!opts.GetSortGraphNodes())
-                    {
-                        keys.SortInPlace();
-                    }
+                    keys.SortInPlace();
 
                     foreach (string property_1 in keys)
                     {
@@ -1456,10 +1444,7 @@ namespace JsonLD.Core
             // add matches to output
             JArray ids = new JArray(matches.GetKeys());
 
-            //if (!opts.GetSortGraphs())
-            {
-                ids.SortInPlace();
-            }
+            ids.SortInPlace();
 
             foreach (string id in ids)
             {
@@ -1524,10 +1509,7 @@ namespace JsonLD.Core
                     JObject element = (JObject)matches[id];
                     JArray props = new JArray(element.GetKeys());
 
-                    //if (!opts.GetSortGraphNodes())
-                    {
-                        props.SortInPlace();
-                    }
+                    props.SortInPlace();
 
                     foreach (string prop in props)
                     {
@@ -1606,10 +1588,7 @@ namespace JsonLD.Core
                     // handle defaults
                     props = new JArray(frame.GetKeys());
 
-                    //if (!opts.GetSortGraphNodes())
-                    {
-                        props.SortInPlace();
-                    }
+                    props.SortInPlace();
 
                     foreach (string prop_1 in props)
                     {
@@ -2151,7 +2130,7 @@ namespace JsonLD.Core
             // 6)
             JArray ids = new JArray(defaultGraph.GetKeys());
 
-            if (!opts.GetSortGraphs())
+            if (opts.GetSortGraphsFromRdf())
             {
                 ids.SortInPlace();
             }
@@ -2167,7 +2146,7 @@ namespace JsonLD.Core
                     // 6.1.2)
                     JArray keys = new JArray(graphMap[subject_1].GetKeys());
 
-                    if (!opts.GetSortGraphNodes())
+                    if (opts.GetSortGraphNodesFromRdf())
                     {
                         keys.SortInPlace();
                     }
