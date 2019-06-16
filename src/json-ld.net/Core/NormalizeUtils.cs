@@ -45,7 +45,12 @@ namespace JsonLD.Core
                     // done, name blank nodes
                     bool named = false;
                     IList<string> hashes = new List<string>(unique.Keys);
-                    hashes.SortInPlace();
+
+                    //if (!options.GetSortGraphs())
+                    {
+                        hashes.SortInPlace();
+                    }
+
                     foreach (string hash in hashes)
                     {
                         string bnode = unique[hash];
@@ -73,7 +78,12 @@ namespace JsonLD.Core
                         // names duplicate hash bnodes
                         // enumerate duplicate hash groups in sorted order
                         hashes = new List<string>(duplicates.Keys);
-                        hashes.SortInPlace();
+
+                        //if (!options.GetSortGraphs())
+                        {
+                            hashes.SortInPlace();
+                        }
+
                         // process each group
                         for (int pgi = 0; ; pgi++)
                         {
@@ -108,8 +118,13 @@ namespace JsonLD.Core
                                     normalized.Add(RDFDatasetUtils.ToNQuad(quad, quad.ContainsKey("name"
                                         ) && !(quad["name"] == null) ? (string)((IDictionary<string,object>)((IDictionary<string,object>)quad)["name"])["value"] : null));
                                 }
-                                // sort normalized output
-                                normalized.SortInPlace();
+
+                                //if (!options.GetSortGraphs())
+                                {
+                                    // sort normalized output
+                                    normalized.SortInPlace();
+                                }
+
                                 // handle output format
                                 if (options.format != null)
                                 {
@@ -141,8 +156,12 @@ namespace JsonLD.Core
                             {
                                 if (n_2 == group.Count)
                                 {
-                                    // name bnodes in hash order
-                                    results.SortInPlace(new _IComparer_145());
+                                    //if (!options.GetSortGraphs())
+                                    {
+                                        // name bnodes in hash order
+                                        results.SortInPlace(new _IComparer_145());
+                                    }
+
                                     foreach (NormalizeUtils.HashResult r in results)
                                     {
                                         // name all bnodes in path namer in

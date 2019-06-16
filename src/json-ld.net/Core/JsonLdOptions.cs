@@ -1,4 +1,3 @@
-using JsonLD.Core;
 using Newtonsoft.Json.Linq;
 
 namespace JsonLD.Core
@@ -43,8 +42,9 @@ namespace JsonLD.Core
 
         private bool produceGeneralizedRdf = false;
 
-        private bool preserveOrder = false;
+        private bool sortGraphs = true;
 
+        private bool sortGraphNodes = true;
         // base options
         // frame options
         // rdf conversion options
@@ -149,16 +149,25 @@ namespace JsonLD.Core
             this.produceGeneralizedRdf = produceGeneralizedRdf;
         }
 
-        public virtual bool GetPreserveOrder()
+        public virtual bool GetSortGraphs()
         {
-            return preserveOrder;
+            return sortGraphs;
         }
 
-        public virtual void SetPreserveOrder(bool preserveOrder)
+        public virtual void SetSortGraphs(bool sortGraphs)
         {
-            this.preserveOrder = preserveOrder;
+            this.sortGraphs = sortGraphs;
         }
 
+        public virtual bool GetSortGraphNodes()
+        {
+            return sortGraphNodes;
+        }
+
+        public virtual void SetSortGraphNodes(bool sortGraphNodes)
+        {
+            this.sortGraphNodes = sortGraphNodes;
+        }
         public string format = null;
 
         public bool useNamespaces = false;

@@ -13,8 +13,7 @@ namespace JsonLD.Core
     public class JsonLdProcessor
     {
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public static JObject Compact(JToken input, JToken context, JsonLdOptions
-             opts)
+        public static JObject Compact(JToken input, JToken context, JsonLdOptions opts)
         {
             // 1)
             // TODO: look into java futures/promises
@@ -202,10 +201,7 @@ namespace JsonLD.Core
                 }
                 JArray keys = new JArray(graph.GetKeys());
 
-                if (!opts.GetPreserveOrder())
-                {
-                    keys.SortInPlace();
-                }
+                keys.SortInPlace();
 
                 foreach (string id in keys)
                 {
@@ -221,10 +217,7 @@ namespace JsonLD.Core
             // 6)
             JArray keys_1 = new JArray(defaultGraph.GetKeys());
 
-            if (!opts.GetPreserveOrder())
-            {
-                keys_1.SortInPlace();
-            }
+            keys_1.SortInPlace();
 
             foreach (string id_1 in keys_1)
             {

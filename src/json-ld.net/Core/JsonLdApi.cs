@@ -123,7 +123,7 @@ namespace JsonLD.Core
                 // 7)
                 JArray keys = new JArray(element.GetKeys());
 
-                if (!opts.GetPreserveOrder())
+                //if (opts.GetSortGraphNodes())
                 {
                     keys.SortInPlace();
                 }
@@ -435,8 +435,7 @@ namespace JsonLD.Core
         /// <returns></returns>
         /// <exception cref="JsonLdError">JsonLdError</exception>
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public virtual JToken Expand(Context activeCtx, string activeProperty, JToken element
-            )
+        public virtual JToken Expand(Context activeCtx, string activeProperty, JToken element)
         {
             // 1)
             if (element.IsNull())
@@ -497,7 +496,7 @@ namespace JsonLD.Core
                     // 7)
                     JArray keys = new JArray(element.GetKeys());
 
-                    if (!opts.GetPreserveOrder())
+                    //if (opts.GetSortGraphNodes())
                     {
                         keys.SortInPlace();
                     }
@@ -819,7 +818,7 @@ namespace JsonLD.Core
                                     // 7.6.2)
                                     JArray indexKeys = new JArray(value.GetKeys());
 
-                                    if (!opts.GetPreserveOrder())
+                                    //if (opts.GetSortGraphNodes())
                                     {
                                         indexKeys.SortInPlace();
                                     }
@@ -1306,7 +1305,7 @@ namespace JsonLD.Core
                     // 6.11)
                     JArray keys = new JArray(element.GetKeys());
 
-                    if (!opts.GetPreserveOrder())
+                    //if (!opts.GetSortGraphNodes())
                     {
                         keys.SortInPlace();
                     }
@@ -1457,7 +1456,7 @@ namespace JsonLD.Core
             // add matches to output
             JArray ids = new JArray(matches.GetKeys());
 
-            if (!opts.GetPreserveOrder())
+            //if (!opts.GetSortGraphs())
             {
                 ids.SortInPlace();
             }
@@ -1525,7 +1524,7 @@ namespace JsonLD.Core
                     JObject element = (JObject)matches[id];
                     JArray props = new JArray(element.GetKeys());
 
-                    if (!opts.GetPreserveOrder())
+                    //if (!opts.GetSortGraphNodes())
                     {
                         props.SortInPlace();
                     }
@@ -1607,7 +1606,7 @@ namespace JsonLD.Core
                     // handle defaults
                     props = new JArray(frame.GetKeys());
 
-                    if (!opts.GetPreserveOrder())
+                    //if (!opts.GetSortGraphNodes())
                     {
                         props.SortInPlace();
                     }
@@ -2152,7 +2151,7 @@ namespace JsonLD.Core
             // 6)
             JArray ids = new JArray(defaultGraph.GetKeys());
 
-            if (!opts.GetPreserveOrder())
+            if (!opts.GetSortGraphs())
             {
                 ids.SortInPlace();
             }
@@ -2168,7 +2167,7 @@ namespace JsonLD.Core
                     // 6.1.2)
                     JArray keys = new JArray(graphMap[subject_1].GetKeys());
 
-                    if (!opts.GetPreserveOrder())
+                    if (!opts.GetSortGraphNodes())
                     {
                         keys.SortInPlace();
                     }
