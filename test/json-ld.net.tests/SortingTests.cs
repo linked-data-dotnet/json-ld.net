@@ -11,7 +11,7 @@ namespace JsonLD.Test
     public class SortingTests
     {
         [Theory, MemberData(nameof(SortingTestCases))]
-        public void RunJsonLdProcessor(string id, SortingTestCase testCase)
+        public void RunJsonLdApi(string id, SortingTestCase testCase)
         {
             JToken result = testCase.run();
             if (testCase.error != null)
