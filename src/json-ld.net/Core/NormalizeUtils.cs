@@ -45,7 +45,6 @@ namespace JsonLD.Core
                     // done, name blank nodes
                     bool named = false;
                     IList<string> hashes = new List<string>(unique.Keys);
-
                     hashes.SortInPlace();
 
                     foreach (string hash in hashes)
@@ -75,7 +74,6 @@ namespace JsonLD.Core
                         // names duplicate hash bnodes
                         // enumerate duplicate hash groups in sorted order
                         hashes = new List<string>(duplicates.Keys);
-
                         hashes.SortInPlace();
 
                         // process each group

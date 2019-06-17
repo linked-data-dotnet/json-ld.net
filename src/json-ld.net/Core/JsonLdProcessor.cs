@@ -200,9 +200,7 @@ namespace JsonLD.Core
                     entry["@graph"] = new JArray();
                 }
                 JArray keys = new JArray(graph.GetKeys());
-
                 keys.SortInPlace();
-
                 foreach (string id in keys)
                 {
                     JObject node = (JObject)graph[id];
@@ -216,9 +214,7 @@ namespace JsonLD.Core
             JArray flattened = new JArray();
             // 6)
             JArray keys_1 = new JArray(defaultGraph.GetKeys());
-
             keys_1.SortInPlace();
-
             foreach (string id_1 in keys_1)
             {
                 JObject node = (JObject)defaultGraph[id_1

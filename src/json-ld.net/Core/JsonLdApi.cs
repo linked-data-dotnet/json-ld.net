@@ -122,9 +122,7 @@ namespace JsonLD.Core
                 JObject result = new JObject();
                 // 7)
                 JArray keys = new JArray(element.GetKeys());
-
                 keys.SortInPlace();
-
                 foreach (string expandedProperty in keys)
                 {
                     JToken expandedValue = elem[expandedProperty];
@@ -492,9 +490,7 @@ namespace JsonLD.Core
                     JObject result = new JObject();
                     // 7)
                     JArray keys = new JArray(element.GetKeys());
-
                     keys.SortInPlace();
-
                     foreach (string key in keys)
                     {
                         JToken value = elem[key];
@@ -811,9 +807,7 @@ namespace JsonLD.Core
                                     expandedValue = new JArray();
                                     // 7.6.2)
                                     JArray indexKeys = new JArray(value.GetKeys());
-
                                     indexKeys.SortInPlace();
-
                                     foreach (string index in indexKeys)
                                     {
                                         JToken indexValue = ((JObject)value)[index];
@@ -1295,9 +1289,7 @@ namespace JsonLD.Core
                     }
                     // 6.11)
                     JArray keys = new JArray(element.GetKeys());
-
                     keys.SortInPlace();
-
                     foreach (string property_1 in keys)
                     {
                         var eachProperty_1 = property_1;
@@ -1443,9 +1435,7 @@ namespace JsonLD.Core
             bool explicitOn = GetFrameFlag(frame, "@explicit", state.@explicit);
             // add matches to output
             JArray ids = new JArray(matches.GetKeys());
-
             ids.SortInPlace();
-
             foreach (string id in ids)
             {
                 if (property == null)
@@ -1508,9 +1498,7 @@ namespace JsonLD.Core
                     // iterate over subject properties
                     JObject element = (JObject)matches[id];
                     JArray props = new JArray(element.GetKeys());
-
                     props.SortInPlace();
-
                     foreach (string prop in props)
                     {
                         // copy keywords to output
@@ -1587,9 +1575,7 @@ namespace JsonLD.Core
                     }
                     // handle defaults
                     props = new JArray(frame.GetKeys());
-
                     props.SortInPlace();
-
                     foreach (string prop_1 in props)
                     {
                         // skip keywords
