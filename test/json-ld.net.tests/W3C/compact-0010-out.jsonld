@@ -1,34 +1,20 @@
 {
-    "@context": {
-        "homepage": {
-            "@id": "http://xmlns.com/foaf/0.1/homepage",
-            "@type": "@id"
-        },
-        "name": "http://xmlns.com/foaf/0.1/name"
+  "@context": {
+    "homepage": {
+      "@id": "http://xmlns.com/foaf/0.1/homepage",
+      "@type": "@id"
     },
-    "@graph": [
-        {
-            "@id": "http://example.com/john",
-            "homepage": "http://john.doe.org/",
-            "name": "John Doe"
-        },
-        {
-            "@id": "http://example.com/jane",
-            "name": "Jane Doe"
-        }
-    ]
-}
-
-[
-  {
-    "@id": "http://example.com/john",
-    "http://xmlns.com/foaf/0.1/homepage": {
-      "@id": "http://john.doe.org/"
-    },
-    "http://xmlns.com/foaf/0.1/name": "John Doe"
+    "name": "http://xmlns.com/foaf/0.1/name"
   },
-  {
-    "@id": "http://example.com/jane",
-    "http://xmlns.com/foaf/0.1/name": "Jane Doe"
-  }
-]
+  "@graph": [
+    {
+      "@id": "http://example.com/john",
+      "homepage": "http://john.doe.org/",
+      "name": "John Doe"
+    },
+    {
+      "@id": "http://example.com/jane",
+      "name": "Jane Doe"
+    }
+  ]
+}
