@@ -3,7 +3,7 @@
     <Description>JSON-LD processor for .NET
 
 Implements the W3C JSON-LD 1.0 standard.</Description>
-    <VersionPrefix>1.0.7.1</VersionPrefix>
+    <VersionPrefix>1.0.7</VersionPrefix>
     <Authors>NuGet;linked-data-dotnet</Authors>
     <TargetFrameworks>netstandard1.3;netstandard2.0;netcoreapp2.1</TargetFrameworks>
     <AssemblyName>json-ld.net</AssemblyName>
@@ -17,7 +17,6 @@ Implements the W3C JSON-LD 1.0 standard.</Description>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-      <IsPackable>true</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />

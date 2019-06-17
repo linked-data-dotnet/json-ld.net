@@ -46,7 +46,6 @@ namespace JsonLD.Core
                     bool named = false;
                     IList<string> hashes = new List<string>(unique.Keys);
                     hashes.SortInPlace();
-
                     foreach (string hash in hashes)
                     {
                         string bnode = unique[hash];
@@ -75,7 +74,6 @@ namespace JsonLD.Core
                         // enumerate duplicate hash groups in sorted order
                         hashes = new List<string>(duplicates.Keys);
                         hashes.SortInPlace();
-
                         // process each group
                         for (int pgi = 0; ; pgi++)
                         {
@@ -113,7 +111,6 @@ namespace JsonLD.Core
 
                                 // sort normalized output
                                 normalized.SortInPlace();
-
                                 // handle output format
                                 if (options.format != null)
                                 {
@@ -147,7 +144,6 @@ namespace JsonLD.Core
                                 {
                                     // name bnodes in hash order
                                     results.SortInPlace(new _IComparer_145());
-
                                     foreach (NormalizeUtils.HashResult r in results)
                                     {
                                         // name all bnodes in path namer in
