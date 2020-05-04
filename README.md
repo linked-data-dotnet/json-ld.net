@@ -3,7 +3,7 @@
 A [JSON-LD][jsonld] processor for .NET.
 
 [![NuGet][nuget-badge]][nuget]
-[![Build Status][travis-badge]][travis]
+![Build Status][gha-badge]
 [![codecov][codecov-badge]][codecov]
 
 This project has adopted the [Microsoft Open Source Code of Conduct][coc].
@@ -49,5 +49,4 @@ This project began life as a [Sharpen][sharpen]-based auto-port from
   [dnc-tutorial]:   https://www.microsoft.com/net/core
   [codecov]:        https://codecov.io/gh/linked-data-dotnet/json-ld.net
   [codecov-badge]:  https://img.shields.io/codecov/c/github/linked-data-dotnet/json-ld.net/master.svg
-  [travis]:         https://travis-ci.org/linked-data-dotnet/json-ld.net
-  [travis-badge]:   https://img.shields.io/travis/linked-data-dotnet/json-ld.net.svg
+  [gha-badge]:      https://github.com/linked-data-dotnet/json-ld.net/workflows/dotnet/badge.svg
