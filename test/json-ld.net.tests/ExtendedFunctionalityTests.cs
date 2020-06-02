@@ -10,7 +10,7 @@ namespace JsonLD.Test
 {
     public class ExtendedFunctionalityTests
     {
-        public const string ManifestRoot = "ExtendedFunctionality";
+        private const string ManifestRoot = "ExtendedFunctionality";
 
         [Theory, MemberData(nameof(ExtendedFunctionalityCases))]
         public void ExtendedFunctionalityTestPasses(string id, ExtendedFunctionalityTestCase testCase)
@@ -62,11 +62,10 @@ namespace JsonLD.Test
             "fromRdf-manifest.jsonld"
         };
 
-        public static IEnumerable<object[]> SortingTestCases()
+        private static IEnumerable<object[]> SortingTestCases()
         {
             var jsonFetcher = new JsonFetcher();
             var rootDirectory = Path.Combine(ManifestRoot, "Sorting");
-            var cases = new List<object[]> { };
             
             foreach (string manifest in SortingManifests)
             {
