@@ -8,10 +8,12 @@ using Xunit;
 
 namespace JsonLD.Test
 {
-    public class SortingTests
+    public class ExtendedFunctionalityTests
     {
-        [Theory, MemberData(nameof(SortingTestCases))]
-        public void RunJsonLdApi(string id, SortingTestCase testCase)
+        public const string ManifestRoot = "ExtendedFunctionality";
+
+        [Theory, MemberData(nameof(ExtendedFunctionalityCases))]
+        public void ExtendedFunctionalityTestPasses(string id, ExtendedFunctionalityTestCase testCase)
         {
             JToken result = testCase.run();
             if (testCase.error != null)
@@ -37,7 +39,7 @@ namespace JsonLD.Test
             }
         }
 
-        public class SortingTestCase
+        public class ExtendedFunctionalityTestCase
         {
             public JToken  input { get; set; }
             public JToken output { get; set; }
@@ -47,28 +49,33 @@ namespace JsonLD.Test
             public Func<JToken> run { get; set; }
         }
 
-        private static string[] GetManifests()
+        public static IEnumerable<object[]> ExtendedFunctionalityCases()
         {
-            return new[] {
-            "fromRdf-manifest.jsonld",
-            //"compact-manifest.jsonld"
-            };
+            foreach (var testCase in SortingTestCases())
+            {
+                yield return testCase;
+            }
         }
+
+        private static string[] SortingManifests =
+        {
+            "fromRdf-manifest.jsonld"
+        };
 
         public static IEnumerable<object[]> SortingTestCases()
         {
-            var manifests = GetManifests();
             var jsonFetcher = new JsonFetcher();
-            var rootDirectory = Path.Combine("Sorting", "W3C");
-
-            foreach (string manifest in manifests)
+            var rootDirectory = Path.Combine(ManifestRoot, "Sorting");
+            var cases = new List<object[]> { };
+            
+            foreach (string manifest in SortingManifests)
             {
                 JToken manifestJson = jsonFetcher.GetJson(manifest, rootDirectory);
 
                 foreach (JObject testcase in manifestJson["sequence"])
                 {
                     Func<JToken> run = null;
-                    SortingTestCase newCase = new SortingTestCase();
+                    ExtendedFunctionalityTestCase newCase = new ExtendedFunctionalityTestCase();
 
                     newCase.input = jsonFetcher.GetJson(manifestJson["input"], rootDirectory);
                     newCase.output = jsonFetcher.GetJson(testcase["expect"], rootDirectory);
@@ -102,14 +109,7 @@ namespace JsonLD.Test
 
                     var testType = (string)testcase["test-type"];
 
-                    if (testType == "jld:Compact")
-                    {
-                        newCase.context = jsonFetcher.GetJson(manifestJson["test-context"], rootDirectory);
-                        Context activeCtx = new Context(newCase.context, options);
-
-                        run = () => jsonLdApi.Compact(activeCtx, null, newCase.input);
-                    }
-                    else if (testType == "jld:FromRDF")
+                    if (testType == "jld:FromRDF")
                     {
                         JToken quads = newCase.input["quads"];
                         RDFDataset rdf = new RDFDataset();

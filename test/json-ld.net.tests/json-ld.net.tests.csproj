@@ -28,31 +28,22 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Sorting\W3C\compact-context.jsonld">
+    <None Update="ExtendedFunctionality\Sorting\fromRdf-out-sort-graph-nodes.jsonld">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Sorting\W3C\compact-in.jsonld">
+    <None Update="ExtendedFunctionality\Sorting\fromRdf-out-no-sorting.jsonld">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Sorting\W3C\compact-manifest.jsonld">
+    <None Update="ExtendedFunctionality\Sorting\fromRdf-out-sort-graphs.jsonld">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Sorting\W3C\fromRdf-out-sort-graph-nodes.jsonld">
+    <None Update="ExtendedFunctionality\Sorting\fromRdf-out-sort-graphs-and-nodes.jsonld">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Sorting\W3C\fromRdf-out-no-sorting.jsonld">
+    <None Update="ExtendedFunctionality\Sorting\fromRdf-manifest.jsonld">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Sorting\W3C\fromRdf-out-sort-graphs.jsonld">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Sorting\W3C\fromRdf-out-sort-graphs-and-nodes.jsonld">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Sorting\W3C\fromRdf-manifest.jsonld">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Sorting\W3C\fromRdf-in.json">
+    <None Update="ExtendedFunctionality\Sorting\fromRdf-in.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
