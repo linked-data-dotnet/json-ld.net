@@ -30,11 +30,27 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
+      - uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: .
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - uses: actions/download-artifact@v1
+        with:
+          name: build
+
       - name: Test
         run: |
           dotnet test \
             . \
             --configuration Release \
+            --no-build \
+            --no-restore \
             -p:CollectCoverage=true \
             -p:CoverletOutputFormat=opencover \
             -p:Exclude="[JsonLD.Test*]*"
