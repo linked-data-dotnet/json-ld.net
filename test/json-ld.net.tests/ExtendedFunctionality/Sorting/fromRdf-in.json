@@ -1,0 +1,58 @@
+﻿{
+    "quads": [
+        {
+            "graph": "http://example.org/node/3",
+            "subject": "http://example.org/object/3",
+            "predicate": "http://example.org/value",
+            "value": "n3-o3-value"
+        },
+        {
+            "graph": "http://example.org/node/3",
+            "subject": "http://example.org/object/1",
+            "predicate": "http://example.org/value",
+            "value": "n3-o1-value"
+        },
+        {
+            "graph": "http://example.org/node/3",
+            "subject": "http://example.org/object/2",
+            "predicate": "http://example.org/value",
+            "value": "n3-o2-value"
+        },
+        {
+            "graph": "http://example.org/node/1",
+            "subject": "http://example.org/object/3",
+            "predicate": "http://example.org/value",
+            "value": "n1-o3-value"
+        },
+        {
+            "graph": "http://example.org/node/1",
+            "subject": "http://example.org/object/1",
+            "predicate": "http://example.org/value",
+            "value": "n1-o1-value"
+        },
+        {
+            "graph": "http://example.org/node/1",
+            "subject": "http://example.org/object/2",
+            "predicate": "http://example.org/value",
+            "value": "n1-o2-value"
+        },
+        {
+            "graph": "http://example.org/node/2",
+            "subject": "http://example.org/object/3",
+            "predicate": "http://example.org/value",
+            "value": "n2-o3-value"
+        },
+        {
+            "graph": "http://example.org/node/2",
+            "subject": "http://example.org/object/1",
+            "predicate": "http://example.org/value",
+            "value": "n2-o1-value"
+        },
+        {
+            "graph": "http://example.org/node/2",
+            "subject": "http://example.org/object/2",
+            "predicate": "http://example.org/value",
+            "value": "n2-o2-value"
+        }
+    ]
+}

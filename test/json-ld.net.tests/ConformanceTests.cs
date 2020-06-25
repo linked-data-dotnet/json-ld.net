@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 using Newtonsoft.Json.Linq;
 using Xunit;
-using Xunit.Extensions;
 using System.IO;
-using Newtonsoft.Json;
 using JsonLD.Core;
 using JsonLD.Util;
 
@@ -16,7 +13,7 @@ namespace JsonLD.Test
     public class ConformanceTests
     {
         [Theory, ClassData(typeof(ConformanceCases))]
-        public void ConformanceTestPasses(string id, string testname, ConformanceCase conformanceCase)
+        public void ConformanceTestPasses(string id, ConformanceCase conformanceCase)
         {
             JToken result = conformanceCase.run();
             if (conformanceCase.error != null)
@@ -77,20 +74,21 @@ namespace JsonLD.Test
 
         public IEnumerator<object[]> GetEnumerator()
         {
+            var jsonFetcher = new JsonFetcher();
+            var rootDirectory = "W3C";
+
             foreach (string manifest in manifests)
             {
-                JToken manifestJson;
-
-                manifestJson = GetJson(manifest);
+                JToken manifestJson = jsonFetcher.GetJson(manifest, rootDirectory);
 
                 foreach (JObject testcase in manifestJson["sequence"])
                 {
                     Func<JToken> run;
                     ConformanceCase newCase = new ConformanceCase();
 
-                    newCase.input = GetJson(testcase["input"]);
-                    newCase.context = GetJson(testcase["context"]);
-                    newCase.frame = GetJson(testcase["frame"]);
+                    newCase.input = jsonFetcher.GetJson(testcase["input"], rootDirectory);
+                    newCase.context = jsonFetcher.GetJson(testcase["context"], rootDirectory);
+                    newCase.frame = jsonFetcher.GetJson(testcase["frame"], rootDirectory);
 
                     var options = new JsonLdOptions("http://json-ld.org/test-suite/tests/" + (string)testcase["input"]);
 
@@ -109,11 +107,11 @@ namespace JsonLD.Test
                         else if (testType.Any((s) => (string)s == "jld:FromRDFTest"))
                         {
                             newCase.input = File.ReadAllText(Path.Combine("W3C", (string)testcase["input"]));
-                            newCase.output = GetJson(testcase["expect"]);
+                            newCase.output = jsonFetcher.GetJson(testcase["expect"], rootDirectory);
                         }
                         else
                         {
-                            newCase.output = GetJson(testcase["expect"]);
+                            newCase.output = jsonFetcher.GetJson(testcase["expect"], rootDirectory);
                         }
                     }
                     else
@@ -138,7 +136,7 @@ namespace JsonLD.Test
                         }
                         if (optionDescription.TryGetValue("expandContext", out value))
                         {
-                            newCase.context = GetJson(testcase["option"]["expandContext"]);
+                            newCase.context = jsonFetcher.GetJson(testcase["option"]["expandContext"], rootDirectory);
                             options.SetExpandContext((JObject)newCase.context);
                         }
                         if (optionDescription.TryGetValue("produceGeneralizedRdf", out value))
@@ -227,29 +225,8 @@ namespace JsonLD.Test
 
                     newCase.run = run;
 
-                    yield return new object[] { manifest + (string)testcase["@id"], (string)testcase["name"], newCase };
+                    yield return new object[] { manifest + (string)testcase["@id"], newCase };
                 }
-            }
-        }
-
-        private JToken GetJson(JToken j)
-        {
-            try
-            {
-                if (j == null || j.Type == JTokenType.Null) return null;
-                using (Stream manifestStream = File.OpenRead(Path.Combine("W3C", (string)j)))
-                using (TextReader reader = new StreamReader(manifestStream))
-                using (JsonReader jreader = new Newtonsoft.Json.JsonTextReader(reader)
-                {
-                    DateParseHandling = DateParseHandling.None
-                })
-                {
-                    return JToken.ReadFrom(jreader);
-                }
-            }
-            catch (Exception e)
-            { // TODO: this should not be here, figure out why this is needed or catch specific exception.
-                return null;
             }
         }
 

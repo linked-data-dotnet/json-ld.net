@@ -13,8 +13,7 @@ namespace JsonLD.Core
     public class JsonLdProcessor
     {
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public static JObject Compact(JToken input, JToken context, JsonLdOptions
-             opts)
+        public static JObject Compact(JToken input, JToken context, JsonLdOptions opts)
         {
             // 1)
             // TODO: look into java futures/promises

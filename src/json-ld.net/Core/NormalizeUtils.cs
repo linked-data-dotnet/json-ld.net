@@ -108,6 +108,7 @@ namespace JsonLD.Core
                                     normalized.Add(RDFDatasetUtils.ToNQuad(quad, quad.ContainsKey("name"
                                         ) && !(quad["name"] == null) ? (string)((IDictionary<string,object>)((IDictionary<string,object>)quad)["name"])["value"] : null));
                                 }
+
                                 // sort normalized output
                                 normalized.SortInPlace();
                                 // handle output format

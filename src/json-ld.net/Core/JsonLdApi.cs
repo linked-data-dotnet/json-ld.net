@@ -430,8 +430,7 @@ namespace JsonLD.Core
         /// <returns></returns>
         /// <exception cref="JsonLdError">JsonLdError</exception>
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public virtual JToken Expand(Context activeCtx, string activeProperty, JToken element
-            )
+        public virtual JToken Expand(Context activeCtx, string activeProperty, JToken element)
         {
             // 1)
             if (element.IsNull())
@@ -1405,7 +1404,7 @@ namespace JsonLD.Core
             {
                 state.omitDefault = this.opts.GetOmitDefault().Value;
             }
-            // use tree map so keys are sotred by default
+            // use tree map so keys are sorted by default
             // XXX BUG BUG BUG XXX (sblom) Figure out where this needs to be sorted and use extension methods to return sorted enumerators or something!
             JObject nodes = new JObject();
             GenerateNodeMap(input, nodes);
@@ -2116,7 +2115,12 @@ namespace JsonLD.Core
             JArray result = new JArray();
             // 6)
             JArray ids = new JArray(defaultGraph.GetKeys());
-            ids.SortInPlace();
+
+            if (opts.GetSortGraphsFromRdf())
+            {
+                ids.SortInPlace();
+            }
+
             foreach (string subject_1 in ids)
             {
                 JsonLdApi.NodeMapNode node = (NodeMapNode)defaultGraph[subject_1];
@@ -2127,7 +2131,12 @@ namespace JsonLD.Core
                     node["@graph"] = new JArray();
                     // 6.1.2)
                     JArray keys = new JArray(graphMap[subject_1].GetKeys());
-                    keys.SortInPlace();
+
+                    if (opts.GetSortGraphNodesFromRdf())
+                    {
+                        keys.SortInPlace();
+                    }
+
                     foreach (string s in keys)
                     {
                         JsonLdApi.NodeMapNode n = (NodeMapNode)graphMap[subject_1][s];

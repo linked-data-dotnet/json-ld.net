@@ -1,0 +1,40 @@
+{
+    "@type": "mf:Manifest",
+    "name": "From RDF",
+    "description": "JSON-LD sorting graphs and nodes when running FromRDF",
+    "input": "fromRdf-in.json",
+    "sequence": [
+        {
+            "@id": "#t0001",
+            "sort-type": "jld:GraphsAndNodes",
+            "test-type": "jld:FromRDF",
+            "name": "sort graphs and nodes",
+            "purpose": "graphs and nodes sorted when running FromRDF",
+            "expect": "fromRdf-out-sort-graphs-and-nodes.jsonld"
+        },
+        {
+            "@id": "#t0002",
+            "sort-type": "jld:Graphs",
+            "test-type": "jld:FromRDF",
+            "name": "sort graphs only",
+            "purpose": "graphs sorted when running FromRDF",
+            "expect": "fromRdf-out-sort-graphs.jsonld"
+        },
+        {
+            "@id": "#t0003",
+            "sort-type": "jld:Nodes",
+            "test-type": "jld:FromRDF",
+            "name": "sort graph nodes only",
+            "purpose": "graph nodes sorted when running FromRDF",
+            "expect": "fromRdf-out-sort-graph-nodes.jsonld"
+        },
+        {
+            "@id": "#t0004",
+            "sort-type": "jld:None",
+            "test-type": "jld:FromRDF",
+            "name": "sort nothing",
+            "purpose": "sort nothing running FromRDF",
+            "expect": "fromRdf-out-no-sorting.jsonld"
+        }
+    ]
+}
