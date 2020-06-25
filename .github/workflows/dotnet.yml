@@ -37,6 +37,8 @@ jobs:
           dotnet-version: 2.1.401
 
       - uses: actions/cache@v2
+        env:
+          NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
         with:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
