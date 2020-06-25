@@ -18,6 +18,12 @@ jobs:
         with:
           dotnet-version: 2.1.401
 
+      - uses: actions/cache@v2
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: ${{ runner.os }}-nuget-
+
       - name: Install dependencies
         run: dotnet restore
 
