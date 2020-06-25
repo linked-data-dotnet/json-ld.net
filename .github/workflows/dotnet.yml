@@ -7,7 +7,7 @@ on:
     branches: [master]
 
 jobs:
-  gitversion:
+  build:
     runs-on: ubuntu-latest
 
     outputs:
@@ -25,14 +25,7 @@ jobs:
       - id: gitversion
         uses: gittools/actions/gitversion/execute@v0.9.3
 
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1
+      - uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 2.1.401
 
@@ -44,29 +37,11 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
           restore-keys: ${{ runner.os }}-nuget-
 
-      - name: Install dependencies
-        run: dotnet restore
+      - run: dotnet restore
 
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
+      - run: dotnet build --configuration Release --no-restore
 
-      - uses: actions/upload-artifact@v2
-        with:
-          name: build
-          path: .
-
-  test:
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: build
-          path: .
-
-      - name: Test
-        run: |
+      - run: |
           dotnet test \
             --configuration Release \
             --no-build \
@@ -80,28 +55,13 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: bash <(curl -s https://codecov.io/bash)
 
-  nuget-pack:
-    runs-on: ubuntu-latest
-    needs: [build, gitversion]
-
-    steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: build
-          path: .
-
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 2.1.401
-
       - name: NuGet Pack
         run: |
           dotnet pack \
             --include-source \
             --no-build \
             --no-restore \
-            -p:PackageVersion="${{ needs.gitversion.outputs.fullSemVer }}" \
+            -p:PackageVersion="${{ steps.gitversion.outputs.fullSemVer }}" \
             src/json-ld.net/json-ld.net.csproj \
             --output nugets/
 
