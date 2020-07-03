@@ -61,7 +61,6 @@ jobs:
       - name: NuGet Pack
         run: |
           dotnet pack \
-            --include-source \
             --no-build \
             --no-restore \
             -p:PackageVersion="${{ steps.gitversion.outputs.fullSemVer }}" \
