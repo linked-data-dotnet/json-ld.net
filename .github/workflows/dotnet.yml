@@ -38,7 +38,7 @@ jobs:
           restore-keys: ${{ runner.os }}-nuget-
 
       - name: Diagnostic
-        run: tree
+        run: ls -R
         
       - run: dotnet restore
 
@@ -59,7 +59,7 @@ jobs:
         run: bash <(curl -s https://codecov.io/bash)
 
       - name: Diagnostic
-        run: tree
+        run: run: ls -R
 
       - name: NuGet Pack
         run: |
