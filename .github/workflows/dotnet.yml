@@ -36,9 +36,6 @@ jobs:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
           restore-keys: ${{ runner.os }}-nuget-
-
-      - name: Diagnostic
-        run: ls -R
         
       - run: dotnet restore
 
@@ -59,7 +56,7 @@ jobs:
         run: bash <(curl -s https://codecov.io/bash)
 
       - name: Diagnostic
-        run: ls -R
+        run: ls /home/runner/work/json-ld.net/json-ld.net/src/json-ld.net/bin/Debug -aR
 
       - name: NuGet Pack
         run: |
