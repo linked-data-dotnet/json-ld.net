@@ -37,6 +37,9 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
           restore-keys: ${{ runner.os }}-nuget-
 
+      - name: Diagnostic
+        run: tree
+        
       - run: dotnet restore
 
       - run: dotnet build --configuration Release --no-restore
@@ -54,6 +57,9 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: bash <(curl -s https://codecov.io/bash)
+
+      - name: Diagnostic
+        run: tree
 
       - name: NuGet Pack
         run: |
