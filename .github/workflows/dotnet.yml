@@ -59,7 +59,7 @@ jobs:
         run: bash <(curl -s https://codecov.io/bash)
 
       - name: Diagnostic
-        run: run: ls -R
+        run: ls -R
 
       - name: NuGet Pack
         run: |
