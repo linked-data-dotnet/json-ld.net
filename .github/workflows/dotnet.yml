@@ -56,7 +56,7 @@ jobs:
         run: bash <(curl -s https://codecov.io/bash)
 
       - name: Diagnostic
-        run: ls /home/runner/work/json-ld.net/json-ld.net/src/json-ld.net/bin/Debug -aR
+        run: ls ./src/json-ld.net/bin -aR
 
       - name: NuGet Pack
         run: |
