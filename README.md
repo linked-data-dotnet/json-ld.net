@@ -77,6 +77,7 @@ namespace JsonLD.Demo
 Example data and context used throughout examples below:
 
 #### doc.json
+
 ```json
 {
     "@id": "http://example.org/ld-experts",
