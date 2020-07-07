@@ -509,8 +509,7 @@ internal static void Run()
 }
 ```
 
-
-### Custom documentLoader
+### Custom DocumentLoader
 
 ```csharp
 public class CustomDocumentLoader : DocumentLoader
