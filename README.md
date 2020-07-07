@@ -261,10 +261,9 @@ Output:
 */
 ```
 
+### Normalize
 
-### <a name="normalize"></a>[normalize](http://json-ld.github.io/normalization/spec/) (aka canonize)
-
-Normalized is a graph of objects that is a canonical representation of the document that can be used for hashing, comparison, etc.
+[Normalization](http://json-ld.github.io/normalization/spec/) (aka. canonicalization) converts the document into a graph of objects that is a canonical representation of the document that can be used for hashing, comparison, etc.
 
 ```csharp
 var doc = JObject.Parse(_docJson);
