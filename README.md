@@ -396,7 +396,9 @@ internal static void Run()
 }
 ```
 
-### <a name="fromrdf"></a>fromRDF (N-Quads)
+### FromRDF
+
+ (N-Quads)
 
 ```csharp
 var opts = new JsonLdOptions();
