@@ -241,8 +241,9 @@ Output:
 
 ```
 
+### Frame
 
-### [frame](http://json-ld.org/spec/latest/json-ld-framing/#introduction)
+[Frame](http://json-ld.org/spec/latest/json-ld-framing/#introduction).
 
 For the framing example below, the framing document is defined as follows:
 
