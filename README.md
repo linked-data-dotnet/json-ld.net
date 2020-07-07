@@ -204,8 +204,9 @@ Output:
 */
 ```
 
+### Flatten
 
-### [flatten](http://json-ld.org/spec/latest/json-ld/#flattened-document-form)
+[Flatten](http://json-ld.org/spec/latest/json-ld/#flattened-document-form).
 
 ```csharp
 var doc = JObject.Parse(_docJson);
