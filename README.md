@@ -596,7 +596,7 @@ Documentation for this library is in part drawn from https://github.com/linked-d
   [jsonld]:                     https://json-ld.org/
   [jsonld-java]:                https://github.com/jsonld-java/jsonld-java
 
-  [JSON-LD 1.0]:                http://www.w3.org/TR/2014/REC-json-ld-20140116/
+  [json-ld-1.0]:                http://www.w3.org/TR/2014/REC-json-ld-20140116/
   [JSON-LD 1.0 API]:            http://www.w3.org/TR/2014/REC-json-ld-api-20140116/
   [JSON-LD 1.0 Framing]:        https://json-ld.org/spec/ED/json-ld-framing/20120830/
 
