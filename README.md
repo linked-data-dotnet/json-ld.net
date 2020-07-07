@@ -341,8 +341,9 @@ Output:
 */
 ```
 
+### ToRDF
 
-### <a name="tordf"></a>ToRDF (N-Quads)
+ (N-Quads)
 
 ```csharp
 var doc = JObject.Parse(_docJson);
