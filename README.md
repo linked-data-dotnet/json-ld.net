@@ -39,25 +39,25 @@ You can read more about JSON-LD on the [JSON-LD website][jsonld].
 
 This library aims to conform with the following:
 
-* [JSON-LD 1.0][JSON-LD 1.0], W3C Recommendation, 2014-01-16, and any
+* [JSON-LD 1.0][json-ld-10], W3C Recommendation, 2014-01-16, and any
 [errata][errata]
-* [JSON-LD 1.0 Processing Algorithms and API][JSON-LD 1.0 API], W3C
+* [JSON-LD 1.0 Processing Algorithms and API][json-ld-10-api], W3C
 Recommendation, 2014-01-16, and any [errata][errata]
-* [JSON-LD 1.0 Framing][JSON-LD 1.0 Framing], Unofficial Draft, 2012-08-30
-* Working Group [test suite][WG test suite]
+* [JSON-LD 1.0 Framing][json-ld-10-framing], Unofficial Draft, 2012-08-30
+* Working Group [test suite][wg-test-suite]
 
-The [JSON-LD Working Group][JSON-LD WG] is now developing JSON-LD 1.1. Library
+The [JSON-LD Working Group][json-ld-wg] is now developing JSON-LD 1.1. Library
 updates to conform with newer specifications will happen as features stabilize
 and development time and resources permit.
 
-* [JSON-LD 1.1][JSON-LD WG 1.1], W3C Working Draft, 2018-12-14 or
-[newer][JSON-LD WG latest]
-* [JSON-LD 1.1 Processing Algorithms and API][JSON-LD WG 1.1 API], W3C Working
-Draft, 2018-12-14 or [newer][JSON-LD WG API latest]
-* [JSON-LD 1.1 Framing][JSON-LD WG 1.1 Framing], W3C Working Draft, 2018-12-14
-or [newer][JSON-LD WG Framing latest]
+* [JSON-LD 1.1][json-ld-wg-11], W3C Working Draft, 2018-12-14 or
+[newer][json-ld-wg-latest]
+* [JSON-LD 1.1 Processing Algorithms and API][json-ld-wg-11-api], W3C Working
+Draft, 2018-12-14 or [newer][json-ld-wg-api-latest]
+* [JSON-LD 1.1 Framing][json-ld-wg-11-framing], W3C Working Draft, 2018-12-14
+or [newer][json-ld-wg-framing-latest]
 
-The [test runner][test runner] is often updated to note or skip newer tests that
+The [test runner][test-runner] is often updated to note or skip newer tests that
 are not yet supported.
 
 ## Supported frameworks
@@ -620,6 +620,8 @@ https://github.com/linked-data-dotnet/json-ld.net
   [codecov]:                    https://codecov.io/gh/linked-data-dotnet/json-ld.net
   [codecov-badge]:              https://img.shields.io/codecov/c/github/linked-data-dotnet/json-ld.net/master.svg
 
+  [errata]:                     http://www.w3.org/2014/json-ld-errata
+
   [ms-mail]:                    mailto:opencode@microsoft.com
   [dnc]:                        https://dot.net
   [dnc-tutorial]:               https://www.microsoft.com/net/core
@@ -629,22 +631,22 @@ https://github.com/linked-data-dotnet/json-ld.net
   [jsonld]:                     https://json-ld.org/
   [jsonld-java]:                https://github.com/jsonld-java/jsonld-java
 
-  [json-ld-1.0]:                http://www.w3.org/TR/2014/REC-json-ld-20140116/
-  [JSON-LD 1.0 API]:            http://www.w3.org/TR/2014/REC-json-ld-api-20140116/
-  [JSON-LD 1.0 Framing]:        https://json-ld.org/spec/ED/json-ld-framing/20120830/
+  [json-ld-10]:                 http://www.w3.org/TR/2014/REC-json-ld-20140116/
+  [json-ld-10-api]:             http://www.w3.org/TR/2014/REC-json-ld-api-20140116/
+  [json-ld-10-framing]:         https://json-ld.org/spec/ED/json-ld-framing/20120830/
 
-  [JSON-LD WG 1.1]:             https://www.w3.org/TR/json-ld11/
-  [JSON-LD WG 1.1 API]:         https://www.w3.org/TR/json-ld11-api/
-  [JSON-LD WG 1.1 Framing]:     https://www.w3.org/TR/json-ld11-framing/
+  [json-ld-wg-11]:              https://www.w3.org/TR/json-ld11/
+  [json-ld-wg-11-api]:          https://www.w3.org/TR/json-ld11-api/
+  [json-ld-wg-11-framing]:      https://www.w3.org/TR/json-ld11-framing/
 
-  [JSON-LD WG latest]:          https://w3c.github.io/json-ld-syntax/
-  [JSON-LD WG API latest]:      https://w3c.github.io/json-ld-api/
-  [JSON-LD WG Framing latest]:  https://w3c.github.io/json-ld-framing/
+  [json-ld-wg-latest]:          https://w3c.github.io/json-ld-syntax/
+  [json-ld-wg-api-latest]:      https://w3c.github.io/json-ld-api/
+  [json-ld-wg-framing-latest]:  https://w3c.github.io/json-ld-framing/
 
   [nuget]:                      https://www.nuget.org/packages/json-ld.net/
   [nuget-badge]:                https://img.shields.io/nuget/v/json-ld.net.svg
 
   [sharpen]:                    http://community.versant.com/Projects/html/projectspaces/db4o_product_design/sharpen.html
 
-  [test runner]:                https://github.com/linked-data-dotnet/json-ld.net/tree/master/test/json-ld.net.tests
-  [WG test suite]:              https://github.com/w3c/json-ld-api/tree/master/tests
+  [test-runner]:                https://github.com/linked-data-dotnet/json-ld.net/tree/master/test/json-ld.net.tests
+  [wg-test-suite]:              https://github.com/w3c/json-ld-api/tree/master/tests
