@@ -130,8 +130,9 @@ Example data and context used throughout examples below:
 }
 ```
 
+### Compact
 
-### [compact](http://json-ld.org/spec/latest/json-ld/#compacted-document-form)
+[Compact](http://json-ld.org/spec/latest/json-ld/#compacted-document-form).
 
 ```csharp
 var doc = JObject.Parse(_docJson);
