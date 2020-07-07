@@ -132,7 +132,12 @@ Example data and context used throughout examples below:
 
 ### Compact
 
-[Compact](http://json-ld.org/spec/latest/json-ld/#compacted-document-form).
+[Compaction](http://json-ld.org/spec/latest/json-ld/#compacted-document-form) is
+the process of applying a developer-supplied context to shorten IRIs to terms or
+compact IRIs, and JSON-LD values expressed in expanded form to simple values
+such as strings or numbers. Often this makes it simpler to work with a document
+as the data is expressed in application-specific terms. Compacted documents are
+also typically easier to read for humans.
 
 ```csharp
 var doc = JObject.Parse(_docJson);
@@ -161,7 +166,11 @@ Output:
 
 ### Expand
 
-[Expand](http://json-ld.org/spec/latest/json-ld/#expanded-document-form).
+
+[Exapansion](http://json-ld.org/spec/latest/json-ld/#expanded-document-form) is
+the process of taking a JSON-LD document and applying a @context such that all
+IRIs, types, and values are expanded so that the @context is no longer
+necessary.
 
 ```csharp
 var expanded = JsonLdProcessor.Expand(compacted);
@@ -208,7 +217,11 @@ Output:
 
 ### Flatten
 
-[Flatten](http://json-ld.org/spec/latest/json-ld/#flattened-document-form).
+[Flattening](http://json-ld.org/spec/latest/json-ld/#flattened-document-form)
+collects all properties of a node in a single JSON object and labels all blank
+nodes with blank node identifiers. This ensures a shape of the data and
+consequently may drastically simplify the code required to process JSON-LD in
+certain applications.
 
 ```csharp
 var doc = JObject.Parse(_docJson);
@@ -246,7 +259,17 @@ Output:
 
 ### Frame
 
-[Frame](http://json-ld.org/spec/latest/json-ld-framing/#introduction).
+[Framing](http://json-ld.org/spec/latest/json-ld-framing/#introduction) is used
+to shape the data in a JSON-LD document, using an example frame document which
+is used to both match the flattened data and show an example of how the
+resulting data should be shaped. Matching is performed by using properties
+present in the frame to find objects in the data that share common values.
+Matching can be done either using all properties present in the frame, or any
+property in the frame. By chaining together objects using matched property
+values, objects can be embedded within one another.
+
+A frame also includes a context, which is used for compacting the resulting
+framed output.
 
 For the framing example below, the framing document is defined as follows:
 
@@ -376,7 +399,20 @@ Output:
 
 ### ToRDF
 
- (N-Quads)
+JSON-LD is a concrete RDF syntax as described in [RDF 1.1 Concepts and Abstract
+Syntax][rdf-11-concepts]. Hence, a JSON-LD document is both an RDF document and a
+JSON document and correspondingly represents an instance of an RDF data model.
+The procedure to deserialize a JSON-LD document to an
+[RDF dataset][rdf-11-dataset] (and, optionally, to [RDF N-Quads][n-quads])
+involves the following steps:
+
+1. Expand the JSON-LD document, removing any context; this ensures that
+properties, types, and values are given their full representation as IRIs and
+expanded values.
+1. Flatten the document, which turns the document into an array of node objects.
+1. Turn each node object into a series of RDF N-Quads.
+
+The processor's `ToRDF` method carries out these steps for you, like this:
 
 ```csharp
 var doc = JObject.Parse(_docJson);
@@ -399,7 +435,7 @@ _:b0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schema.org/Person
 */
 ```
 
-_or_ using a custom RDF renderer object
+_or_ using a custom RDF renderer object, like this:
 
 ```csharp
 private class JSONLDTripleCallback : IJSONLDTripleCallback
@@ -431,7 +467,17 @@ internal static void Run()
 
 ### FromRDF
 
- (N-Quads)
+Serialization from RDF N-Quads into JSON-LD can be thought of as the inverse of
+the last of the three steps described in summary Deserialization described in
+the `ToRDF` method documentation above. Serialization creates an expanded
+JSON-LD document closely matching the N-Quads from RDF, using a single node
+object for all N-Quads having a common subject, and a single property for those
+N-Quads also having a common predicate.
+
+In practice, it looks like this:
+
+_the variable `serialized` is populated with RDF N-Quads values resulting from
+the code in the `ToRDF` example above_
 
 ```csharp
 var opts = new JsonLdOptions();
@@ -544,6 +590,10 @@ internal static void Run()
 
 ### Custom DocumentLoader
 
+By replacing the default `documentLoader` object placed on the JsonLdProcessor,
+it is possible to alter the behaviour when retrieving a remote document (e.g. a
+context document) required to execute a given algorithm (e.g. Expansion).
+
 ```csharp
 public class CustomDocumentLoader : DocumentLoader
 {
@@ -647,6 +697,10 @@ https://github.com/linked-data-dotnet/json-ld.net
   [json-ld-wg-latest]:          https://w3c.github.io/json-ld-syntax/
   [json-ld-wg-api-latest]:      https://w3c.github.io/json-ld-api/
   [json-ld-wg-framing-latest]:  https://w3c.github.io/json-ld-framing/
+
+  [n-quads]:                    https://www.w3.org/TR/n-quads/
+  [rdf-11-concepts]:            https://www.w3.org/TR/rdf11-concepts/
+  [rdf-11-dataset]:             https://www.w3.org/TR/rdf11-concepts/#dfn-rdf-dataset
 
   [nuget]:                      https://www.nuget.org/packages/json-ld.net/
   [nuget-badge]:                https://img.shields.io/nuget/v/json-ld.net.svg
