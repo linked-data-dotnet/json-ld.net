@@ -447,7 +447,7 @@ Output:
 */
 ```
 
-_or_ using a custom RDF parser
+_or_ using a custom RDF parser:
 
 ```csharp
 private class CustomRDFParser : IRDFParser
