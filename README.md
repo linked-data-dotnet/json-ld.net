@@ -7,11 +7,31 @@
 ## Introduction
 This library is an implementation of the JSON-LD specification in C#.
 
-JSON, as specified in RFC7159, is a simple language for representing objects on the Web. Linked Data is a way of describing content across different documents or Web sites. Web resources are described using IRIs, and typically are dereferencable entities that may be used to find more information, creating a "Web of Knowledge". JSON-LD is intended to be a simple publishing method for expressing not only Linked Data in JSON, but for adding semantics to existing JSON.
+JSON, as specified in RFC7159, is a simple language for representing objects on
+the Web. Linked Data is a way of describing content across different documents
+or Web sites. Web resources are described using IRIs, and typically are
+dereferencable entities that may be used to find more information, creating a
+"Web of Knowledge". JSON-LD is intended to be a simple publishing method for
+expressing not only Linked Data in JSON, but for adding semantics to existing
+JSON.
 
-JSON-LD is designed as a light-weight syntax that can be used to express Linked Data. It is primarily intended to be a way to express Linked Data in JavaScript and other Web-based programming environments. It is also useful when building interoperable Web Services and when storing Linked Data in JSON-based document storage engines. It is practical and designed to be as simple as possible, utilizing the large number of JSON parsers and existing code that is in use today. It is designed to be able to express key-value pairs, RDF data, RDFa data, Microformats data, and Microdata. That is, it supports every major Web-based structured data model in use today.
+JSON-LD is designed as a light-weight syntax that can be used to express Linked
+Data. It is primarily intended to be a way to express Linked Data in JavaScript
+and other Web-based programming environments. It is also useful when building
+interoperable Web Services and when storing Linked Data in JSON-based document
+storage engines. It is practical and designed to be as simple as possible,
+utilizing the large number of JSON parsers and existing code that is in use
+today. It is designed to be able to express key-value pairs, RDF data, RDFa
+data, Microformats data, and Microdata. That is, it supports every major
+Web-based structured data model in use today.
 
-The syntax does not require many applications to change their JSON, but easily add meaning by adding context in a way that is either in-band or out-of-band. The syntax is designed to not disturb already deployed systems running on JSON, but provide a smooth migration path from plain JSON to semantically enhanced JSON. Finally, the format is intended to be fast to parse, fast to generate, stream-based and document-based processing compatible, and require a very small memory footprint in order to operate.
+The syntax does not require many applications to change their JSON, but easily
+add meaning by adding context in a way that is either in-band or out-of-band.
+The syntax is designed to not disturb already deployed systems running on JSON,
+but provide a smooth migration path from plain JSON to semantically enhanced
+JSON. Finally, the format is intended to be fast to parse, fast to generate,
+stream-based and document-based processing compatible, and require a very small
+memory footprint in order to operate.
 
 You can read more about JSON-LD on the [JSON-LD website][jsonld].
 
@@ -19,8 +39,10 @@ You can read more about JSON-LD on the [JSON-LD website][jsonld].
 
 This library aims to conform with the following:
 
-* [JSON-LD 1.0][JSON-LD 1.0], W3C Recommendation, 2014-01-16, and any [errata][errata]
-* [JSON-LD 1.0 Processing Algorithms and API][JSON-LD 1.0 API], W3C Recommendation, 2014-01-16, and any [errata][errata]
+* [JSON-LD 1.0][JSON-LD 1.0], W3C Recommendation, 2014-01-16, and any
+[errata][errata]
+* [JSON-LD 1.0 Processing Algorithms and API][JSON-LD 1.0 API], W3C
+Recommendation, 2014-01-16, and any [errata][errata]
 * [JSON-LD 1.0 Framing][JSON-LD 1.0 Framing], Unofficial Draft, 2012-08-30
 * Working Group [test suite][WG test suite]
 
@@ -28,12 +50,15 @@ The [JSON-LD Working Group][JSON-LD WG] is now developing JSON-LD 1.1. Library
 updates to conform with newer specifications will happen as features stabilize
 and development time and resources permit.
 
-* [JSON-LD 1.1][JSON-LD WG 1.1], W3C Working Draft, 2018-12-14 or [newer][JSON-LD WG latest]
-* [JSON-LD 1.1 Processing Algorithms and API][JSON-LD WG 1.1 API], W3C Working Draft, 2018-12-14 or [newer][JSON-LD WG API latest]
-* [JSON-LD 1.1 Framing][JSON-LD WG 1.1 Framing], W3C Working Draft, 2018-12-14 or [newer][JSON-LD WG Framing latest]
+* [JSON-LD 1.1][JSON-LD WG 1.1], W3C Working Draft, 2018-12-14 or
+[newer][JSON-LD WG latest]
+* [JSON-LD 1.1 Processing Algorithms and API][JSON-LD WG 1.1 API], W3C Working
+Draft, 2018-12-14 or [newer][JSON-LD WG API latest]
+* [JSON-LD 1.1 Framing][JSON-LD WG 1.1 Framing], W3C Working Draft, 2018-12-14
+or [newer][JSON-LD WG Framing latest]
 
-The [test runner][] is often updated to note or skip newer tests that are not
-yet supported.
+The [test runner][test runner] is often updated to note or skip newer tests that
+are not yet supported.
 
 ## Supported frameworks
 
@@ -263,7 +288,10 @@ Output:
 
 ### Normalize
 
-[Normalization](http://json-ld.github.io/normalization/spec/) (aka. canonicalization) converts the document into a graph of objects that is a canonical representation of the document that can be used for hashing, comparison, etc.
+[Normalization](http://json-ld.github.io/normalization/spec/) (aka.
+canonicalization) converts the document into a graph of objects that is a
+canonical representation of the document that can be used for hashing,
+comparison, etc.
 
 ```csharp
 var doc = JObject.Parse(_docJson);
@@ -559,7 +587,9 @@ public static void Run()
 
 ## Contributing
 
-This project has adopted the [Microsoft Open Source Code of Conduct][coc]. For more information see the [Code of Conduct FAQ][coc-faq] or contact [opencode@microsoft.com][ms-mail] with any additional questions or comments.
+This project has adopted the [Microsoft Open Source Code of Conduct][coc]. For
+more information see the [Code of Conduct FAQ][coc-faq] or contact
+[opencode@microsoft.com][ms-mail] with any additional questions or comments.
 
 Pull requests for json-ld.net are welcome, to get started install the latest
 tools for .NET Core:
@@ -582,7 +612,8 @@ On both Windows and all other supported operating systems, you can run
 This project began life as a [Sharpen][sharpen]-based auto-port from
 [jsonld-java][jsonld-java].
 
-Documentation for this library is in part drawn from https://github.com/linked-data-dotnet/json-ld.net
+Documentation for this library is in part drawn from
+https://github.com/linked-data-dotnet/json-ld.net
 
   [coc]:                        https://opensource.microsoft.com/codeofconduct/
   [coc-faq]:                    https://opensource.microsoft.com/codeofconduct/faq/
