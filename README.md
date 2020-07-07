@@ -13,7 +13,7 @@ JSON-LD is designed as a light-weight syntax that can be used to express Linked 
 
 The syntax does not require many applications to change their JSON, but easily add meaning by adding context in a way that is either in-band or out-of-band. The syntax is designed to not disturb already deployed systems running on JSON, but provide a smooth migration path from plain JSON to semantically enhanced JSON. Finally, the format is intended to be fast to parse, fast to generate, stream-based and document-based processing compatible, and require a very small memory footprint in order to operate.
 
-You can read more about JSON-LD on the [JSON-LD website](jsonld).
+You can read more about JSON-LD on the [JSON-LD website][jsonld].
 
 ## Conformance
 
