@@ -158,8 +158,9 @@ Output:
 */
 ```
 
+### Expand
 
-### [expand](http://json-ld.org/spec/latest/json-ld/#expanded-document-form)
+[Expand](http://json-ld.org/spec/latest/json-ld/#expanded-document-form).
 
 ```csharp
 var expanded = JsonLdProcessor.Expand(compacted);
