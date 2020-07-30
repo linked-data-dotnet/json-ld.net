@@ -6,7 +6,7 @@ using System.IO;
 namespace JsonLD.Test
 {
     public class JsonFetcher
-    {
+    {        
         public JToken GetJson(JToken j, string rootDirectory)
         {
             try
@@ -27,5 +27,9 @@ namespace JsonLD.Test
                 return null;
             }
         }
+
+        internal string GetJsonAsString(string manifest, string rootDirectory) => throw new NotImplementedException();
+
+        internal JsonTestCases GetTestCases(string manifest, string rootDirectory) => throw new NotImplementedException();
     }
 }
