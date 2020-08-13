@@ -80,16 +80,22 @@ namespace JsonLD.Test.Raw
 
             foreach (string manifest in manifests)
             {
-                var manifestJson = jsonFetcher.GetTestCases(manifest, rootDirectory);
+                var testCases = jsonFetcher.GetTestCases(manifest, rootDirectory);
 
-                foreach (var testCase in manifestJson.Sequence)
+                foreach (var testCase in testCases.Sequence)
                 {
                     Func<string> run;
                     ConformanceCase newCase = new ConformanceCase();
 
-                    newCase.input = testCase.GetInputJson();
-                    newCase.context = testCase.GetContextJson();
-                    newCase.frame = testCase.GetFrameJson();
+                    try
+                    {
+                        newCase.input = testCase.GetInputJson();
+                        newCase.context = testCase.GetContextJson();
+                        newCase.frame = testCase.GetFrameJson();
+                    } catch(Exception ex)
+                    {
+                        throw new Exception($"{testCase.Id} in {testCases.Name}", ex);
+                    }
 
                     var options = new JsonLD.Core.Raw.JsonLdOptions("http://json-ld.org/test-suite/tests/" + testCase.Input);
 
@@ -185,7 +191,7 @@ namespace JsonLD.Test.Raw
                         run = () => { throw new Exception("Couldn't find a test type, apparently."); };
                     }
 
-                    if (manifestJson.Name == "Remote document")
+                    if (testCases.AreRemoteDocumentTests)
                     {
                         Func<string> innerRun = run;
                         run = () =>

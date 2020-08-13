@@ -9,6 +9,10 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp2.1|AnyCPU'">
+    <DefineConstants>TRACE;IS_CORECLR</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Update="NQuads\**;W3C\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
