@@ -29,7 +29,7 @@ Implements the W3C JSON-LD 1.0 standard.</Description>
     <DefineConstants>$(DefineConstants);PORTABLE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <DefineConstants></DefineConstants>
+      <DefineConstants>$(DefineConstants);IS_CORECLR</DefineConstants>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
     <PackageReference Include="System.Dynamic.Runtime" Version="4.3.0" />
