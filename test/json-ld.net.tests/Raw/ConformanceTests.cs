@@ -15,8 +15,8 @@ namespace JsonLD.Test.Raw
         public void ConformanceTestPasses(string id, ConformanceCase conformanceCase)
         {
             string result;
-            /*try
-            {*/
+            try
+            {
                 result = conformanceCase.run();
                 if (!JsonLdUtils.DeepCompareStrings(result, conformanceCase.output))
                 {
@@ -33,12 +33,12 @@ namespace JsonLD.Test.Raw
                     Assert.True(false, "Returned JSON doesn't match expectations.");
                 }
 
-            /*}
+            }
             catch (Exception ex)
             {
                 if (conformanceCase.error == default) throw; // unexpected error
                 Assert.True(ex.Message.StartsWith(conformanceCase.error), "Resulting error doesn't match expectations.");
-            }*/
+            }
         }
     }
 
