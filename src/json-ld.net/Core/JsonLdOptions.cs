@@ -16,6 +16,27 @@ namespace JsonLD.Core
             this.SetBase(@base);
         }
 
+        public JsonLdOptions(Raw.JsonLdOptions options) : this()
+        {
+            @base = options.GetBase();
+            compactArrays = options.GetCompactArrays();
+            var expandContextAsString = options.GetExpandContext();
+            expandContext = expandContextAsString == null ? null : JObject.Parse(expandContextAsString);
+            processingMode = options.GetProcessingMode();
+            embed = options.GetEmbed();
+            @explicit = options.GetExplicit();
+            omitDefault = options.GetOmitDefault();
+            useRdfType = options.GetUseRdfType();
+            useNativeTypes = options.GetUseNativeTypes();
+            produceGeneralizedRdf = options.GetProduceGeneralizedRdf();
+            sortGraphsFromRdf = options.GetSortGraphsFromRdf();
+            sortGraphNodesFromRdf = options.GetSortGraphNodesFromRdf();
+            format = options.format;
+            useNamespaces = options.useNamespaces;
+            outputForm = options.outputForm;
+            documentLoader = new DocumentLoader(options.documentLoader);
+        }
+
         public virtual JsonLD.Core.JsonLdOptions Clone()
         {
             JsonLD.Core.JsonLdOptions rval = new JsonLD.Core.JsonLdOptions(GetBase());
@@ -175,6 +196,7 @@ namespace JsonLD.Core
         public string outputForm = null;
 
         public DocumentLoader documentLoader = new DocumentLoader();
+        
         // TODO: THE FOLLOWING ONLY EXIST SO I DON'T HAVE TO DELETE A LOT OF CODE,
         // REMOVE IT WHEN DONE
     }

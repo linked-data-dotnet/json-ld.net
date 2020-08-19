@@ -15,6 +15,8 @@ namespace JsonLD.Test
             Expect = dictionary.Required<string>("expect");
             Context = dictionary.Optional<string>("context");
             Frame = dictionary.Optional<string>("frame");
+            var options = dictionary.Optional<Dictionary<string, object>>("option");
+            if (options != null) Options = new JsonTestCaseOptions(options);
             _dataPath = dataPath;
             _isRemoteDocumentTest = isRemoteDocumentTest;
         }

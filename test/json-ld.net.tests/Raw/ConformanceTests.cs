@@ -14,10 +14,11 @@ namespace JsonLD.Test.Raw
         [Theory, ClassData(typeof(ConformanceCases))]
         public void ConformanceTestPasses(string id, ConformanceCase conformanceCase)
         {
-            try
-            {
-                string result = conformanceCase.run();
-                if (!JsonLdUtils.DeepCompare(result, conformanceCase.output))
+            string result;
+            /*try
+            {*/
+                result = conformanceCase.run();
+                if (!JsonLdUtils.DeepCompareStrings(result, conformanceCase.output))
                 {
                     #if DEBUG
                     Console.WriteLine(id);
@@ -32,12 +33,12 @@ namespace JsonLD.Test.Raw
                     Assert.True(false, "Returned JSON doesn't match expectations.");
                 }
 
-            }
+            /*}
             catch (Exception ex)
             {
                 if (conformanceCase.error == default) throw; // unexpected error
                 Assert.True(ex.Message.StartsWith(conformanceCase.error), "Resulting error doesn't match expectations.");
-            }
+            }*/
         }
     }
 

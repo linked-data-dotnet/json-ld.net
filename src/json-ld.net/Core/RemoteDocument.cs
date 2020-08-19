@@ -58,7 +58,7 @@ namespace JsonLD.Core
 
         internal string contextUrl;
 
-        internal JToken context;
+        internal JToken context;        
 
         public RemoteDocument(string url, JToken document)
             : this(url, document, null)
@@ -70,6 +70,14 @@ namespace JsonLD.Core
             this.documentUrl = url;
             this.document = document;
             this.contextUrl = context;
+        }
+
+        public RemoteDocument(Raw.RemoteDocument remoteDocument)
+        {
+            this.documentUrl = remoteDocument.DocumentUrl;
+            this.document = JObject.Parse(remoteDocument.Document);
+            this.contextUrl = remoteDocument.ContextUrl;
+            this.context = JObject.Parse(remoteDocument.Context);
         }
     }
 }

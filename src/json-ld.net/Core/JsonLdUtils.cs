@@ -2,9 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using JsonLD.Core;
+using RegularExpressions = System.Text.RegularExpressions;
 using JsonLD.Util;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace JsonLD.Core
 {
@@ -133,6 +134,32 @@ namespace JsonLD.Core
                     }
                 }
             }
+        }
+
+        public static bool DeepCompareStrings(string v1, string v2) => DeepCompare(JsonOrXMLAsJToken(v1), JsonOrXMLAsJToken(v2));
+
+        private static readonly RegularExpressions.Regex _likelyJSON = new RegularExpressions.Regex(@"(^\{.*\}$)|(^\[.*\]$)", RegularExpressions.RegexOptions.Singleline);
+
+        /* 
+         * The existing code compares strings of XML or triples by comparing JToken strings! As we don't already know whether this is "real" string of 
+         * JSON or merely a string of some other description which will be compared as a JSON string, we need to sniff the data to work out how to parse it
+         */
+        private static JToken JsonOrXMLAsJToken(string v1)
+        {
+            var probablyJSON = _likelyJSON.IsMatch(v1.Trim());
+            if(probablyJSON)
+            {
+                try
+                {
+                    return JToken.Parse(v1);
+                }
+                catch(JsonReaderException)
+                {
+                    // in case our "likely JSON" turns out to be something not parseable after all...                    
+                    return v1;
+                }
+            } return v1;
+                       
         }
 
         public static bool DeepCompare(JToken v1, JToken v2)
