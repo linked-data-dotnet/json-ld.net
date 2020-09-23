@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace JsonLD.Test
+namespace JsonLD.Infrastructure.Text.Tests
 {
     internal static class DictionaryExtensions
     {

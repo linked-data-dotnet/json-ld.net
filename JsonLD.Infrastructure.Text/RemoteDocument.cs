@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace JsonLD.Core.Raw
+namespace JsonLD.Infrastructure.Text
 {
     public class RemoteDocument
     {
@@ -73,5 +74,7 @@ namespace JsonLD.Core.Raw
             this.document = document;
             this.contextUrl = context;
         }
+
+        internal Core.RemoteDocument AsCore() => new Core.RemoteDocument(documentUrl, JObject.Parse(document), contextUrl);
     }
 }

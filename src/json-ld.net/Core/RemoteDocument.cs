@@ -71,13 +71,5 @@ namespace JsonLD.Core
             this.document = document;
             this.contextUrl = context;
         }
-
-        public RemoteDocument(Raw.RemoteDocument remoteDocument)
-        {
-            this.documentUrl = remoteDocument.DocumentUrl;
-            this.document = JObject.Parse(remoteDocument.Document);
-            this.contextUrl = remoteDocument.ContextUrl;
-            this.context = JObject.Parse(remoteDocument.Context);
-        }
     }
 }

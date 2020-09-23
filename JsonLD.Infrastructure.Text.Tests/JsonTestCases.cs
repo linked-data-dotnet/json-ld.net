@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace JsonLD.Test
+namespace JsonLD.Infrastructure.Text.Tests
 {
     internal class JsonTestCases
     {        

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2026
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "json-ld.net", "src\json-ld.net\json-ld.net.csproj", "{E1AB2A29-D1E4-45A1-9076-8255916F5693}"
 EndProject
@@ -12,9 +12,15 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{8010CF28-BCB3-4DC2-901F-3118B2AAD142}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{4B8ED350-355A-4D30-9F63-B13FBFDBD9E8}"
-ProjectSection(SolutionItems) = preProject
-	.gitignore = .gitignore
-EndProjectSection
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "infrastructure", "infrastructure", "{9E020C9F-3649-49C5-A4FF-0A2343D5A553}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonLD.Infrastructure.Text", "JsonLD.Infrastructure.Text\JsonLD.Infrastructure.Text.csproj", "{D091ADAE-A022-4CFC-8268-C5FA089E6FD8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonLD.Infrastructure.Text.Tests", "JsonLD.Infrastructure.Text.Tests\JsonLD.Infrastructure.Text.Tests.csproj", "{C0B57654-CB3F-47AE-AB34-9B14B0C2E061}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,15 +36,25 @@ Global
 		{05CBE0E2-FBD2-40D1-BD9A-D30BD7ACF219}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{05CBE0E2-FBD2-40D1-BD9A-D30BD7ACF219}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{05CBE0E2-FBD2-40D1-BD9A-D30BD7ACF219}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D091ADAE-A022-4CFC-8268-C5FA089E6FD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D091ADAE-A022-4CFC-8268-C5FA089E6FD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D091ADAE-A022-4CFC-8268-C5FA089E6FD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D091ADAE-A022-4CFC-8268-C5FA089E6FD8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0B57654-CB3F-47AE-AB34-9B14B0C2E061}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0B57654-CB3F-47AE-AB34-9B14B0C2E061}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0B57654-CB3F-47AE-AB34-9B14B0C2E061}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0B57654-CB3F-47AE-AB34-9B14B0C2E061}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {F10834B6-ACA3-4C86-892B-368D0B68ED83}
-	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E1AB2A29-D1E4-45A1-9076-8255916F5693} = {8D83EC18-10BB-4C6E-A34A-AC183AD6D814}
 		{05CBE0E2-FBD2-40D1-BD9A-D30BD7ACF219} = {8010CF28-BCB3-4DC2-901F-3118B2AAD142}
+		{D091ADAE-A022-4CFC-8268-C5FA089E6FD8} = {9E020C9F-3649-49C5-A4FF-0A2343D5A553}
+		{C0B57654-CB3F-47AE-AB34-9B14B0C2E061} = {9E020C9F-3649-49C5-A4FF-0A2343D5A553}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F10834B6-ACA3-4C86-892B-368D0B68ED83}
 	EndGlobalSection
 EndGlobal

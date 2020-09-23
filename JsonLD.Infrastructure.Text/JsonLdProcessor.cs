@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace JsonLD.Core.Raw
+namespace JsonLD.Infrastructure.Text
 {
     public class JsonLdProcessor
     {
@@ -11,7 +11,7 @@ namespace JsonLD.Core.Raw
         {
             var parsedInput = AsJToken(input);
             var parsedContext = AsJToken(context);
-            var wrappedOptions = new Core.JsonLdOptions(options);
+            var wrappedOptions = options.AsCore();
             var processed = Core.JsonLdProcessor.Compact(parsedInput, parsedContext, wrappedOptions);
             return processed.ToString();
         }
@@ -19,7 +19,7 @@ namespace JsonLD.Core.Raw
         public static string Expand(string input, JsonLdOptions options)
         {
             var parsedInput = AsJToken(input);
-            var wrappedOptions = new Core.JsonLdOptions(options);
+            var wrappedOptions = options.AsCore();
             var processed = Core.JsonLdProcessor.Expand(parsedInput, wrappedOptions);
             return processed.ToString();
         }
@@ -28,7 +28,7 @@ namespace JsonLD.Core.Raw
         {
             var parsedInput = AsJToken(input);
             var parsedContext = AsJToken(context);
-            var wrappedOptions = new Core.JsonLdOptions(options);
+            var wrappedOptions = options.AsCore();
             var processed = Core.JsonLdProcessor.Flatten(parsedInput, parsedContext, wrappedOptions);
             return processed.ToString();
         }
@@ -37,7 +37,7 @@ namespace JsonLD.Core.Raw
         {
             var parsedInput = AsJToken(input);
             var parsedFrame = AsJToken(frame);
-            var wrappedOptions = new Core.JsonLdOptions(options);
+            var wrappedOptions = options.AsCore();
             var processed = Core.JsonLdProcessor.Frame(parsedInput, parsedFrame, wrappedOptions);
             return processed.ToString();
         }
@@ -45,7 +45,7 @@ namespace JsonLD.Core.Raw
         public static string FromRDF(string input, JsonLdOptions options)
         {
             var parsedInput = (JToken)input;
-            var wrappedOptions = new Core.JsonLdOptions(options);
+            var wrappedOptions = options.AsCore();
             var processed = Core.JsonLdProcessor.FromRDF(parsedInput, wrappedOptions);
             return processed.ToString();
         }
@@ -53,7 +53,7 @@ namespace JsonLD.Core.Raw
         public static object Normalize(string input, JsonLdOptions options)
         {
             var parsedInput = AsJToken(input);
-            var wrappedOptions = new Core.JsonLdOptions(options);
+            var wrappedOptions = options.AsCore();
             var processed = Core.JsonLdProcessor.Normalize(parsedInput, wrappedOptions);
             return processed;
         }
@@ -61,7 +61,7 @@ namespace JsonLD.Core.Raw
         public static string ToRDF(string input, JsonLdOptions options)
         {
             var parsedInput = AsJToken(input);
-            var wrappedOptions = new Core.JsonLdOptions(options);
+            var wrappedOptions = options.AsCore();
             var processed = Core.JsonLdProcessor.ToRDF(parsedInput, wrappedOptions);
             return processed.ToString();
         }

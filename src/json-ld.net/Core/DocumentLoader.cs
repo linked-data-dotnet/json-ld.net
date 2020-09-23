@@ -16,7 +16,7 @@ namespace JsonLD.Core
         {
             if (_documentLoader != null)
             {
-                return new RemoteDocument(_documentLoader.LoadDocument(url));
+                return _documentLoader(url);
             }
 #if !PORTABLE && !IS_CORECLR
             RemoteDocument doc = new RemoteDocument(url, null);
@@ -97,11 +97,11 @@ namespace JsonLD.Core
         /// <remarks>An HTTP Accept header that prefers JSONLD.</remarks>
         public const string AcceptHeader = "application/ld+json, application/json;q=0.9, application/javascript;q=0.5, text/javascript;q=0.5, text/plain;q=0.2, */*;q=0.1";
 
-        private Raw.DocumentLoader _documentLoader;
+        private Func<string, RemoteDocument> _documentLoader;
 
         public DocumentLoader() { }
 
-        public DocumentLoader(Raw.DocumentLoader documentLoader) => _documentLoader = documentLoader;
+        public DocumentLoader(Func<string, RemoteDocument> documentLoader) => _documentLoader = documentLoader;
 
         //        private static volatile IHttpClient httpClient;
 

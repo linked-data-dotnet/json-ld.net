@@ -1,4 +1,7 @@
-﻿namespace JsonLD.Core.Raw
+﻿using Newtonsoft.Json.Linq;
+using System;
+
+namespace JsonLD.Infrastructure.Text
 {
     public class JsonLdOptions
     {
@@ -22,6 +25,29 @@
         private bool compactArrays = true;
 
         private string expandContext = null;
+
+        internal Core.JsonLdOptions AsCore()
+        {
+            var options = new Core.JsonLdOptions(GetBase());
+            options.SetCompactArrays(GetCompactArrays());
+            var expandContextAsString = GetExpandContext();
+            if (!string.IsNullOrWhiteSpace(expandContextAsString))
+                options.SetExpandContext(JObject.Parse(expandContextAsString));
+            options.SetProcessingMode(GetProcessingMode());
+            options.SetEmbed(GetEmbed());
+            options.SetExplicit(GetExplicit());
+            options.SetOmitDefault(GetOmitDefault());
+            options.SetUseRdfType(GetUseRdfType());
+            options.SetUseNativeTypes(GetUseNativeTypes());
+            options.SetProduceGeneralizedRdf(GetProduceGeneralizedRdf());
+            options.SetSortGraphsFromRdf(GetSortGraphsFromRdf());
+            options.SetSortGraphNodesFromRdf(GetSortGraphNodesFromRdf());
+            options.format = format;
+            options.useNamespaces = useNamespaces;
+            options.outputForm = outputForm;
+            options.documentLoader = documentLoader.AsCore();
+            return options;
+        }
 
         private string processingMode = "json-ld-1.0";
 

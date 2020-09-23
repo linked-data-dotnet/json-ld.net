@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 
-namespace JsonLD.Test
+namespace JsonLD.Infrastructure.Text.Tests
 {
     internal class JsonTestCase
     {
         private readonly string _dataPath;
         private readonly bool _isRemoteDocumentTest;
 
-        public JsonTestCase(Dictionary<string, object> dictionary, string dataPath, bool isRemoteDocumentTest)
+        internal JsonTestCase(Dictionary<string, object> dictionary, string dataPath, bool isRemoteDocumentTest)
         {
             Id = dictionary.Required<string>("@id");
             Type = dictionary.Optional<List<string>>("@type");
@@ -35,16 +35,16 @@ namespace JsonLD.Test
 
         internal IEnumerable<string> Type { get; }
 
-        internal string GetContextJson() => Context == null ? null : JsonFetcher.GetJsonAsString(_dataPath, Context);
+        internal string GetContextJson() => Context == null ? null : Test.JsonFetcher.GetJsonAsString(_dataPath, Context);
 
-        internal string GetExpandContextJson() => Options?.ExpandContext == null ? null : JsonFetcher.GetJsonAsString(_dataPath, Options.ExpandContext);
+        internal string GetExpandContextJson() => Options?.ExpandContext == null ? null : Test.JsonFetcher.GetJsonAsString(_dataPath, Options.ExpandContext);
 
-        internal string GetExpectJson() => Expect == null ? null : JsonFetcher.GetJsonAsString(_dataPath, Expect);
+        internal string GetExpectJson() => Expect == null ? null : Test.JsonFetcher.GetJsonAsString(_dataPath, Expect);
 
-        internal string GetFrameJson() => Frame == null ? null : JsonFetcher.GetJsonAsString(_dataPath, Frame);
+        internal string GetFrameJson() => Frame == null ? null : Test.JsonFetcher.GetJsonAsString(_dataPath, Frame);
 
         internal string GetInputJson() => _isRemoteDocumentTest
-            ? JsonFetcher.GetRemoteJsonAsString(Input)
-            : JsonFetcher.GetJsonAsString(_dataPath, Input);
+            ? Test.JsonFetcher.GetRemoteJsonAsString(Input)
+            : Test.JsonFetcher.GetJsonAsString(_dataPath, Input);
     }
 }

@@ -7,7 +7,7 @@ using JsonLD.Util;
 using System.Net;
 using System.Collections.Generic;
 
-namespace JsonLD.Core.Raw
+namespace JsonLD.Infrastructure.Text
 {
     public class DocumentLoader
     {
@@ -88,6 +88,8 @@ namespace JsonLD.Core.Raw
             throw new PlatformNotSupportedException();
 #endif
         }
+
+        internal Core.DocumentLoader AsCore() => new Core.DocumentLoader(url => LoadDocument(url).AsCore());
 
         /// <summary>An HTTP Accept header that prefers JSONLD.</summary>
         /// <remarks>An HTTP Accept header that prefers JSONLD.</remarks>
