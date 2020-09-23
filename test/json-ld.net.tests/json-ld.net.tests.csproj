@@ -48,8 +48,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Raw\" />
-  </ItemGroup>
-
 </Project>
