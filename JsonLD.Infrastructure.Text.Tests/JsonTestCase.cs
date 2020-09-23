@@ -35,16 +35,16 @@ namespace JsonLD.Infrastructure.Text.Tests
 
         internal IEnumerable<string> Type { get; }
 
-        internal string GetContextJson() => Context == null ? null : Test.JsonFetcher.GetJsonAsString(_dataPath, Context);
+        internal string GetContextJson() => Context == null ? null : JsonFetcher.GetJsonAsString(_dataPath, Context);
 
-        internal string GetExpandContextJson() => Options?.ExpandContext == null ? null : Test.JsonFetcher.GetJsonAsString(_dataPath, Options.ExpandContext);
+        internal string GetExpandContextJson() => Options?.ExpandContext == null ? null : JsonFetcher.GetJsonAsString(_dataPath, Options.ExpandContext);
 
-        internal string GetExpectJson() => Expect == null ? null : Test.JsonFetcher.GetJsonAsString(_dataPath, Expect);
+        internal string GetExpectJson() => Expect == null ? null : JsonFetcher.GetJsonAsString(_dataPath, Expect);
 
-        internal string GetFrameJson() => Frame == null ? null : Test.JsonFetcher.GetJsonAsString(_dataPath, Frame);
+        internal string GetFrameJson() => Frame == null ? null : JsonFetcher.GetJsonAsString(_dataPath, Frame);
 
         internal string GetInputJson() => _isRemoteDocumentTest
-            ? Test.JsonFetcher.GetRemoteJsonAsString(Input)
-            : Test.JsonFetcher.GetJsonAsString(_dataPath, Input);
+            ? JsonFetcher.GetRemoteJsonAsString(Input)
+            : JsonFetcher.GetJsonAsString(_dataPath, Input);
     }
 }

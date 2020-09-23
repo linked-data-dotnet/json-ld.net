@@ -17,6 +17,3 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("05cbe0e2-fbd2-40d1-bd9a-d30bd7acf219")]
-
-// Expose reusable components to infrastructure testing
-[assembly:InternalsVisibleTo("JsonLD.Infrastructure.Text.Tests")]
