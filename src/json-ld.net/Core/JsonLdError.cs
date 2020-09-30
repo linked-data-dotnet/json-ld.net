@@ -11,21 +11,21 @@ namespace JsonLD.Core
         private JsonLdError.Error type;
         internal JObject details = null;
 
-        public JsonLdError(JsonLdError.Error type, object detail, Exception innerException)
+        internal JsonLdError(JsonLdError.Error type, object detail, Exception innerException)
             : base(detail == null ? string.Empty : detail.ToString(), innerException)
         {
             // TODO: pretty toString (e.g. print whole json objects)
             this.type = type;
         }
 
-        public JsonLdError(JsonLdError.Error type, object detail)
+        internal JsonLdError(JsonLdError.Error type, object detail)
             : base(detail == null ? string.Empty : detail.ToString())
         {
             // TODO: pretty toString (e.g. print whole json objects)
             this.type = type;
         }
 
-        public JsonLdError(JsonLdError.Error type)
+        internal JsonLdError(JsonLdError.Error type)
             : base(string.Empty)
         {
             this.type = type;
@@ -171,7 +171,7 @@ namespace JsonLD.Core
             }
         }
 
-        public virtual JsonLdError SetType(JsonLdError.Error error)
+        internal virtual JsonLdError SetType(JsonLdError.Error error)
         {
             this.type = error;
             return this;
