@@ -22,7 +22,7 @@ namespace JsonLD.Core
 
 		JObject termDefinitions;
 
-		public JObject inverse = null;
+		internal JObject inverse = null;
 
 		public Context() : this(new JsonLdOptions())
 		{
