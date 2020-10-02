@@ -73,22 +73,25 @@ jobs:
 
   nuget-push-dev:
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/') != true
+    if: github.ref == 'refs/heads/master'
     needs: build
 
     steps:
-      - uses: actions/download-artifact@v2
+      - name: download artifact
+        uses: actions/download-artifact@v2
         with:
           name: nugets
 
-      - uses: actions/setup-dotnet@v1
+      - name: setup dotnet
+        uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 3.1
           source-url: https://nuget.pkg.github.com/linked-data-dotnet/index.json
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - run: dotnet nuget push "*.nupkg" --skip-duplicate --api-key ${{ secrets.GITHUB_TOKEN }}
+      - name: nuget push
+        run: dotnet nuget push "*.nupkg" --skip-duplicate --api-key ${{ secrets.GITHUB_TOKEN }}
 
   nuget-push-prod:
     runs-on: ubuntu-latest
