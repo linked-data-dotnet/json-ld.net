@@ -60,11 +60,8 @@ namespace JsonLD.Test
             "toRdf-manifest.jsonld",
             "fromRdf-manifest.jsonld",
             "normalize-manifest.jsonld",
-// Test tests are not supported on CORE CLR
-#if !PORTABLE && !IS_CORECLR
             "error-manifest.jsonld",
             "remote-doc-manifest.jsonld",
-#endif
         };
 
         public ConformanceCases()
@@ -80,13 +77,18 @@ namespace JsonLD.Test
             foreach (string manifest in manifests)
             {
                 JToken manifestJson = jsonFetcher.GetJson(manifest, rootDirectory);
+                var isRemoteTest = (string)manifestJson["name"] == "Remote document";
 
                 foreach (JObject testcase in manifestJson["sequence"])
                 {
                     Func<JToken> run;
                     ConformanceCase newCase = new ConformanceCase();
 
-                    newCase.input = jsonFetcher.GetJson(testcase["input"], rootDirectory);
+                    // Load input file if not remote test. Remote tests load from the web at test execution time.
+                    if (!isRemoteTest)
+                    {
+                        newCase.input = jsonFetcher.GetJson(testcase["input"], rootDirectory);
+                    }
                     newCase.context = jsonFetcher.GetJson(testcase["context"], rootDirectory);
                     newCase.frame = jsonFetcher.GetJson(testcase["frame"], rootDirectory);
 
@@ -192,7 +194,7 @@ namespace JsonLD.Test
                         run = () => { throw new Exception("Couldn't find a test type, apparently."); };
                     }
 
-                    if ((string)manifestJson["name"] == "Remote document")
+                    if (isRemoteTest)
                     {
                         Func<JToken> innerRun = run;
                         run = () =>

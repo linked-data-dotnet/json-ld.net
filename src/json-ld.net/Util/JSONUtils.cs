@@ -1,10 +1,13 @@
 using System;
 using System.Collections;
 using System.IO;
+using System.Linq;
 using JsonLD.Util;
 using Newtonsoft.Json;
 using System.Net;
 using Newtonsoft.Json.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace JsonLD.Util
 {
@@ -12,27 +15,15 @@ namespace JsonLD.Util
     /// <author>tristan</author>
     public class JSONUtils
     {
+        const int MAX_REDIRECTS = 20;
+        static internal HttpClient _HttpClient = new HttpClient();
+
         /// <summary>An HTTP Accept header that prefers JSONLD.</summary>
-        /// <remarks>An HTTP Accept header that prefers JSONLD.</remarks>
         protected internal const string AcceptHeader = "application/ld+json, application/json;q=0.9, application/javascript;q=0.5, text/javascript;q=0.5, text/plain;q=0.2, */*;q=0.1";
-
-        //private static readonly ObjectMapper JsonMapper = new ObjectMapper();
-
-        //private static readonly JsonFactory JsonFactory = new JsonFactory(JsonMapper);
 
         static JSONUtils()
         {
-            // Disable default Jackson behaviour to close
-            // InputStreams/Readers/OutputStreams/Writers
-            //JsonFactory.Disable(JsonGenerator.Feature.AutoCloseTarget);
-            // Disable string retention features that may work for most JSON where
-            // the field names are in limited supply, but does not work for JSON-LD
-            // where a wide range of URIs are used for subjects and predicates
-            //JsonFactory.Disable(JsonFactory.Feature.InternFieldNames);
-            //JsonFactory.Disable(JsonFactory.Feature.CanonicalizeFieldNames);
         }
-
-        // private static volatile IHttpClient httpClient;
 
         /// <exception cref="Com.Fasterxml.Jackson.Core.JsonParseException"></exception>
         /// <exception cref="System.IO.IOException"></exception>
@@ -130,6 +121,11 @@ namespace JsonLD.Util
             return sw.ToString();
         }
 
+        public static JToken FromURL(Uri url)
+        {
+            return FromURLAsync(url).GetAwaiter().GetResult();
+        }
+
         /// <summary>
         /// Returns a Map, List, or String containing the contents of the JSON
         /// resource resolved from the URL.
@@ -147,17 +143,29 @@ namespace JsonLD.Util
         /// 	</exception>
         /// <exception cref="System.IO.IOException">If there was an error resolving the resource.
         /// 	</exception>
-        public static JToken FromURL(Uri url)
+        public static async Task<JToken> FromURLAsync(Uri url)
         {
-#if !PORTABLE && !IS_CORECLR
-            HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
-            req.Accept = AcceptHeader;
-            WebResponse resp = req.GetResponse();
-            Stream stream = resp.GetResponseStream();
-            return FromInputStream(stream);
-#else
-            throw new PlatformNotSupportedException();
-#endif
+            HttpResponseMessage httpResponseMessage = null;
+            int redirects = 0;
+
+            // Manually follow redirects because .NET Core refuses to auto-follow HTTPS->HTTP redirects.
+            do
+            {
+                HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, url);
+                httpRequestMessage.Headers.Add("Accept", AcceptHeader);
+                httpResponseMessage = await _HttpClient.SendAsync(httpRequestMessage);
+                if (httpResponseMessage.Headers.TryGetValues("Location", out var location))
+                {
+                    url = new Uri(location.First());
+                }
+            } while (redirects++ < MAX_REDIRECTS && (int)httpResponseMessage.StatusCode >= 300 && (int)httpResponseMessage.StatusCode < 400);
+
+            if (redirects >= MAX_REDIRECTS || (int)httpResponseMessage.StatusCode >= 400)
+            {
+                throw new InvalidOperationException("Couldn't load JSON from URL");
+            }
+
+            return FromInputStream(await httpResponseMessage.Content.ReadAsStreamAsync());
         }
     }
 }
