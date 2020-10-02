@@ -15,12 +15,6 @@ namespace JsonLD.Util
     /// <author>tristan</author>
     public class JSONUtils
     {
-        const int MAX_REDIRECTS = 20;
-        static internal HttpClient _HttpClient = new HttpClient();
-
-        /// <summary>An HTTP Accept header that prefers JSONLD.</summary>
-        protected internal const string AcceptHeader = "application/ld+json, application/json;q=0.9, application/javascript;q=0.5, text/javascript;q=0.5, text/plain;q=0.2, */*;q=0.1";
-
         static JSONUtils()
         {
         }
@@ -145,27 +139,9 @@ namespace JsonLD.Util
         /// 	</exception>
         public static async Task<JToken> FromURLAsync(Uri url)
         {
-            HttpResponseMessage httpResponseMessage = null;
-            int redirects = 0;
-
-            // Manually follow redirects because .NET Core refuses to auto-follow HTTPS->HTTP redirects.
-            do
-            {
-                HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, url);
-                httpRequestMessage.Headers.Add("Accept", AcceptHeader);
-                httpResponseMessage = await _HttpClient.SendAsync(httpRequestMessage);
-                if (httpResponseMessage.Headers.TryGetValues("Location", out var location))
-                {
-                    url = new Uri(location.First());
-                }
-            } while (redirects++ < MAX_REDIRECTS && (int)httpResponseMessage.StatusCode >= 300 && (int)httpResponseMessage.StatusCode < 400);
-
-            if (redirects >= MAX_REDIRECTS || (int)httpResponseMessage.StatusCode >= 400)
-            {
-                throw new InvalidOperationException("Couldn't load JSON from URL");
+            using (var response = await LDHttpClient.FetchAsync(url.ToString())) {
+                return FromInputStream(await response.Content.ReadAsStreamAsync());
             }
-
-            return FromInputStream(await httpResponseMessage.Content.ReadAsStreamAsync());
         }
     }
 }
