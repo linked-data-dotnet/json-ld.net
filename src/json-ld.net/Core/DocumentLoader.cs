@@ -45,13 +45,13 @@ namespace JsonLD.Core
         }
 
         /// <exception cref="JsonLDNet.Core.JsonLdError"></exception>
-        public RemoteDocument LoadDocument(string url)
+        public virtual RemoteDocument LoadDocument(string url)
         {
             return LoadDocumentAsync(url).GetAwaiter().GetResult();
         }
 
         /// <exception cref="JsonLDNet.Core.JsonLdError"></exception>
-        public async Task<RemoteDocument> LoadDocumentAsync(string url)
+        public virtual async Task<RemoteDocument> LoadDocumentAsync(string url)
         {
             RemoteDocument doc = new RemoteDocument(url, null);
             try
