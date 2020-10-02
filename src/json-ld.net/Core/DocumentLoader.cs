@@ -47,7 +47,7 @@ namespace JsonLD.Core
         /// <exception cref="JsonLDNet.Core.JsonLdError"></exception>
         public virtual RemoteDocument LoadDocument(string url)
         {
-            return LoadDocumentAsync(url).GetAwaiter().GetResult();
+            return LoadDocumentAsync(url).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         /// <exception cref="JsonLDNet.Core.JsonLdError"></exception>
@@ -56,7 +56,7 @@ namespace JsonLD.Core
             RemoteDocument doc = new RemoteDocument(url, null);
             try
             {
-                using (HttpResponseMessage response = await JsonLD.Util.LDHttpClient.FetchAsync(url))
+                using (HttpResponseMessage response = await JsonLD.Util.LDHttpClient.FetchAsync(url).ConfigureAwait(false))
                 {
 
                     var code = (int)response.StatusCode;
@@ -88,12 +88,12 @@ namespace JsonLD.Core
                         string header = linkedContexts.First();
                         string linkedUrl = header.Substring(1, header.IndexOf(">") - 1);
                         string resolvedUrl = URL.Resolve(finalUrl, linkedUrl);
-                        var remoteContext = this.LoadDocument(resolvedUrl);
+                        var remoteContext = await this.LoadDocumentAsync(resolvedUrl).ConfigureAwait(false);
                         doc.contextUrl = remoteContext.documentUrl;
                         doc.context = remoteContext.document;
                     }
 
-                    Stream stream = await response.Content.ReadAsStreamAsync();
+                    Stream stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
 
                     doc.DocumentUrl = finalUrl;
                     doc.Document = JSONUtils.FromInputStream(stream);

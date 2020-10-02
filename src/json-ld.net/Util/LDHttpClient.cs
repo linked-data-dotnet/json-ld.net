@@ -32,7 +32,7 @@ namespace JsonLD.Util
             do
             {
                 HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, redirectedUrl);
-                response = await _hc.SendAsync(httpRequestMessage);
+                response = await _hc.SendAsync(httpRequestMessage).ConfigureAwait(false);
                 if (response.Headers.TryGetValues("Location", out var location))
                 {
                     redirectedUrl = location.First();

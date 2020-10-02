@@ -117,7 +117,7 @@ namespace JsonLD.Util
 
         public static JToken FromURL(Uri url)
         {
-            return FromURLAsync(url).GetAwaiter().GetResult();
+            return FromURLAsync(url).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -139,8 +139,8 @@ namespace JsonLD.Util
         /// 	</exception>
         public static async Task<JToken> FromURLAsync(Uri url)
         {
-            using (var response = await LDHttpClient.FetchAsync(url.ToString())) {
-                return FromInputStream(await response.Content.ReadAsStreamAsync());
+            using (var response = await LDHttpClient.FetchAsync(url.ToString()).ConfigureAwait(false)) {
+                return FromInputStream(await response.Content.ReadAsStreamAsync().ConfigureAwait(false));
             }
         }
     }
