@@ -6,224 +6,108 @@ using JsonLD.Core;
 using JsonLD.Util;
 using System.Net;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace JsonLD.Core
 {
     public class DocumentLoader
     {
+        enum JsonLDContentType
+        {
+            JsonLD,
+            PlainJson,
+            Other
+        }
+
+        JsonLDContentType GetJsonLDContentType(string contentTypeStr)
+        {
+            JsonLDContentType contentType;
+
+            switch (contentTypeStr)
+            {
+                case "application/ld+json":
+                    contentType = JsonLDContentType.JsonLD;
+                    break;
+                // From RFC 6839, it looks like plain JSON is content type application/json and any MediaType ending in "+json".
+                case "application/json":
+                case string type when type.EndsWith("+json"):
+                    contentType = JsonLDContentType.PlainJson;
+                    break;
+                default:
+                    contentType = JsonLDContentType.Other;
+                    break;
+            }
+
+            return contentType;
+        }
+
         /// <exception cref="JsonLDNet.Core.JsonLdError"></exception>
         public virtual RemoteDocument LoadDocument(string url)
         {
-#if !PORTABLE && !IS_CORECLR
-            RemoteDocument doc = new RemoteDocument(url, null);
-            HttpWebResponse resp;
+            return LoadDocumentAsync(url).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
 
+        /// <exception cref="JsonLDNet.Core.JsonLdError"></exception>
+        public virtual async Task<RemoteDocument> LoadDocumentAsync(string url)
+        {
+            RemoteDocument doc = new RemoteDocument(url, null);
             try
             {
-                HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
-                req.Accept = _acceptHeader;
-                resp = (HttpWebResponse)req.GetResponse();
-                bool isJsonld = resp.Headers[HttpResponseHeader.ContentType] == "application/ld+json";
-                if (!resp.Headers[HttpResponseHeader.ContentType].Contains("json"))
+                using (HttpResponseMessage response = await JsonLD.Util.LDHttpClient.FetchAsync(url).ConfigureAwait(false))
                 {
-                    throw new JsonLdError(JsonLdError.Error.LoadingDocumentFailed, url);
-                }
 
-                string[] linkHeaders = resp.Headers.GetValues("Link");
-                if (!isJsonld && linkHeaders != null)
-                {
-                    linkHeaders = linkHeaders.SelectMany((h) => h.Split(",".ToCharArray()))
-                                                .Select(h => h.Trim()).ToArray();
-                    IEnumerable<string> linkedContexts = linkHeaders.Where(v => v.EndsWith("rel=\"http://www.w3.org/ns/json-ld#context\""));
-                    if (linkedContexts.Count() > 1)
+                    var code = (int)response.StatusCode;
+
+                    if (code >= 400)
                     {
-                        throw new JsonLdError(JsonLdError.Error.MultipleContextLinkHeaders);
+                        throw new JsonLdError(JsonLdError.Error.LoadingDocumentFailed, $"HTTP {code} {url}");
                     }
-                    string header = linkedContexts.First();
-                    string linkedUrl = header.Substring(1, header.IndexOf(">") - 1);
-                    string resolvedUrl = URL.Resolve(url, linkedUrl);
-                    var remoteContext = this.LoadDocument(resolvedUrl);
-                    doc.contextUrl = remoteContext.documentUrl;
-                    doc.context = remoteContext.document;
+
+                    var finalUrl = response.RequestMessage.RequestUri.ToString();
+
+                    var contentType = GetJsonLDContentType(response.Content.Headers.ContentType.MediaType);
+
+                    if (contentType == JsonLDContentType.Other)
+                    {
+                        throw new JsonLdError(JsonLdError.Error.LoadingDocumentFailed, url);
+                    }
+
+                    // For plain JSON, see if there's a context document linked in the HTTP response headers.
+                    if (contentType == JsonLDContentType.PlainJson && response.Headers.TryGetValues("Link", out var linkHeaders))
+                    {
+                        linkHeaders = linkHeaders.SelectMany((h) => h.Split(",".ToCharArray()))
+                                                    .Select(h => h.Trim()).ToArray();
+                        IEnumerable<string> linkedContexts = linkHeaders.Where(v => v.EndsWith("rel=\"http://www.w3.org/ns/json-ld#context\""));
+                        if (linkedContexts.Count() > 1)
+                        {
+                            throw new JsonLdError(JsonLdError.Error.MultipleContextLinkHeaders);
+                        }
+                        string header = linkedContexts.First();
+                        string linkedUrl = header.Substring(1, header.IndexOf(">") - 1);
+                        string resolvedUrl = URL.Resolve(finalUrl, linkedUrl);
+                        var remoteContext = await this.LoadDocumentAsync(resolvedUrl).ConfigureAwait(false);
+                        doc.contextUrl = remoteContext.documentUrl;
+                        doc.context = remoteContext.document;
+                    }
+
+                    Stream stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+
+                    doc.DocumentUrl = finalUrl;
+                    doc.Document = JSONUtils.FromInputStream(stream);
                 }
-
-                Stream stream = resp.GetResponseStream();
-
-                doc.DocumentUrl = req.Address.ToString();
-                doc.Document = JSONUtils.FromInputStream(stream);
             }
             catch (JsonLdError)
             {
                 throw;
-            }
-            catch (WebException webException)
-            {
-                try
-                {
-                    resp = (HttpWebResponse)webException.Response;
-                    int baseStatusCode = (int)(Math.Floor((double)resp.StatusCode / 100)) * 100;
-                    if (baseStatusCode == 300)
-                    {
-                        string location = resp.Headers[HttpResponseHeader.Location];
-                        if (!string.IsNullOrWhiteSpace(location))
-                        {
-                            // TODO: Add recursion break or simply switch to HttpClient so we don't have to recurse on HTTP redirects.
-                            return LoadDocument(location);
-                        }
-                    }
-                }
-                catch (Exception innerException)
-                {
-                    throw new JsonLdError(JsonLdError.Error.LoadingDocumentFailed, url, innerException);
-                }
-
-                throw new JsonLdError(JsonLdError.Error.LoadingDocumentFailed, url, webException);
             }
             catch (Exception exception)
             {
                 throw new JsonLdError(JsonLdError.Error.LoadingDocumentFailed, url, exception);
             }
             return doc;
-#else
-            throw new PlatformNotSupportedException();
-#endif
         }
-
-        /// <summary>An HTTP Accept header that prefers JSONLD.</summary>
-        /// <remarks>An HTTP Accept header that prefers JSONLD.</remarks>
-        private const string _acceptHeader = "application/ld+json, application/json;q=0.9, application/javascript;q=0.5, text/javascript;q=0.5, text/plain;q=0.2, */*;q=0.1";
-
-//        private static volatile IHttpClient httpClient;
-
-//        /// <summary>
-//        /// Returns a Map, List, or String containing the contents of the JSON
-//        /// resource resolved from the URL.
-//        /// </summary>
-//        /// <remarks>
-//        /// Returns a Map, List, or String containing the contents of the JSON
-//        /// resource resolved from the URL.
-//        /// </remarks>
-//        /// <param name="url">The URL to resolve</param>
-//        /// <returns>
-//        /// The Map, List, or String that represent the JSON resource
-//        /// resolved from the URL
-//        /// </returns>
-//        /// <exception cref="Com.Fasterxml.Jackson.Core.JsonParseException">If the JSON was not valid.
-//        /// 	</exception>
-//        /// <exception cref="System.IO.IOException">If there was an error resolving the resource.
-//        /// 	</exception>
-//        public static object FromURL(URL url)
-//        {
-//            MappingJsonFactory jsonFactory = new MappingJsonFactory();
-//            InputStream @in = OpenStreamFromURL(url);
-//            try
-//            {
-//                JsonParser parser = jsonFactory.CreateParser(@in);
-//                try
-//                {
-//                    JsonToken token = parser.NextToken();
-//                    Type type;
-//                    if (token == JsonToken.StartObject)
-//                    {
-//                        type = typeof(IDictionary);
-//                    }
-//                    else
-//                    {
-//                        if (token == JsonToken.StartArray)
-//                        {
-//                            type = typeof(IList);
-//                        }
-//                        else
-//                        {
-//                            type = typeof(string);
-//                        }
-//                    }
-//                    return parser.ReadValueAs(type);
-//                }
-//                finally
-//                {
-//                    parser.Close();
-//                }
-//            }
-//            finally
-//            {
-//                @in.Close();
-//            }
-//        }
-
-//        /// <summary>
-//        /// Opens an
-//        /// <see cref="Java.IO.InputStream">Java.IO.InputStream</see>
-//        /// for the given
-//        /// <see cref="Java.Net.URL">Java.Net.URL</see>
-//        /// , including support
-//        /// for http and https URLs that are requested using Content Negotiation with
-//        /// application/ld+json as the preferred content type.
-//        /// </summary>
-//        /// <param name="url">The URL identifying the source.</param>
-//        /// <returns>An InputStream containing the contents of the source.</returns>
-//        /// <exception cref="System.IO.IOException">If there was an error resolving the URL.</exception>
-//        public static InputStream OpenStreamFromURL(URL url)
-//        {
-//            string protocol = url.GetProtocol();
-//            if (!JsonLDNet.Shims.EqualsIgnoreCase(protocol, "http") && !JsonLDNet.Shims.EqualsIgnoreCase
-//                (protocol, "https"))
-//            {
-//                // Can't use the HTTP client for those!
-//                // Fallback to Java's built-in URL handler. No need for
-//                // Accept headers as it's likely to be file: or jar:
-//                return url.OpenStream();
-//            }
-//            IHttpUriRequest request = new HttpGet(url.ToExternalForm());
-//            // We prefer application/ld+json, but fallback to application/json
-//            // or whatever is available
-//            request.AddHeader("Accept", AcceptHeader);
-//            IHttpResponse response = GetHttpClient().Execute(request);
-//            int status = response.GetStatusLine().GetStatusCode();
-//            if (status != 200 && status != 203)
-//            {
-//                throw new IOException("Can't retrieve " + url + ", status code: " + status);
-//            }
-//            return response.GetEntity().GetContent();
-//        }
-
-//        public static IHttpClient GetHttpClient()
-//        {
-//            IHttpClient result = httpClient;
-//            if (result == null)
-//            {
-//                lock (typeof(JSONUtils))
-//                {
-//                    result = httpClient;
-//                    if (result == null)
-//                    {
-//                        // Uses Apache SystemDefaultHttpClient rather than
-//                        // DefaultHttpClient, thus the normal proxy settings for the
-//                        // JVM will be used
-//                        DefaultHttpClient client = new SystemDefaultHttpClient();
-//                        // Support compressed data
-//                        // http://hc.apache.org/httpcomponents-client-ga/tutorial/html/httpagent.html#d5e1238
-//                        client.AddRequestInterceptor(new RequestAcceptEncoding());
-//                        client.AddResponseInterceptor(new ResponseContentEncoding());
-//                        CacheConfig cacheConfig = new CacheConfig();
-//                        cacheConfig.SetMaxObjectSize(1024 * 128);
-//                        // 128 kB
-//                        cacheConfig.SetMaxCacheEntries(1000);
-//                        // and allow caching
-//                        httpClient = new CachingHttpClient(client, cacheConfig);
-//                        result = httpClient;
-//                    }
-//                }
-//            }
-//            return result;
-//        }
-
-//        public static void SetHttpClient(IHttpClient nextHttpClient)
-//        {
-//            lock (typeof(JSONUtils))
-//            {
-//                httpClient = nextHttpClient;
-//            }
-//        }
     }
 }

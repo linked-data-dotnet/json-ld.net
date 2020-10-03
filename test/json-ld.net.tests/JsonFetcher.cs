@@ -22,8 +22,8 @@ namespace JsonLD.Test
                     return JToken.ReadFrom(jreader);
                 }
             }
-            catch (Exception e)
-            { // TODO: this should not be here, figure out why this is needed or catch specific exception.
+            catch (JsonReaderException)
+            {
                 return null;
             }
         }

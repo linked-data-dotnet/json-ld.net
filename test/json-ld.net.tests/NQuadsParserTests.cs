@@ -35,7 +35,7 @@ namespace JsonLD.Test
         }
 
         [Theory]
-        [MemberData("PositiveTestCases")]
+        [MemberData(nameof(PositiveTestCases))]
         public void PositiveParseTest(string path)
         {
             // given
@@ -46,7 +46,7 @@ namespace JsonLD.Test
         }
 
         [Theory]
-        [MemberData("NegativeTestCases")]
+        [MemberData(nameof(NegativeTestCases))]
         public void NegativeParseTest(string path)
         {
             // given
