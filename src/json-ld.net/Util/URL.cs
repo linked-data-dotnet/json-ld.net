@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 
 namespace JsonLD.Util
 {
-    public class URL
+    internal class URL
     {
         public string href = string.Empty;
 

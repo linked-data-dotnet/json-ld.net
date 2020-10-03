@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 namespace JsonLD.Impl
 {
-    public class NQuadRDFParser : IRDFParser
+    internal class NQuadRDFParser : IRDFParser
     {
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
         public virtual RDFDataset Parse(JToken input)

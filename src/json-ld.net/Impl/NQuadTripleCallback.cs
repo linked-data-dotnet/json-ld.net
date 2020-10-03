@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 namespace JsonLD.Impl
 {
-    public class NQuadTripleCallback : IJSONLDTripleCallback
+    internal class NQuadTripleCallback : IJSONLDTripleCallback
     {
         public virtual object Call(RDFDataset dataset)
         {

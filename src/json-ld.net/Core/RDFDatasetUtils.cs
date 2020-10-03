@@ -6,7 +6,7 @@ using Newtonsoft.Json.Linq;
 
 namespace JsonLD.Core
 {
-    public class RDFDatasetUtils
+    internal class RDFDatasetUtils
     {
         /// <summary>Creates an array of RDF triples for the given graph.</summary>
         /// <remarks>Creates an array of RDF triples for the given graph.</remarks>

@@ -22,7 +22,7 @@ namespace JsonLD.Core
 
 		JObject termDefinitions;
 
-		public JObject inverse = null;
+		internal JObject inverse = null;
 
 		public Context() : this(new JsonLdOptions())
 		{
@@ -68,7 +68,7 @@ namespace JsonLD.Core
 		/// <param name="activeProperty"></param>
 		/// <param name="element"></param>
 		/// <returns></returns>
-		public virtual JToken CompactValue(string activeProperty, JObject value)
+		internal virtual JToken CompactValue(string activeProperty, JObject value)
 		{
             var dict = (IDictionary<string, JToken>)value;
 			// 1)
@@ -137,7 +137,7 @@ namespace JsonLD.Core
 		/// <returns></returns>
 		/// <exception cref="JsonLdError">JsonLdError</exception>
 		/// <exception cref="JsonLD.Core.JsonLdError"></exception>
-		public virtual JsonLD.Core.Context Parse(JToken localContext, List<string> remoteContexts)
+		internal virtual JsonLD.Core.Context Parse(JToken localContext, List<string> remoteContexts)
 		{
 			if (remoteContexts == null)
 			{
@@ -318,7 +318,7 @@ namespace JsonLD.Core
 		}
 
 		/// <exception cref="JsonLD.Core.JsonLdError"></exception>
-		public virtual JsonLD.Core.Context Parse(JToken localContext)
+		internal virtual JsonLD.Core.Context Parse(JToken localContext)
 		{
 			return this.Parse(localContext, new List<string>());
 		}
@@ -952,7 +952,7 @@ namespace JsonLD.Core
 		/// already generated for the given active context.
 		/// </remarks>
 		/// <returns>the inverse context.</returns>
-		public virtual JObject GetInverse()
+		internal virtual JObject GetInverse()
 		{
 			// lazily create inverse
 			if (inverse != null)
@@ -1144,7 +1144,7 @@ namespace JsonLD.Core
 		/// <remarks>Retrieve container mapping.</remarks>
 		/// <param name="property"></param>
 		/// <returns></returns>
-		public virtual string GetContainer(string property)
+		internal virtual string GetContainer(string property)
 		{
             // TODO(sblom): Do java semantics of get() on a Map return null if property is null?
             if (property == null)
@@ -1169,7 +1169,7 @@ namespace JsonLD.Core
 			return (string)td["@container"];
 		}
 
-		public virtual bool IsReverseProperty(string property)
+		internal virtual bool IsReverseProperty(string property)
 		{
             if (property == null)
             {
@@ -1218,7 +1218,7 @@ namespace JsonLD.Core
 		}
 
 		/// <exception cref="JsonLD.Core.JsonLdError"></exception>
-		public virtual JToken ExpandValue(string activeProperty, JToken value)
+		internal virtual JToken ExpandValue(string activeProperty, JToken value)
 		{
 			JObject rval = new JObject();
 			JObject td = GetTermDefinition(activeProperty);
@@ -1272,7 +1272,7 @@ namespace JsonLD.Core
 		}
 
 		/// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public virtual JObject GetContextValue(string activeProperty, string @string)
+        internal virtual JObject GetContextValue(string activeProperty, string @string)
 		{
 			throw new JsonLdError(JsonLdError.Error.NotImplemented, "getContextValue is only used by old code so far and thus isn't implemented"
 				);
