@@ -21,7 +21,7 @@ namespace JsonLD.Core
             try
             {
                 HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
-                req.Accept = AcceptHeader;
+                req.Accept = _acceptHeader;
                 resp = (HttpWebResponse)req.GetResponse();
                 bool isJsonld = resp.Headers[HttpResponseHeader.ContentType] == "application/ld+json";
                 if (!resp.Headers[HttpResponseHeader.ContentType].Contains("json"))
@@ -91,7 +91,7 @@ namespace JsonLD.Core
 
         /// <summary>An HTTP Accept header that prefers JSONLD.</summary>
         /// <remarks>An HTTP Accept header that prefers JSONLD.</remarks>
-        public const string AcceptHeader = "application/ld+json, application/json;q=0.9, application/javascript;q=0.5, text/javascript;q=0.5, text/plain;q=0.2, */*;q=0.1";
+        private const string _acceptHeader = "application/ld+json, application/json;q=0.9, application/javascript;q=0.5, text/javascript;q=0.5, text/plain;q=0.2, */*;q=0.1";
 
 //        private static volatile IHttpClient httpClient;
 

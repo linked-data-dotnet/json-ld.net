@@ -4,7 +4,7 @@ namespace JsonLD.Core
 {
     /// <summary>URI Constants used in the JSON-LD parser.</summary>
     /// <remarks>URI Constants used in the JSON-LD parser.</remarks>
-    public sealed class JSONLDConsts
+    internal sealed class JSONLDConsts
     {
         public const string RdfSyntaxNs = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 

@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 namespace JsonLD.Impl
 {
-    public class TurtleTripleCallback : IJSONLDTripleCallback
+    internal class TurtleTripleCallback : IJSONLDTripleCallback
     {
         private const int MaxLineLength = 160;
 
