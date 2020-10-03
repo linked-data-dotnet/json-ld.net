@@ -8,7 +8,7 @@ using Newtonsoft.Json.Linq;
 
 namespace JsonLD.Core
 {
-    public class JsonLdUtils
+    internal class JsonLdUtils
     {
         private const int MaxContextUrls = 10;
 

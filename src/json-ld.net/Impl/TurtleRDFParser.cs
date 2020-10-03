@@ -11,7 +11,7 @@ namespace JsonLD.Impl
     /// TODO: this probably needs to be changed to use a proper parser/lexer
     /// </summary>
     /// <author>Tristan</author>
-    public class TurtleRDFParser : IRDFParser
+    internal class TurtleRDFParser : IRDFParser
     {
         internal class Regex
         {

@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 namespace JsonLD.Util
 {
-    public class Obj
+    internal class Obj
     {
         /// <summary>
         /// Used to make getting values from maps embedded in maps embedded in maps

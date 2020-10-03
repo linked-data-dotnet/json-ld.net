@@ -13,7 +13,7 @@ namespace JsonLD.Util
 {
     /// <summary>A bunch of functions to make loading JSON easy</summary>
     /// <author>tristan</author>
-    public class JSONUtils
+    internal class JSONUtils
     {
         static JSONUtils()
         {
