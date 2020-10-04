@@ -487,24 +487,16 @@ namespace JsonLD.Core
         /// <exception cref="JsonLDNet.Core.JsonLdError"></exception>
         public static object Normalize(JToken input, JsonLdOptions options)
         {
-#if !PORTABLE
             JsonLdOptions opts = options.Clone();
             opts.format = null;
             RDFDataset dataset = (RDFDataset)ToRDF(input, opts);
             return new JsonLdApi(options).Normalize(dataset);
-#else
-            throw new PlatformNotSupportedException();
-#endif
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
         public static object Normalize(JToken input)
         {
-#if !PORTABLE
             return Normalize(input, new JsonLdOptions(string.Empty));
-#else
-            throw new PlatformNotSupportedException();
-#endif
         }
     }
 }
