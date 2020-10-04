@@ -6,10 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-
-#if !PORTABLE
 using System.Security.Cryptography;
-#endif
 
 namespace JsonLD
 {
@@ -281,13 +278,7 @@ namespace JsonLD
 
         public string GetPattern()
         {
-#if !PORTABLE && !IS_CORECLR
-            return this.pattern;
-#elif !PORTABLE
             return _rx;
-#else
-            throw new PlatformNotSupportedException();
-#endif
         }
 
         new public static bool Matches(string val, string rx)
@@ -357,7 +348,6 @@ namespace JsonLD
     }
 
 
-#if !PORTABLE
     internal class MessageDigest : IDisposable
     {
         SHA1 md;
@@ -392,5 +382,4 @@ namespace JsonLD
             md.Dispose();
         }
     }
-#endif
 }
