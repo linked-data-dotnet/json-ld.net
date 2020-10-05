@@ -5,7 +5,7 @@
 Implements the W3C JSON-LD 1.0 standard.</Description>
     <VersionPrefix>1.0.7</VersionPrefix>
     <Authors>NuGet;linked-data-dotnet</Authors>
-    <TargetFrameworks>netstandard1.1;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard1.1;netstandard2.0;net40</TargetFrameworks>
     <AssemblyName>json-ld.net</AssemblyName>
     <PackageId>json-ld.net</PackageId>
     <PackageTags>json-ld;jsonld;json;linked-data;rdf;semantic;web</PackageTags>
@@ -23,5 +23,10 @@ Implements the W3C JSON-LD 1.0 standard.</Description>
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
     <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Net.Http" Version="2.2.29" />
+    <PackageReference Include="Microsoft.Bcl.Async" Version="1.0.168" />
   </ItemGroup>
 </Project>
