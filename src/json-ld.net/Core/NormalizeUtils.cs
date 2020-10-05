@@ -29,7 +29,6 @@ namespace JsonLD.Core
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
         public virtual object HashBlankNodes(IEnumerable<string> unnamed_)
         {
-#if !PORTABLE
             IList<string> unnamed = new List<string>(unnamed_);
             IList<string> nextUnnamed = new List<string>();
             IDictionary<string, IList<string>> duplicates = new Dictionary<string, IList<string
@@ -203,9 +202,6 @@ namespace JsonLD.Core
                     }
                 }
             }
-#else
-            throw new PlatformNotSupportedException();
-#endif
         }
 
         private sealed class _IComparer_145 : IComparer<NormalizeUtils.HashResult>
@@ -245,7 +241,6 @@ namespace JsonLD.Core
         /// <param name="callback">(err, result) called once the operation completes.</param>
         private static NormalizeUtils.HashResult HashPaths(string id, IDictionary<string, IDictionary<string, object>> bnodes, UniqueNamer namer, UniqueNamer pathNamer)
         {
-#if !PORTABLE
             MessageDigest md = null;
 
             try
@@ -460,9 +455,6 @@ namespace JsonLD.Core
             {
                 md?.Dispose();
             }
-#else
-            throw new PlatformNotSupportedException();
-#endif
         }
 
         /// <summary>Hashes all of the quads about a blank node.</summary>
@@ -500,7 +492,6 @@ namespace JsonLD.Core
         /// <returns></returns>
         private static string Sha1hash(ICollection<string> nquads)
         {
-#if !PORTABLE
             try
             {
                 // create SHA-1 digest
@@ -515,9 +506,6 @@ namespace JsonLD.Core
             {
                 throw;
             }
-#else
-            throw new PlatformNotSupportedException();
-#endif
         }
 
         // TODO: this is something to optimize
