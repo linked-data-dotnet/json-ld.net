@@ -1,0 +1,19 @@
+{
+    "@context": {
+        "name": "http://schema.org/name",
+        "member": {
+            "@id": "http://schema.org/member",
+            "@type": "@id"
+        },
+        "homepage": {
+            "@id": "http://schema.org/url",
+            "@type": "@id"
+        },
+        "image": {
+            "@id": "http://schema.org/image",
+            "@type": "@id"
+        },
+        "Person": "http://schema.org/Person"
+    },
+    "@type": "Person"
+}

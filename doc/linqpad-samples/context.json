@@ -1,0 +1,15 @@
+{
+    "name": "http://schema.org/name",
+    "member": "http://schema.org/member",
+    "homepage": {
+        "@id": "http://schema.org/url",
+        "@type": "@id"
+    },
+    "image": {
+        "@id": "http://schema.org/image",
+        "@type": "@id"
+    },
+    "Person": "http://schema.org/Person",
+    "@vocab": "http://example.org/",
+    "@base": "http://example.org/"
+}
