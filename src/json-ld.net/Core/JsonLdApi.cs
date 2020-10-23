@@ -2196,7 +2196,6 @@ namespace JsonLD.Core
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
         public virtual object Normalize(RDFDataset dataset)
         {
-#if !PORTABLE
             // create quads and map bnodes to their associated quads
             IList<RDFDataset.Quad> quads = new List<RDFDataset.Quad>();
             IDictionary<string,IDictionary<string,object>> bnodes = new Dictionary<string,IDictionary<string,object>>();
@@ -2247,9 +2246,6 @@ namespace JsonLD.Core
             NormalizeUtils normalizeUtils = new NormalizeUtils(quads, bnodes, new UniqueNamer
                 ("_:c14n"), opts);
             return normalizeUtils.HashBlankNodes(bnodes.Keys);
-#else
-            throw new PlatformNotSupportedException();
-#endif
         }
     }
 }

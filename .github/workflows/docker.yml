@@ -1,0 +1,21 @@
+name: docker
+
+on:
+  push:
+    branches: [master]
+    tags: ["*"]
+  pull_request:
+    branches: [master] 
+
+jobs:
+  docker:
+    name: build & run tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: docker build
+        run: docker build -t json-ld.net .
+      - name: docker test
+        run: docker run --rm json-ld.net dotnet test
