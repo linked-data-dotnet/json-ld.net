@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using JsonLD.Core;
+using JsonLD.GenericJson;
 using JsonLD.Impl;
 using Newtonsoft.Json.Linq;
 using Xunit;
@@ -15,7 +16,7 @@ namespace JsonLD.Test
     {
         private const string BasePath = @"NQuads";
         private static readonly string ManifestPath = Path.Combine(BasePath, "manifest.ttl");
-        private static readonly JObject ManifestFrame = JObject.Parse(@"
+        private static readonly GenericJsonObject ManifestFrame = (GenericJsonObject)GenericJsonToken.Parse(@"
 {
     '@context': {
         'mf': 'http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#',
@@ -74,7 +75,7 @@ namespace JsonLD.Test
                 var manifest = JsonLdProcessor.FromRDF(File.ReadAllText(ManifestPath), new TurtleRDFParser());
                 var framed = JsonLdProcessor.Frame(manifest, ManifestFrame, new JsonLdOptions());
 
-                return from testCase in framed["@graph"][0]["mf:entries"]
+                return from GenericJsonToken testCase in framed["@graph"][0]["mf:entries"]
                        where (string)testCase["@type"] != "rdft:TestNQuadsNegativeSyntax"
                        select new object[] { (string)testCase["mf:action"] };
             }
@@ -87,7 +88,7 @@ namespace JsonLD.Test
                 var manifest = JsonLdProcessor.FromRDF(File.ReadAllText(ManifestPath), new TurtleRDFParser());
                 var framed = JsonLdProcessor.Frame(manifest, ManifestFrame, new JsonLdOptions());
 
-                return from testCase in framed["@graph"][0]["mf:entries"]
+                return from GenericJsonToken testCase in framed["@graph"][0]["mf:entries"]
                        where (string)testCase["@type"] == "rdft:TestNQuadsNegativeSyntax"
                        select new object[] { (string)testCase["mf:action"] };
             }

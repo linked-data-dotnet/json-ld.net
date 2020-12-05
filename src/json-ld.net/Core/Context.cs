@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using JsonLD.Core;
+using JsonLD.GenericJson;
 using JsonLD.Util;
 using Newtonsoft.Json.Linq;
 
@@ -13,13 +14,13 @@ namespace JsonLD.Core
 	/// </summary>
 	/// <author>tristan</author>
 	//[System.Serializable]
-	public class Context : JObject
+	public class Context : GenericJsonObject
     {
         private JsonLdOptions options;
 
-		JObject termDefinitions;
+		GenericJsonObject termDefinitions;
 
-		internal JObject inverse = null;
+		internal GenericJsonObject inverse = null;
 
 		public Context() : this(new JsonLdOptions())
 		{
@@ -30,19 +31,19 @@ namespace JsonLD.Core
 			Init(options);
 		}
 
-		public Context(JObject map, JsonLdOptions options) : base(map
+		public Context(GenericJsonObject map, JsonLdOptions options) : base((IDictionary<string,object>)map.Unwrap()
 			)
 		{
 			Init(options);
 		}
 
-		public Context(JObject map) : base(map)
+		public Context(GenericJsonObject map) : base((IDictionary<string, object>)map.Unwrap())
 		{
 			Init(new JsonLdOptions());
 		}
 
-		public Context(JToken context, JsonLdOptions opts) : base(context is JObject ? 
-			(JObject)context : null)
+		public Context(GenericJsonToken context, JsonLdOptions opts) : base(context is GenericJsonObject ?
+			(IDictionary<string, object>)(context as GenericJsonObject).Unwrap() : null)
 		{
             Init(opts);
 		}
@@ -55,7 +56,7 @@ namespace JsonLD.Core
 			{
 				this["@base"] = options.GetBase();
 			}
-            this.termDefinitions = new JObject();
+            this.termDefinitions = new GenericJsonObject();
 		}
 
 		/// <summary>
@@ -65,9 +66,9 @@ namespace JsonLD.Core
 		/// <param name="activeProperty"></param>
 		/// <param name="element"></param>
 		/// <returns></returns>
-		internal virtual JToken CompactValue(string activeProperty, JObject value)
+		internal virtual GenericJsonToken CompactValue(string activeProperty, GenericJsonObject value)
 		{
-            var dict = (IDictionary<string, JToken>)value;
+            var dict = (IDictionary<string, GenericJsonToken>)value;
 			// 1)
 			int numberMembers = value.Count;
 			// 2)
@@ -99,7 +100,7 @@ namespace JsonLD.Core
 				// 4.3)
 				return value;
 			}
-			JToken valueValue = value["@value"];
+			GenericJsonToken valueValue = value["@value"];
 			// 5)
             if (dict.ContainsKey("@type") && value["@type"].SafeCompare(typeMapping))
 			{
@@ -115,7 +116,7 @@ namespace JsonLD.Core
 				}
 			}
 			// 7)
-			if (numberMembers == 1 && (!(valueValue.Type == JTokenType.String) || !((IDictionary<string,JToken>)this).ContainsKey("@language"
+			if (numberMembers == 1 && (!(valueValue.Type == GenericJsonTokenType.String) || !((IDictionary<string,GenericJsonToken>)this).ContainsKey("@language"
 				) || (GetTermDefinition(activeProperty).ContainsKey("@language") && languageMapping
 				 == null)))
 			{
@@ -134,7 +135,7 @@ namespace JsonLD.Core
 		/// <returns></returns>
 		/// <exception cref="JsonLdError">JsonLdError</exception>
 		/// <exception cref="JsonLD.Core.JsonLdError"></exception>
-		internal virtual JsonLD.Core.Context Parse(JToken localContext, List<string> remoteContexts)
+		internal virtual JsonLD.Core.Context Parse(GenericJsonToken localContext, List<string> remoteContexts)
 		{
 			if (remoteContexts == null)
 			{
@@ -144,18 +145,18 @@ namespace JsonLD.Core
 			JsonLD.Core.Context result = ((JsonLD.Core.Context)this.Clone());
 			// TODO: clone?
 			// 2)
-			if (!(localContext is JArray))
+			if (!(localContext is GenericJsonArray))
 			{
-				JToken temp = localContext;
-				localContext = new JArray();
-				((JArray)localContext).Add(temp);
+				GenericJsonToken temp = localContext;
+				localContext = new GenericJsonArray();
+				((GenericJsonArray)localContext).Add(temp);
 			}
 			// 3)
-			foreach (JToken context in (JArray)localContext)
+			foreach (GenericJsonToken context in (GenericJsonArray)localContext)
 			{
                 var eachContext = context;
 				// 3.1)
-				if (eachContext.Type == JTokenType.Null)
+				if (eachContext.Type == GenericJsonTokenType.Null)
 				{
 					result = new JsonLD.Core.Context(this.options);
 					continue;
@@ -169,7 +170,7 @@ namespace JsonLD.Core
 					else
 					{
 						// 3.2)
-						if (eachContext.Type == JTokenType.String)
+						if (eachContext.Type == GenericJsonTokenType.String)
 						{
 							string uri = (string)result["@base"];
 							uri = URL.Resolve(uri, (string)eachContext);
@@ -194,15 +195,15 @@ namespace JsonLD.Core
                                 else
                                     throw;
                             }
-							JToken remoteContext = rd.document;
-                            if (!(remoteContext is JObject) || !((JObject)remoteContext
+							GenericJsonToken remoteContext = rd.document;
+                            if (!(remoteContext is GenericJsonObject) || !((GenericJsonObject)remoteContext
 								).ContainsKey("@context"))
 							{
 								// If the dereferenced document has no top-level JSON object
 								// with an @context member
 								throw new JsonLdError(JsonLdError.Error.InvalidRemoteContext, eachContext);
 							}
-                            eachContext = ((JObject)remoteContext)["@context"];
+                            eachContext = ((GenericJsonObject)remoteContext)["@context"];
 							// 3.2.4
 							result = result.Parse(eachContext, remoteContexts);
 							// 3.2.5
@@ -210,7 +211,7 @@ namespace JsonLD.Core
 						}
 						else
 						{
-                            if (!(eachContext is JObject))
+                            if (!(eachContext is GenericJsonObject))
 							{
 								// 3.3
 								throw new JsonLdError(JsonLdError.Error.InvalidLocalContext, eachContext);
@@ -219,17 +220,17 @@ namespace JsonLD.Core
 					}
 				}
 				// 3.4
-                if (remoteContexts.IsEmpty() && ((JObject)eachContext).ContainsKey
+                if (remoteContexts.IsEmpty() && ((GenericJsonObject)eachContext).ContainsKey
 					("@base"))
 				{
-                    JToken value = eachContext["@base"];
+                    GenericJsonToken value = eachContext["@base"];
 					if (value.IsNull())
 					{
 						JsonLD.Collections.Remove(result, "@base");
 					}
 					else
 					{
-						if (value.Type == JTokenType.String)
+						if (value.Type == GenericJsonTokenType.String)
 						{
 							if (JsonLdUtils.IsAbsoluteIri((string)value))
 							{
@@ -252,16 +253,16 @@ namespace JsonLD.Core
 					}
 				}
 				// 3.5
-                if (((JObject)eachContext).ContainsKey("@vocab"))
+                if (((GenericJsonObject)eachContext).ContainsKey("@vocab"))
 				{
-					JToken value = eachContext["@vocab"];
+					GenericJsonToken value = eachContext["@vocab"];
 					if (value.IsNull())
 					{
 						JsonLD.Collections.Remove(result, "@vocab");
 					}
 					else
 					{
-						if (value.Type == JTokenType.String)
+						if (value.Type == GenericJsonTokenType.String)
 						{
 							if (JsonLdUtils.IsAbsoluteIri((string)value))
 							{
@@ -281,16 +282,16 @@ namespace JsonLD.Core
 					}
 				}
 				// 3.6
-				if (((JObject)eachContext).ContainsKey("@language"))
+				if (((GenericJsonObject)eachContext).ContainsKey("@language"))
 				{
-					JToken value = ((JObject)eachContext)["@language"];
+					GenericJsonToken value = ((GenericJsonObject)eachContext)["@language"];
 					if (value.IsNull())
 					{
 						JsonLD.Collections.Remove(result, "@language");
 					}
 					else
 					{
-						if (value.Type == JTokenType.String)
+						if (value.Type == GenericJsonTokenType.String)
 						{
 							result["@language"] = ((string)value).ToLower();
 						}
@@ -308,14 +309,14 @@ namespace JsonLD.Core
 					{
 						continue;
 					}
-                    result.CreateTermDefinition((JObject)eachContext, key, defined);
+                    result.CreateTermDefinition((GenericJsonObject)eachContext, key, defined);
 				}
 			}
 			return result;
 		}
 
 		/// <exception cref="JsonLD.Core.JsonLdError"></exception>
-		internal virtual JsonLD.Core.Context Parse(JToken localContext)
+		internal virtual JsonLD.Core.Context Parse(GenericJsonToken localContext)
 		{
 			return this.Parse(localContext, new List<string>());
 		}
@@ -330,7 +331,7 @@ namespace JsonLD.Core
 		/// <param name="defined"></param>
 		/// <exception cref="JsonLdError">JsonLdError</exception>
 		/// <exception cref="JsonLD.Core.JsonLdError"></exception>
-		private void CreateTermDefinition(JObject context, string term
+		private void CreateTermDefinition(GenericJsonObject context, string term
 			, IDictionary<string, bool> defined)
 		{
 			if (defined.ContainsKey(term))
@@ -347,32 +348,32 @@ namespace JsonLD.Core
 				throw new JsonLdError(JsonLdError.Error.KeywordRedefinition, term);
 			}
 			JsonLD.Collections.Remove(this.termDefinitions, term);
-			JToken value = context[term];
-			if (value.IsNull() || (value is JObject && ((IDictionary<string, JToken>)value
-				).ContainsKey("@id") && ((IDictionary<string, JToken>)value)["@id"].IsNull()))
+			GenericJsonToken value = context[term];
+			if (value.IsNull() || (value is GenericJsonObject && ((IDictionary<string, GenericJsonToken>)value
+				).ContainsKey("@id") && ((IDictionary<string, GenericJsonToken>)value)["@id"].IsNull()))
 			{
 				this.termDefinitions[term] = null;
 				defined[term] = true;
 				return;
 			}
-			if (value.Type == JTokenType.String)
+			if (value.Type == GenericJsonTokenType.String)
 			{
-                JObject tmp = new JObject();
+                GenericJsonObject tmp = new GenericJsonObject();
 				tmp["@id"] = value;
 				value = tmp;
 			}
-			if (!(value is JObject))
+			if (!(value is GenericJsonObject))
 			{
 				throw new JsonLdError(JsonLdError.Error.InvalidTermDefinition, value);
 			}
 			// casting the value so it doesn't have to be done below everytime
-			JObject val = (JObject)value;
+			GenericJsonObject val = (GenericJsonObject)value;
 			// 9) create a new term definition
-			JObject definition = new JObject();
+			GenericJsonObject definition = new GenericJsonObject();
 			// 10)
 			if (val.ContainsKey("@type"))
 			{
-				if (!(val["@type"].Type == JTokenType.String))
+				if (!(val["@type"].Type == GenericJsonTokenType.String))
 				{
 					throw new JsonLdError(JsonLdError.Error.InvalidTypeMapping, val["@type"]);
 				}
@@ -408,7 +409,7 @@ namespace JsonLD.Core
 				{
 					throw new JsonLdError(JsonLdError.Error.InvalidReverseProperty, val);
 				}
-				if (!(val["@reverse"].Type == JTokenType.String))
+				if (!(val["@reverse"].Type == GenericJsonTokenType.String))
 				{
 					throw new JsonLdError(JsonLdError.Error.InvalidIriMapping, "Expected String for @reverse value. got "
 						 + (val["@reverse"].IsNull() ? "null" : val["@reverse"].GetType().ToString()));
@@ -444,7 +445,7 @@ namespace JsonLD.Core
 			// 13)
 			if (!val["@id"].IsNull() && !val["@id"].SafeCompare(term))
 			{
-				if (!(val["@id"].Type == JTokenType.String))
+				if (!(val["@id"].Type == GenericJsonTokenType.String))
 				{
 					throw new JsonLdError(JsonLdError.Error.InvalidIriMapping, "expected value of @id to be a string"
 						);
@@ -479,7 +480,7 @@ namespace JsonLD.Core
 					}
 					if (termDefinitions.ContainsKey(prefix))
 					{
-						definition["@id"] = (string)(((IDictionary<string, JToken>)termDefinitions[prefix])["@id"]) + suffix;
+						definition["@id"] = (string)(((IDictionary<string, GenericJsonToken>)termDefinitions[prefix])["@id"]) + suffix;
 					}
 					else
 					{
@@ -515,7 +516,7 @@ namespace JsonLD.Core
 			// 17)
 			if (val.ContainsKey("@language") && !val.ContainsKey("@type"))
 			{
-				if (val["@language"].IsNull() || val["@language"].Type == JTokenType.String)
+				if (val["@language"].IsNull() || val["@language"].Type == GenericJsonTokenType.String)
 				{
 					string language = (string)val["@language"];
 					definition["@language"] = language != null ? language.ToLower() : null;
@@ -543,7 +544,7 @@ namespace JsonLD.Core
 		/// <returns></returns>
 		/// <exception cref="JsonLdError">JsonLdError</exception>
 		/// <exception cref="JsonLD.Core.JsonLdError"></exception>
-		internal virtual string ExpandIri(string value, bool relative, bool vocab, JObject context, IDictionary<string, bool> defined)
+		internal virtual string ExpandIri(string value, bool relative, bool vocab, GenericJsonObject context, IDictionary<string, bool> defined)
 		{
 			// 1)
 			if (value == null || JsonLdUtils.IsKeyword(value))
@@ -558,10 +559,10 @@ namespace JsonLD.Core
 			// 3)
 			if (vocab && this.termDefinitions.ContainsKey(value))
 			{
-                JToken td = this.termDefinitions[value];
-				if (td.Type != JTokenType.Null)
+                GenericJsonToken td = this.termDefinitions[value];
+				if (td.Type != GenericJsonTokenType.Null)
 				{
-					return (string)((JObject)td)["@id"];
+					return (string)((GenericJsonObject)td)["@id"];
 				}
 				else
 				{
@@ -589,7 +590,7 @@ namespace JsonLD.Core
 				// 4.4)
 				if (this.termDefinitions.ContainsKey(prefix))
 				{
-                    return (string)((JObject)this.termDefinitions[prefix])["@id"] 
+                    return (string)((GenericJsonObject)this.termDefinitions[prefix])["@id"] 
 						+ suffix;
 				}
 				// 4.5)
@@ -640,7 +641,7 @@ namespace JsonLD.Core
 		/// <param name="reverse">true if a reverse property is being compacted, false if not.
 		/// 	</param>
 		/// <returns>the compacted term, prefix, keyword alias, or the original IRI.</returns>
-		internal virtual string CompactIri(string iri, JToken value, bool relativeToVocab
+		internal virtual string CompactIri(string iri, GenericJsonToken value, bool relativeToVocab
 			, bool reverse)
 		{
 			// 1)
@@ -658,12 +659,12 @@ namespace JsonLD.Core
 					defaultLanguage = "@none";
 				}
 				// 2.2)
-				JArray containers = new JArray();
+				GenericJsonArray containers = new GenericJsonArray();
 				// 2.3)
 				string typeLanguage = "@language";
 				string typeLanguageValue = "@null";
 				// 2.4)
-				if (value is JObject && ((IDictionary<string, JToken>)value).ContainsKey("@index"
+				if (value is GenericJsonObject && ((IDictionary<string, GenericJsonToken>)value).ContainsKey("@index"
 					))
 				{
 					containers.Add("@index");
@@ -678,20 +679,20 @@ namespace JsonLD.Core
 				else
 				{
 					// 2.6)
-                    if (value is JObject && ((IDictionary<string, JToken>)value).ContainsKey("@list"))
+                    if (value is GenericJsonObject && ((IDictionary<string, GenericJsonToken>)value).ContainsKey("@list"))
 					{
 						// 2.6.1)
-						if (!((IDictionary<string, JToken>)value).ContainsKey("@index"))
+						if (!((IDictionary<string, GenericJsonToken>)value).ContainsKey("@index"))
 						{
 							containers.Add("@list");
 						}
 						// 2.6.2)
-                        JArray list = (JArray)((JObject)value)["@list"];
+                        GenericJsonArray list = (GenericJsonArray)((GenericJsonObject)value)["@list"];
 						// 2.6.3)
 						string commonLanguage = (list.Count == 0) ? defaultLanguage : null;
 						string commonType = null;
 						// 2.6.4)
-						foreach (JToken item in list)
+						foreach (GenericJsonToken item in list)
 						{
 							// 2.6.4.1)
 							string itemLanguage = "@none";
@@ -700,16 +701,16 @@ namespace JsonLD.Core
 							if (JsonLdUtils.IsValue(item))
 							{
 								// 2.6.4.2.1)
-								if (((IDictionary<string, JToken>)item).ContainsKey("@language"))
+								if (((IDictionary<string, GenericJsonToken>)item).ContainsKey("@language"))
 								{
-									itemLanguage = (string)((JObject)item)["@language"];
+									itemLanguage = (string)((GenericJsonObject)item)["@language"];
 								}
 								else
 								{
 									// 2.6.4.2.2)
-									if (((IDictionary<string, JToken>)item).ContainsKey("@type"))
+									if (((IDictionary<string, GenericJsonToken>)item).ContainsKey("@type"))
 									{
-										itemType = (string)((JObject)item)["@type"];
+										itemType = (string)((GenericJsonObject)item)["@type"];
 									}
 									else
 									{
@@ -775,23 +776,23 @@ namespace JsonLD.Core
 					{
 						// 2.7)
 						// 2.7.1)
-                        if (value is JObject && ((IDictionary<string, JToken>)value).ContainsKey("@value"
+                        if (value is GenericJsonObject && ((IDictionary<string, GenericJsonToken>)value).ContainsKey("@value"
 							))
 						{
 							// 2.7.1.1)
-                            if (((IDictionary<string, JToken>)value).ContainsKey("@language") && !((IDictionary
-                                <string, JToken>)value).ContainsKey("@index"))
+                            if (((IDictionary<string, GenericJsonToken>)value).ContainsKey("@language") && !((IDictionary
+                                <string, GenericJsonToken>)value).ContainsKey("@index"))
 							{
 								containers.Add("@language");
-                                typeLanguageValue = (string)((IDictionary<string, JToken>)value)["@language"];
+                                typeLanguageValue = (string)((IDictionary<string, GenericJsonToken>)value)["@language"];
 							}
 							else
 							{
 								// 2.7.1.2)
-                                if (((IDictionary<string, JToken>)value).ContainsKey("@type"))
+                                if (((IDictionary<string, GenericJsonToken>)value).ContainsKey("@type"))
 								{
 									typeLanguage = "@type";
-                                    typeLanguageValue = (string)((IDictionary<string, JToken>)value)["@type"];
+                                    typeLanguageValue = (string)((IDictionary<string, GenericJsonToken>)value)["@type"];
 								}
 							}
 						}
@@ -813,7 +814,7 @@ namespace JsonLD.Core
 					typeLanguageValue = "@null";
 				}
 				// 2.10)
-				JArray preferredValues = new JArray();
+				GenericJsonArray preferredValues = new GenericJsonArray();
 				// 2.11)
 				if ("@reverse".Equals(typeLanguageValue))
 				{
@@ -821,15 +822,15 @@ namespace JsonLD.Core
 				}
 				// 2.12)
 				if (("@reverse".Equals(typeLanguageValue) || "@id".Equals(typeLanguageValue)) && 
-					(value is JObject) && ((JObject)value).ContainsKey("@id"
+					(value is GenericJsonObject) && ((GenericJsonObject)value).ContainsKey("@id"
 					))
 				{
 					// 2.12.1)
-                    string result = this.CompactIri((string)((IDictionary<string, JToken>)value)["@id"
+                    string result = this.CompactIri((string)((IDictionary<string, GenericJsonToken>)value)["@id"
 						], null, true, true);
-                    if (termDefinitions.ContainsKey(result) && ((IDictionary<string, JToken>)termDefinitions
-                        [result]).ContainsKey("@id") && ((IDictionary<string, JToken>)value)["@id"].SafeCompare
-                        (((IDictionary<string, JToken>)termDefinitions[result])["@id"]))
+                    if (termDefinitions.ContainsKey(result) && ((IDictionary<string, GenericJsonToken>)termDefinitions
+                        [result]).ContainsKey("@id") && ((IDictionary<string, GenericJsonToken>)value)["@id"].SafeCompare
+                        (((IDictionary<string, GenericJsonToken>)termDefinitions[result])["@id"]))
 					{
 						preferredValues.Add("@vocab");
 						preferredValues.Add("@id");
@@ -877,18 +878,18 @@ namespace JsonLD.Core
 			// 5)
 			foreach (string term_1 in termDefinitions.GetKeys())
 			{
-				JToken termDefinitionToken = termDefinitions[term_1];
+				GenericJsonToken termDefinitionToken = termDefinitions[term_1];
 				// 5.1)
 				if (term_1.Contains(":"))
 				{
 					continue;
 				}
 				// 5.2)
-                if (termDefinitionToken.Type == JTokenType.Null)
+                if (termDefinitionToken.Type == GenericJsonTokenType.Null)
                 {
                     continue;
                 }
-                JObject termDefinition = (JObject)termDefinitionToken;
+                GenericJsonObject termDefinition = (GenericJsonObject)termDefinitionToken;
                 if (termDefinition["@id"].SafeCompare(iri) || !iri.StartsWith
 					((string)termDefinition["@id"]))
 				{
@@ -900,7 +901,7 @@ namespace JsonLD.Core
 				// 5.4)
 				if ((compactIRI == null || JsonLdUtils.CompareShortestLeast(candidate, compactIRI
 					) < 0) && (!termDefinitions.ContainsKey(candidate) || (((IDictionary<
-                    string, JToken>)termDefinitions[candidate])["@id"].SafeCompare(iri)) && value.IsNull()))
+                    string, GenericJsonToken>)termDefinitions[candidate])["@id"].SafeCompare(iri)) && value.IsNull()))
 				{
 					compactIRI = candidate;
 				}
@@ -932,7 +933,7 @@ namespace JsonLD.Core
 		public object Clone()
 		{
 			JsonLD.Core.Context rval = new Context(base.DeepClone(),options);
-			rval.termDefinitions = (JObject)termDefinitions.DeepClone();
+			rval.termDefinitions = (GenericJsonObject)termDefinitions.DeepClone();
 			return rval;
 		}
 
@@ -949,7 +950,7 @@ namespace JsonLD.Core
 		/// already generated for the given active context.
 		/// </remarks>
 		/// <returns>the inverse context.</returns>
-		internal virtual JObject GetInverse()
+		internal virtual GenericJsonObject GetInverse()
 		{
 			// lazily create inverse
 			if (inverse != null)
@@ -957,7 +958,7 @@ namespace JsonLD.Core
 				return inverse;
 			}
 			// 1)
-			inverse = new JObject();
+			inverse = new GenericJsonObject();
 			// 2)
 			string defaultLanguage = (string)this["@language"];
 			if (defaultLanguage == null)
@@ -966,18 +967,18 @@ namespace JsonLD.Core
 			}
 			// create term selections for each mapping in the context, ordererd by
 			// shortest and then lexicographically least
-			JArray terms = new JArray(termDefinitions.GetKeys());
-			((JArray)terms).SortInPlace(new _IComparer_794());
+			GenericJsonArray terms = new GenericJsonArray(termDefinitions.GetKeys());
+			((GenericJsonArray)terms).SortInPlace(new _IComparer_794());
 			foreach (string term in terms)
 			{
-                JToken definitionToken = termDefinitions[term];
+                GenericJsonToken definitionToken = termDefinitions[term];
                 // 3.1)
-                if (definitionToken.Type == JTokenType.Null)
+                if (definitionToken.Type == GenericJsonTokenType.Null)
                 {
                     continue;
                 }
 
-				JObject definition = (JObject)termDefinitions[term];
+				GenericJsonObject definition = (GenericJsonObject)termDefinitions[term];
 				// 3.2)
 				string container = (string)definition["@container"];
 				if (container == null)
@@ -987,25 +988,25 @@ namespace JsonLD.Core
 				// 3.3)
 				string iri = (string)definition["@id"];
 				// 3.4 + 3.5)
-				JObject containerMap = (JObject)inverse[iri];
+				GenericJsonObject containerMap = (GenericJsonObject)inverse[iri];
 				if (containerMap == null)
 				{
-					containerMap = new JObject();
+					containerMap = new GenericJsonObject();
 					inverse[iri] = containerMap;
 				}
 				// 3.6 + 3.7)
-				JObject typeLanguageMap = (JObject)containerMap[container];
+				GenericJsonObject typeLanguageMap = (GenericJsonObject)containerMap[container];
 				if (typeLanguageMap == null)
 				{
-					typeLanguageMap = new JObject();
-					typeLanguageMap["@language"] = new JObject();
-					typeLanguageMap["@type"] = new JObject();
+					typeLanguageMap = new GenericJsonObject();
+					typeLanguageMap["@language"] = new GenericJsonObject();
+					typeLanguageMap["@type"] = new GenericJsonObject();
 					containerMap[container] = typeLanguageMap;
 				}
 				// 3.8)
 				if (definition["@reverse"].SafeCompare(true))
 				{
-                    JObject typeMap = (JObject)typeLanguageMap
+                    GenericJsonObject typeMap = (GenericJsonObject)typeLanguageMap
 						["@type"];
 					if (!typeMap.ContainsKey("@reverse"))
 					{
@@ -1017,7 +1018,7 @@ namespace JsonLD.Core
 					// 3.9)
 					if (definition.ContainsKey("@type"))
 					{
-                        JObject typeMap = (JObject)typeLanguageMap["@type"];
+                        GenericJsonObject typeMap = (GenericJsonObject)typeLanguageMap["@type"];
 						if (!typeMap.ContainsKey((string)definition["@type"]))
 						{
 							typeMap[(string)definition["@type"]] = term;
@@ -1028,7 +1029,7 @@ namespace JsonLD.Core
 						// 3.10)
 						if (definition.ContainsKey("@language"))
 						{
-                            JObject languageMap = (JObject)typeLanguageMap
+                            GenericJsonObject languageMap = (GenericJsonObject)typeLanguageMap
 								["@language"];
 							string language = (string)definition["@language"];
 							if (language == null)
@@ -1044,7 +1045,7 @@ namespace JsonLD.Core
 						{
 							// 3.11)
 							// 3.11.1)
-                            JObject languageMap = (JObject)typeLanguageMap
+                            GenericJsonObject languageMap = (GenericJsonObject)typeLanguageMap
 								["@language"];
 							// 3.11.2)
 							if (!languageMap.ContainsKey("@language"))
@@ -1057,7 +1058,7 @@ namespace JsonLD.Core
 								languageMap["@none"] = term;
 							}
 							// 3.11.4)
-                            JObject typeMap = (JObject)typeLanguageMap
+                            GenericJsonObject typeMap = (GenericJsonObject)typeLanguageMap
 								["@type"];
 							// 3.11.5)
 							if (!typeMap.ContainsKey("@none"))
@@ -1072,13 +1073,13 @@ namespace JsonLD.Core
 			return inverse;
 		}
 
-		private sealed class _IComparer_794 : IComparer<JToken>
+		private sealed class _IComparer_794 : IComparer<GenericJsonToken>
 		{
 			public _IComparer_794()
 			{
 			}
 
-			public int Compare(JToken a, JToken b)
+			public int Compare(GenericJsonToken a, GenericJsonToken b)
 			{
 				return JsonLdUtils.CompareShortestLeast((string)a, (string)b);
 			}
@@ -1101,12 +1102,12 @@ namespace JsonLD.Core
 		/// language mapping would be best used to express the value.
 		/// </remarks>
 		/// <returns>the selected term.</returns>
-		private string SelectTerm(string iri, JArray containers, string typeLanguage
-			, JArray preferredValues)
+		private string SelectTerm(string iri, GenericJsonArray containers, string typeLanguage
+			, GenericJsonArray preferredValues)
 		{
-			JObject inv = GetInverse();
+			GenericJsonObject inv = GetInverse();
 			// 1)
-			JObject containerMap = (JObject)inv[iri];
+			GenericJsonObject containerMap = (GenericJsonObject)inv[iri];
 			// 2)
 			foreach (string container in containers)
 			{
@@ -1116,10 +1117,10 @@ namespace JsonLD.Core
 					continue;
 				}
 				// 2.2)
-				JObject typeLanguageMap = (JObject)containerMap
+				GenericJsonObject typeLanguageMap = (GenericJsonObject)containerMap
 					[container];
 				// 2.3)
-				JObject valueMap = (JObject)typeLanguageMap
+				GenericJsonObject valueMap = (GenericJsonObject)typeLanguageMap
 					[typeLanguage];
 				// 2.4 )
 				foreach (string item in preferredValues)
@@ -1157,7 +1158,7 @@ namespace JsonLD.Core
 			{
 				return property;
 			}
-            JObject td = (JObject)termDefinitions[property
+            GenericJsonObject td = (GenericJsonObject)termDefinitions[property
 				];
 			if (td == null)
 			{
@@ -1172,12 +1173,12 @@ namespace JsonLD.Core
             {
                 return false;
             }
-            JObject td = (JObject)termDefinitions[property];
+            GenericJsonObject td = (GenericJsonObject)termDefinitions[property];
 			if (td == null)
 			{
 				return false;
 			}
-			JToken reverse = td["@reverse"];
+			GenericJsonToken reverse = td["@reverse"];
 			return !reverse.IsNull() && (bool)reverse;
 		}
 
@@ -1187,12 +1188,12 @@ namespace JsonLD.Core
             {
                 return null;
             }
-			JToken td = termDefinitions[property];
+			GenericJsonToken td = termDefinitions[property];
 			if (td.IsNull())
 			{
 				return null;
 			}
-			return (string)((JObject)td)["@type"];
+			return (string)((GenericJsonObject)td)["@type"];
 		}
 
 		private string GetLanguageMapping(string property)
@@ -1201,7 +1202,7 @@ namespace JsonLD.Core
             {
                 return null;
             }
-			JObject td = (JObject)termDefinitions[property];
+			GenericJsonObject td = (GenericJsonObject)termDefinitions[property];
 			if (td == null)
 			{
 				return null;
@@ -1209,16 +1210,16 @@ namespace JsonLD.Core
 			return (string)td["@language"];
 		}
 
-		internal virtual JObject GetTermDefinition(string key)
+		internal virtual GenericJsonObject GetTermDefinition(string key)
 		{
-			return (JObject)termDefinitions[key];
+			return (GenericJsonObject)termDefinitions[key];
 		}
 
 		/// <exception cref="JsonLD.Core.JsonLdError"></exception>
-		internal virtual JToken ExpandValue(string activeProperty, JToken value)
+		internal virtual GenericJsonToken ExpandValue(string activeProperty, GenericJsonToken value)
 		{
-			JObject rval = new JObject();
-			JObject td = GetTermDefinition(activeProperty);
+			GenericJsonObject rval = new GenericJsonObject();
+			GenericJsonObject td = GetTermDefinition(activeProperty);
 			// 1)
 			if (td != null && td["@type"].SafeCompare("@id"))
 			{
@@ -1244,7 +1245,7 @@ namespace JsonLD.Core
 			else
 			{
 				// 5)
-				if (value.Type == JTokenType.String)
+				if (value.Type == GenericJsonTokenType.String)
 				{
 					// 5.1)
 					if (td != null && td.ContainsKey("@language"))
@@ -1269,15 +1270,15 @@ namespace JsonLD.Core
 		}
 
 		/// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        internal virtual JObject GetContextValue(string activeProperty, string @string)
+        internal virtual GenericJsonObject GetContextValue(string activeProperty, string @string)
 		{
 			throw new JsonLdError(JsonLdError.Error.NotImplemented, "getContextValue is only used by old code so far and thus isn't implemented"
 				);
 		}
 
-		public virtual JObject Serialize()
+		public virtual GenericJsonObject Serialize()
 		{
-			JObject ctx = new JObject();
+			GenericJsonObject ctx = new GenericJsonObject();
 			if (!this["@base"].IsNull() && !this["@base"].SafeCompare(options.GetBase()))
 			{
 				ctx["@base"] = this["@base"];
@@ -1292,16 +1293,16 @@ namespace JsonLD.Core
 			}
 			foreach (string term in termDefinitions.GetKeys())
 			{
-				JObject definition = (JObject)termDefinitions[term];
+				GenericJsonObject definition = (GenericJsonObject)termDefinitions[term];
 				if (definition["@language"].IsNull() && definition["@container"].IsNull() && definition
-					["@type"].IsNull() && (definition["@reverse"].IsNull() || (definition["@reverse"].Type == JTokenType.Boolean && (bool)definition["@reverse"] == false)))
+					["@type"].IsNull() && (definition["@reverse"].IsNull() || (definition["@reverse"].Type == GenericJsonTokenType.Boolean && (bool)definition["@reverse"] == false)))
 				{
 					string cid = this.CompactIri((string)definition["@id"]);
 					ctx[term] = term.Equals(cid) ? (string)definition["@id"] : cid;
 				}
 				else
 				{
-					JObject defn = new JObject();
+					GenericJsonObject defn = new GenericJsonObject();
 					string cid = this.CompactIri((string)definition["@id"]);
 					bool reverseProperty = definition["@reverse"].SafeCompare(true);
 					if (!(term.Equals(cid) && !reverseProperty))
@@ -1318,7 +1319,7 @@ namespace JsonLD.Core
 					{
 						defn["@container"] = definition["@container"];
 					}
-					JToken lang = definition["@language"];
+					GenericJsonToken lang = definition["@language"];
 					if (!definition["@language"].IsNull())
 					{
 						defn["@language"] = lang.SafeCompare(false) ? null : lang;
@@ -1326,7 +1327,7 @@ namespace JsonLD.Core
 					ctx[term] = defn;
 				}
 			}
-			JObject rval = new JObject();
+			GenericJsonObject rval = new GenericJsonObject();
 			if (!(ctx == null || ctx.IsEmpty()))
 			{
 				rval["@context"] = ctx;

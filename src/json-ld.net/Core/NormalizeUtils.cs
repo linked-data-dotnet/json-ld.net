@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using JsonLD.Core;
+using JsonLD.GenericJson;
 using JsonLD.Util;
 using Newtonsoft.Json.Linq;
 
@@ -247,7 +248,7 @@ namespace JsonLD.Core
             {
                 // create SHA-1 digest
                 md = MessageDigest.GetInstance("SHA-1");
-                JObject groups = new JObject();
+                GenericJsonObject groups = new GenericJsonObject();
                 IList<string> groupHashes;
                 IList<RDFDataset.Quad> quads = (IList<RDFDataset.Quad>)bnodes[id]["quads"];
                 for (int hpi = 0; ; hpi++)
@@ -272,16 +273,16 @@ namespace JsonLD.Core
                             // choose a path and namer from the permutations
                             string chosenPath = null;
                             UniqueNamer chosenNamer = null;
-                            NormalizeUtils.Permutator permutator = new NormalizeUtils.Permutator((JArray)groups[groupHash]);
+                            NormalizeUtils.Permutator permutator = new NormalizeUtils.Permutator((GenericJsonArray)groups[groupHash]);
                             while (true)
                             {
                                 bool contPermutation = false;
                                 bool breakOut = false;
-                                JArray permutation = permutator.Next();
+                                GenericJsonArray permutation = permutator.Next();
                                 UniqueNamer pathNamerCopy = pathNamer.Clone();
                                 // build adjacent path
                                 string path = string.Empty;
-                                JArray recurse = new JArray();
+                                GenericJsonArray recurse = new GenericJsonArray();
                                 foreach (string bnode in permutation)
                                 {
                                     // use canonical name if available
@@ -432,11 +433,11 @@ namespace JsonLD.Core
                             string groupHash = EncodeHex(md1.Digest());
                             if (groups.ContainsKey(groupHash))
                             {
-                                ((JArray)groups[groupHash]).Add(bnode_2);
+                                ((GenericJsonArray)groups[groupHash]).Add(bnode_2);
                             }
                             else
                             {
-                                JArray tmp = new JArray();
+                                GenericJsonArray tmp = new GenericJsonArray();
                                 tmp.Add(bnode_2);
                                 groups[groupHash] = tmp;
                             }
@@ -538,15 +539,15 @@ namespace JsonLD.Core
 
         private class Permutator
         {
-            private readonly JArray list;
+            private readonly GenericJsonArray list;
 
             private bool done;
 
             private readonly IDictionary<string, bool> left;
 
-            public Permutator(JArray list)
+            public Permutator(GenericJsonArray list)
             {
-                this.list = (JArray)JsonLdUtils.Clone(list);
+                this.list = (GenericJsonArray)JsonLdUtils.Clone(list);
                 this.list.SortInPlace();
                 this.done = false;
                 this.left = new Dictionary<string, bool>();
@@ -570,9 +571,9 @@ namespace JsonLD.Core
             /// one first.
             /// </remarks>
             /// <returns>the next permutation.</returns>
-            public virtual JArray Next()
+            public virtual GenericJsonArray Next()
             {
-                JArray rval = (JArray)JsonLdUtils.Clone(this.list);
+                GenericJsonArray rval = (GenericJsonArray)JsonLdUtils.Clone(this.list);
                 // Calculate the next permutation using Steinhaus-Johnson-Trotter
                 // permutation algoritm
                 // get largest mobile element k

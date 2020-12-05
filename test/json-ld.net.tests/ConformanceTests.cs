@@ -7,6 +7,7 @@ using Xunit;
 using System.IO;
 using JsonLD.Core;
 using JsonLD.Util;
+using JsonLD.GenericJson;
 
 namespace JsonLD.Test
 {
@@ -15,7 +16,7 @@ namespace JsonLD.Test
         [Theory, ClassData(typeof(ConformanceCases))]
         public void ConformanceTestPasses(string id, ConformanceCase conformanceCase)
         {
-            JToken result = conformanceCase.run();
+            GenericJsonToken result = conformanceCase.run();
             if (conformanceCase.error != null)
             {
                 Assert.True(((string)result["error"]).StartsWith((string)conformanceCase.error), "Resulting error doesn't match expectations.");
@@ -42,12 +43,12 @@ namespace JsonLD.Test
 
     public class ConformanceCase
     {
-        public JToken input { get; set; }
-        public JToken context { get; set; }
-        public JToken frame { get; set; }
-        public JToken output { get; set; }
-        public JToken error { get; set; }
-        public Func<JToken> run { get; set; }
+        public GenericJsonToken input { get; set; }
+        public GenericJsonToken context { get; set; }
+        public GenericJsonToken frame { get; set; }
+        public GenericJsonToken output { get; set; }
+        public GenericJsonToken error { get; set; }
+        public Func<GenericJsonToken> run { get; set; }
     }
 
     public class ConformanceCases: IEnumerable<object[]>
@@ -76,12 +77,12 @@ namespace JsonLD.Test
 
             foreach (string manifest in manifests)
             {
-                JToken manifestJson = jsonFetcher.GetJson(manifest, rootDirectory);
+                GenericJsonToken manifestJson = jsonFetcher.GetJson(manifest, rootDirectory);
                 var isRemoteTest = (string)manifestJson["name"] == "Remote document";
 
-                foreach (JObject testcase in manifestJson["sequence"])
+                foreach (GenericJsonObject testcase in manifestJson["sequence"])
                 {
-                    Func<JToken> run;
+                    Func<GenericJsonToken> run;
                     ConformanceCase newCase = new ConformanceCase();
 
                     // Load input file if not remote test. Remote tests load from the web at test execution time.
@@ -94,7 +95,7 @@ namespace JsonLD.Test
 
                     var options = new JsonLdOptions("http://json-ld.org/test-suite/tests/" + (string)testcase["input"]);
 
-                    var testType = (JArray)testcase["@type"];
+                    var testType = (GenericJsonArray)testcase["@type"];
 
                     if (testType.Any((s) => (string)s == "jld:NegativeEvaluationTest"))
                     {
@@ -121,12 +122,12 @@ namespace JsonLD.Test
                         throw new Exception("Expecting either positive or negative evaluation test.");
                     }
 
-                    JToken optionToken;
-                    JToken value;
+                    GenericJsonToken optionToken;
+                    GenericJsonToken value;
 
                     if (testcase.TryGetValue("option", out optionToken))
                     {
-                        JObject optionDescription = (JObject)optionToken;
+                        GenericJsonObject optionDescription = (GenericJsonObject)optionToken;
 
                         if (optionDescription.TryGetValue("compactArrays", out value))
                         {
@@ -139,7 +140,7 @@ namespace JsonLD.Test
                         if (optionDescription.TryGetValue("expandContext", out value))
                         {
                             newCase.context = jsonFetcher.GetJson(testcase["option"]["expandContext"], rootDirectory);
-                            options.SetExpandContext((JObject)newCase.context);
+                            options.SetExpandContext((GenericJsonObject)newCase.context);
                         }
                         if (optionDescription.TryGetValue("produceGeneralizedRdf", out value))
                         {
@@ -173,14 +174,14 @@ namespace JsonLD.Test
                     }
                     else if (testType.Any((s) => (string)s == "jld:NormalizeTest"))
                     {
-                        run = () => new JValue(
+                        run = () => new GenericJsonValue(
                                 RDFDatasetUtils.ToNQuads((RDFDataset)JsonLdProcessor.Normalize(newCase.input, options)).Replace("\n", "\r\n")
                             );
                     }
                     else if (testType.Any((s) => (string)s == "jld:ToRDFTest"))
                     {
                         options.format = "application/nquads";
-                        run = () => new JValue(
+                        run = () => new GenericJsonValue(
                             ((string)JsonLdProcessor.ToRDF(newCase.input, options)).Replace("\n", "\r\n")
                         );
                     }
@@ -196,20 +197,20 @@ namespace JsonLD.Test
 
                     if (isRemoteTest)
                     {
-                        Func<JToken> innerRun = run;
+                        Func<GenericJsonToken> innerRun = run;
                         run = () =>
                         {
                             var remoteDoc = options.documentLoader.LoadDocument("https://json-ld.org/test-suite/tests/" + (string)testcase["input"]);
                             newCase.input = remoteDoc.Document;
                             options.SetBase(remoteDoc.DocumentUrl);
-                            options.SetExpandContext((JObject)remoteDoc.Context);
+                            options.SetExpandContext((GenericJsonObject)remoteDoc.Context);
                             return innerRun();
                         };
                     }
 
                     if (testType.Any((s) => (string)s == "jld:NegativeEvaluationTest"))
                     {
-                        Func<JToken> innerRun = run;
+                        Func<GenericJsonToken> innerRun = run;
                         run = () =>
                         {
                             try
@@ -218,7 +219,7 @@ namespace JsonLD.Test
                             }
                             catch (JsonLdError err)
                             {
-                                JObject result = new JObject();
+                                GenericJsonObject result = new GenericJsonObject();
                                 result["error"] = err.Message;
                                 return result;
                             }

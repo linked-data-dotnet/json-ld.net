@@ -1,4 +1,5 @@
 ﻿using JsonLD.Core;
+using JsonLD.GenericJson;
 using JsonLD.Util;
 using Newtonsoft.Json.Linq;
 using System;
@@ -15,7 +16,7 @@ namespace JsonLD.Test
         [Theory, MemberData(nameof(ExtendedFunctionalityCases))]
         public void ExtendedFunctionalityTestPasses(string id, ExtendedFunctionalityTestCase testCase)
         {
-            JToken result = testCase.run();
+            GenericJsonToken result = testCase.run();
             if (testCase.error != null)
             {
                 Assert.True(((string)result["error"]).StartsWith((string)testCase.error), "Resulting error doesn't match expectations.");
@@ -41,12 +42,12 @@ namespace JsonLD.Test
 
         public class ExtendedFunctionalityTestCase
         {
-            public JToken  input { get; set; }
-            public JToken output { get; set; }
-            public JToken context { get; set; }
-            public JToken frame { get; set; }
-            public JToken error { get; set; }
-            public Func<JToken> run { get; set; }
+            public GenericJsonToken  input { get; set; }
+            public GenericJsonToken output { get; set; }
+            public GenericJsonToken context { get; set; }
+            public GenericJsonToken frame { get; set; }
+            public GenericJsonToken error { get; set; }
+            public Func<GenericJsonToken> run { get; set; }
         }
 
         public static IEnumerable<object[]> ExtendedFunctionalityCases()
@@ -69,11 +70,11 @@ namespace JsonLD.Test
             
             foreach (string manifest in SortingManifests)
             {
-                JToken manifestJson = jsonFetcher.GetJson(manifest, rootDirectory);
+                GenericJsonToken manifestJson = jsonFetcher.GetJson(manifest, rootDirectory);
 
-                foreach (JObject testcase in manifestJson["sequence"])
+                foreach (GenericJsonObject testcase in manifestJson["sequence"])
                 {
-                    Func<JToken> run = null;
+                    Func<GenericJsonToken> run = null;
                     ExtendedFunctionalityTestCase newCase = new ExtendedFunctionalityTestCase();
 
                     newCase.input = jsonFetcher.GetJson(manifestJson["input"], rootDirectory);
@@ -110,10 +111,10 @@ namespace JsonLD.Test
 
                     if (testType == "jld:FromRDF")
                     {
-                        JToken quads = newCase.input["quads"];
+                        GenericJsonToken quads = newCase.input["quads"];
                         RDFDataset rdf = new RDFDataset();
 
-                        foreach (JToken quad in quads)
+                        foreach (GenericJsonToken quad in quads)
                         {
                             string subject = (string)quad["subject"];
                             string predicate = (string)quad["predicate"];

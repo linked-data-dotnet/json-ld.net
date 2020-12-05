@@ -4,6 +4,7 @@ using JsonLD.Core;
 using JsonLD.Util;
 using Newtonsoft.Json.Linq;
 using System;
+using JsonLD.GenericJson;
 
 namespace JsonLD.Core
 {
@@ -13,7 +14,7 @@ namespace JsonLD.Core
 
         internal JsonLdOptions opts;
 
-        internal JToken value = null;
+        internal GenericJsonToken value = null;
 
         internal Context context = null;
 
@@ -23,13 +24,13 @@ namespace JsonLD.Core
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public JsonLdApi(JToken input, JsonLdOptions opts)
+        public JsonLdApi(GenericJsonToken input, JsonLdOptions opts)
         {
             Initialize(input, null, opts);
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public JsonLdApi(JToken input, JToken context, JsonLdOptions opts)
+        public JsonLdApi(GenericJsonToken input, GenericJsonToken context, JsonLdOptions opts)
         {
             Initialize(input, null, opts);
         }
@@ -47,12 +48,12 @@ namespace JsonLD.Core
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        private void Initialize(JToken input, JToken context, JsonLdOptions opts)
+        private void Initialize(GenericJsonToken input, GenericJsonToken context, JsonLdOptions opts)
         {
             // set option defaults (TODO: clone?)
             // NOTE: sane defaults should be set in JsonLdOptions constructor
             this.opts = opts;
-            if (input is JArray || input is JObject)
+            if (input is GenericJsonArray || input is GenericJsonObject)
             {
                 this.value = JsonLdUtils.Clone(input);
             }
@@ -74,19 +75,19 @@ namespace JsonLD.Core
         /// <param name="compactArrays"></param>
         /// <returns></returns>
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public virtual JToken Compact(Context activeCtx, string activeProperty, JToken element
+        public virtual GenericJsonToken Compact(Context activeCtx, string activeProperty, GenericJsonToken element
             , bool compactArrays)
         {
             // 2)
-            if (element is JArray)
+            if (element is GenericJsonArray)
             {
                 // 2.1)
-                JArray result = new JArray();
+                GenericJsonArray result = new GenericJsonArray();
                 // 2.2)
-                foreach (JToken item in element)
+                foreach (GenericJsonToken item in element)
                 {
                     // 2.2.1)
-                    JToken compactedItem = Compact(activeCtx, activeProperty, item, compactArrays);
+                    GenericJsonToken compactedItem = Compact(activeCtx, activeProperty, item, compactArrays);
                     // 2.2.2)
                     if (!compactedItem.IsNull())
                     {
@@ -103,15 +104,15 @@ namespace JsonLD.Core
                 return result;
             }
             // 3)
-            if (element is JObject)
+            if (element is GenericJsonObject)
             {
                 // access helper
-                IDictionary<string, JToken> elem = (IDictionary<string, JToken>)element;
+                IDictionary<string, GenericJsonToken> elem = (IDictionary<string, GenericJsonToken>)element;
                 // 4
                 if (elem.ContainsKey("@value") || elem.ContainsKey("@id"))
                 {
-                    JToken compactedValue = activeCtx.CompactValue(activeProperty, (JObject)element);
-                    if (!(compactedValue is JObject || compactedValue is JArray))
+                    GenericJsonToken compactedValue = activeCtx.CompactValue(activeProperty, (GenericJsonObject)element);
+                    if (!(compactedValue is GenericJsonObject || compactedValue is GenericJsonArray))
                     {
                         return compactedValue;
                     }
@@ -119,19 +120,19 @@ namespace JsonLD.Core
                 // 5)
                 bool insideReverse = ("@reverse".Equals(activeProperty));
                 // 6)
-                JObject result = new JObject();
+                GenericJsonObject result = new GenericJsonObject();
                 // 7)
-                JArray keys = new JArray(element.GetKeys());
+                GenericJsonArray keys = new GenericJsonArray(element.GetKeys());
                 keys.SortInPlace();
                 foreach (string expandedProperty in keys)
                 {
-                    JToken expandedValue = elem[expandedProperty];
+                    GenericJsonToken expandedValue = elem[expandedProperty];
                     // 7.1)
                     if ("@id".Equals(expandedProperty) || "@type".Equals(expandedProperty))
                     {
-                        JToken compactedValue;
+                        GenericJsonToken compactedValue;
                         // 7.1.1)
-                        if (expandedValue.Type == JTokenType.String)
+                        if (expandedValue.Type == GenericJsonTokenType.String)
                         {
                             compactedValue = activeCtx.CompactIri((string)expandedValue, "@type".Equals(expandedProperty
                                 ));
@@ -139,9 +140,9 @@ namespace JsonLD.Core
                         else
                         {
                             // 7.1.2)
-                            JArray types = new JArray();
+                            GenericJsonArray types = new GenericJsonArray();
                             // 7.1.2.2)
-                            foreach (string expandedType in (JArray)expandedValue)
+                            foreach (string expandedType in (GenericJsonArray)expandedValue)
                             {
                                 types.Add(activeCtx.CompactIri(expandedType, true));
                             }
@@ -169,20 +170,20 @@ namespace JsonLD.Core
                     if ("@reverse".Equals(expandedProperty))
                     {
                         // 7.2.1)
-                        JObject compactedValue = (JObject)Compact(activeCtx, "@reverse", expandedValue, compactArrays);
+                        GenericJsonObject compactedValue = (GenericJsonObject)Compact(activeCtx, "@reverse", expandedValue, compactArrays);
                         // 7.2.2)
                         List<string> properties = new List<string>(compactedValue.GetKeys());
                         foreach (string property in properties)
                         {
-                            JToken value = compactedValue[property];
+                            GenericJsonToken value = compactedValue[property];
                             // 7.2.2.1)
                             if (activeCtx.IsReverseProperty(property))
                             {
                                 // 7.2.2.1.1)
                                 if (("@set".Equals(activeCtx.GetContainer(property)) || !compactArrays) && !(value
-                                     is JArray))
+                                     is GenericJsonArray))
                                 {
-                                    JArray tmp = new JArray();
+                                    GenericJsonArray tmp = new GenericJsonArray();
                                     tmp.Add(value);
                                     result[property] = tmp;
                                 }
@@ -194,20 +195,20 @@ namespace JsonLD.Core
                                 else
                                 {
                                     // 7.2.2.1.3)
-                                    if (!(result[property] is JArray))
+                                    if (!(result[property] is GenericJsonArray))
                                     {
-                                        JArray tmp = new JArray();
+                                        GenericJsonArray tmp = new GenericJsonArray();
                                         tmp.Add(result[property]);
                                         result[property] = tmp;
                                     }
-                                    if (value is JArray)
+                                    if (value is GenericJsonArray)
                                     {
-                                        JsonLD.Collections.AddAll(((JArray)result[property]), (JArray)value
+                                        JsonLD.Collections.AddAll(((GenericJsonArray)result[property]), (GenericJsonArray)value
                                             );
                                     }
                                     else
                                     {
-                                        ((JArray)result[property]).Add(value);
+                                        ((GenericJsonArray)result[property]).Add(value);
                                     }
                                 }
                                 // 7.2.2.1.4) TODO: this doesn't seem safe (i.e.
@@ -248,7 +249,7 @@ namespace JsonLD.Core
                     // NOTE: expanded value must be an array due to expansion
                     // algorithm.
                     // 7.5)
-                    if (((JArray)expandedValue).Count == 0)
+                    if (((GenericJsonArray)expandedValue).Count == 0)
                     {
                         // 7.5.1)
                         string itemActiveProperty = activeCtx.CompactIri(expandedProperty, expandedValue, 
@@ -256,21 +257,21 @@ namespace JsonLD.Core
                         // 7.5.2)
                         if (!result.ContainsKey(itemActiveProperty))
                         {
-                            result[itemActiveProperty] = new JArray();
+                            result[itemActiveProperty] = new GenericJsonArray();
                         }
                         else
                         {
-                            JToken value = result[itemActiveProperty];
-                            if (!(value is JArray))
+                            GenericJsonToken value = result[itemActiveProperty];
+                            if (!(value is GenericJsonArray))
                             {
-                                JArray tmp = new JArray();
+                                GenericJsonArray tmp = new GenericJsonArray();
                                 tmp.Add(value);
                                 result[itemActiveProperty] = tmp;
                             }
                         }
                     }
                     // 7.6)
-                    foreach (JToken expandedItem in (JArray)expandedValue)
+                    foreach (GenericJsonToken expandedItem in (GenericJsonArray)expandedValue)
                     {
                         // 7.6.1)
                         string itemActiveProperty = activeCtx.CompactIri(expandedProperty, expandedItem, 
@@ -278,23 +279,23 @@ namespace JsonLD.Core
                         // 7.6.2)
                         string container = activeCtx.GetContainer(itemActiveProperty);
                         // get @list value if appropriate
-                        bool isList = (expandedItem is JObject && ((IDictionary<string, JToken>)expandedItem
+                        bool isList = (expandedItem is GenericJsonObject && ((IDictionary<string, GenericJsonToken>)expandedItem
                             ).ContainsKey("@list"));
-                        JToken list = null;
+                        GenericJsonToken list = null;
                         if (isList)
                         {
-                            list = ((IDictionary<string, JToken>)expandedItem)["@list"];
+                            list = ((IDictionary<string, GenericJsonToken>)expandedItem)["@list"];
                         }
                         // 7.6.3)
-                        JToken compactedItem = Compact(activeCtx, itemActiveProperty, isList ? list : expandedItem
+                        GenericJsonToken compactedItem = Compact(activeCtx, itemActiveProperty, isList ? list : expandedItem
                             , compactArrays);
                         // 7.6.4)
                         if (isList)
                         {
                             // 7.6.4.1)
-                            if (!(compactedItem is JArray))
+                            if (!(compactedItem is GenericJsonArray))
                             {
-                                JArray tmp = new JArray();
+                                GenericJsonArray tmp = new GenericJsonArray();
                                 tmp.Add(compactedItem);
                                 compactedItem = tmp;
                             }
@@ -302,15 +303,15 @@ namespace JsonLD.Core
                             if (!"@list".Equals(container))
                             {
                                 // 7.6.4.2.1)
-                                JObject wrapper = new JObject();
+                                GenericJsonObject wrapper = new GenericJsonObject();
                                 // TODO: SPEC: no mention of vocab = true
                                 wrapper[activeCtx.CompactIri("@list", true)] = compactedItem;
                                 compactedItem = wrapper;
                                 // 7.6.4.2.2)
-                                if (((IDictionary<string, JToken>)expandedItem).ContainsKey("@index"))
+                                if (((IDictionary<string, GenericJsonToken>)expandedItem).ContainsKey("@index"))
                                 {
-                                    ((IDictionary<string, JToken>)compactedItem)[activeCtx.CompactIri("@index", true)
-                                        ] = ((IDictionary<string, JToken>)expandedItem)["@index"];
+                                    ((IDictionary<string, GenericJsonToken>)compactedItem)[activeCtx.CompactIri("@index", true)
+                                        ] = ((IDictionary<string, GenericJsonToken>)expandedItem)["@index"];
                                 }
                             }
                             else
@@ -329,19 +330,19 @@ namespace JsonLD.Core
                         if ("@language".Equals(container) || "@index".Equals(container))
                         {
                             // 7.6.5.1)
-                            JObject mapObject;
+                            GenericJsonObject mapObject;
                             if (result.ContainsKey(itemActiveProperty))
                             {
-                                mapObject = (JObject)result[itemActiveProperty];
+                                mapObject = (GenericJsonObject)result[itemActiveProperty];
                             }
                             else
                             {
-                                mapObject = new JObject();
+                                mapObject = new GenericJsonObject();
                                 result[itemActiveProperty] = mapObject;
                             }
                             // 7.6.5.2)
-                            if ("@language".Equals(container) && (compactedItem is JObject && ((IDictionary
-                                <string, JToken>)compactedItem).ContainsKey("@value")))
+                            if ("@language".Equals(container) && (compactedItem is GenericJsonObject && ((IDictionary
+                                <string, GenericJsonToken>)compactedItem).ContainsKey("@value")))
                             {
                                 compactedItem = compactedItem["@value"];
                             }
@@ -354,16 +355,16 @@ namespace JsonLD.Core
                             }
                             else
                             {
-                                JArray tmp;
-                                if (!(mapObject[mapKey] is JArray))
+                                GenericJsonArray tmp;
+                                if (!(mapObject[mapKey] is GenericJsonArray))
                                 {
-                                    tmp = new JArray();
+                                    tmp = new GenericJsonArray();
                                     tmp.Add(mapObject[mapKey]);
                                     mapObject[mapKey] = tmp;
                                 }
                                 else
                                 {
-                                    tmp = (JArray)mapObject[mapKey];
+                                    tmp = (GenericJsonArray)mapObject[mapKey];
                                 }
                                 tmp.Add(compactedItem);
                             }
@@ -374,10 +375,10 @@ namespace JsonLD.Core
                             // 7.6.6.1)
                             bool check = (!compactArrays || "@set".Equals(container) || "@list".Equals(container
                                 ) || "@list".Equals(expandedProperty) || "@graph".Equals(expandedProperty)) && (
-                                !(compactedItem is JArray));
+                                !(compactedItem is GenericJsonArray));
                             if (check)
                             {
-                                JArray tmp = new JArray();
+                                GenericJsonArray tmp = new GenericJsonArray();
                                 tmp.Add(compactedItem);
                                 compactedItem = tmp;
                             }
@@ -388,19 +389,19 @@ namespace JsonLD.Core
                             }
                             else
                             {
-                                if (!(result[itemActiveProperty] is JArray))
+                                if (!(result[itemActiveProperty] is GenericJsonArray))
                                 {
-                                    JArray tmp = new JArray();
+                                    GenericJsonArray tmp = new GenericJsonArray();
                                     tmp.Add(result[itemActiveProperty]);
                                     result[itemActiveProperty] = tmp;
                                 }
-                                if (compactedItem is JArray)
+                                if (compactedItem is GenericJsonArray)
                                 {
-                                    JsonLD.Collections.AddAll(((JArray)result[itemActiveProperty]), (JArray)compactedItem);
+                                    JsonLD.Collections.AddAll(((GenericJsonArray)result[itemActiveProperty]), (GenericJsonArray)compactedItem);
                                 }
                                 else
                                 {
-                                    ((JArray)result[itemActiveProperty]).Add(compactedItem);
+                                    ((GenericJsonArray)result[itemActiveProperty]).Add(compactedItem);
                                 }
                             }
                         }
@@ -414,7 +415,7 @@ namespace JsonLD.Core
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public virtual JToken Compact(Context activeCtx, string activeProperty, JToken element
+        public virtual GenericJsonToken Compact(Context activeCtx, string activeProperty, GenericJsonToken element
             )
         {
             return Compact(activeCtx, activeProperty, element, true);
@@ -430,7 +431,7 @@ namespace JsonLD.Core
         /// <returns></returns>
         /// <exception cref="JsonLdError">JsonLdError</exception>
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public virtual JToken Expand(Context activeCtx, string activeProperty, JToken element)
+        public virtual GenericJsonToken Expand(Context activeCtx, string activeProperty, GenericJsonToken element)
         {
             // 1)
             if (element.IsNull())
@@ -438,18 +439,18 @@ namespace JsonLD.Core
                 return null;
             }
             // 3)
-            if (element is JArray)
+            if (element is GenericJsonArray)
             {
                 // 3.1)
-                JArray result = new JArray();
+                GenericJsonArray result = new GenericJsonArray();
                 // 3.2)
-                foreach (JToken item in (JArray)element)
+                foreach (GenericJsonToken item in (GenericJsonArray)element)
                 {
                     // 3.2.1)
-                    JToken v = Expand(activeCtx, activeProperty, item);
+                    GenericJsonToken v = Expand(activeCtx, activeProperty, item);
                     // 3.2.2)
                     if (("@list".Equals(activeProperty) || "@list".Equals(activeCtx.GetContainer(activeProperty
-                        ))) && (v is JArray || (v is JObject && ((IDictionary<string, JToken>)v).ContainsKey
+                        ))) && (v is GenericJsonArray || (v is GenericJsonObject && ((IDictionary<string, GenericJsonToken>)v).ContainsKey
                         ("@list"))))
                     {
                         throw new JsonLdError(JsonLdError.Error.ListOfLists, "lists of lists are not permitted."
@@ -460,9 +461,9 @@ namespace JsonLD.Core
                         // 3.2.3)
                         if (!v.IsNull())
                         {
-                            if (v is JArray)
+                            if (v is GenericJsonArray)
                             {
-                                JsonLD.Collections.AddAll(result, (JArray)v);
+                                JsonLD.Collections.AddAll(result, (GenericJsonArray)v);
                             }
                             else
                             {
@@ -477,23 +478,23 @@ namespace JsonLD.Core
             else
             {
                 // 4)
-                if (element is JObject)
+                if (element is GenericJsonObject)
                 {
                     // access helper
-                    IDictionary<string, JToken> elem = (JObject)element;
+                    IDictionary<string, GenericJsonToken> elem = (GenericJsonObject)element;
                     // 5)
                     if (elem.ContainsKey("@context"))
                     {
                         activeCtx = activeCtx.Parse(elem["@context"]);
                     }
                     // 6)
-                    JObject result = new JObject();
+                    GenericJsonObject result = new GenericJsonObject();
                     // 7)
-                    JArray keys = new JArray(element.GetKeys());
+                    GenericJsonArray keys = new GenericJsonArray(element.GetKeys());
                     keys.SortInPlace();
                     foreach (string key in keys)
                     {
-                        JToken value = elem[key];
+                        GenericJsonToken value = elem[key];
                         // 7.1)
                         if (key.Equals("@context"))
                         {
@@ -501,7 +502,7 @@ namespace JsonLD.Core
                         }
                         // 7.2)
                         string expandedProperty = activeCtx.ExpandIri(key, false, true, null, null);
-                        JToken expandedValue = null;
+                        GenericJsonToken expandedValue = null;
                         // 7.3)
                         if (expandedProperty == null || (!expandedProperty.Contains(":") && !JsonLdUtils.IsKeyword
                             (expandedProperty)))
@@ -526,7 +527,7 @@ namespace JsonLD.Core
                             // 7.4.3)
                             if ("@id".Equals(expandedProperty))
                             {
-                                if (!(value.Type == JTokenType.String))
+                                if (!(value.Type == GenericJsonTokenType.String))
                                 {
                                     throw new JsonLdError(JsonLdError.Error.InvalidIdValue, "value of @id must be a string"
                                         );
@@ -538,32 +539,32 @@ namespace JsonLD.Core
                                 // 7.4.4)
                                 if ("@type".Equals(expandedProperty))
                                 {
-                                    if (value is JArray)
+                                    if (value is GenericJsonArray)
                                     {
-                                        expandedValue = new JArray();
-                                        foreach (JToken v in (JArray)value)
+                                        expandedValue = new GenericJsonArray();
+                                        foreach (GenericJsonToken v in (GenericJsonArray)value)
                                         {
-                                            if (v.Type != JTokenType.String)
+                                            if (v.Type != GenericJsonTokenType.String)
                                             {
                                                 throw new JsonLdError(JsonLdError.Error.InvalidTypeValue, "@type value must be a string or array of strings"
                                                     );
                                             }
-                                            ((JArray)expandedValue).Add(activeCtx.ExpandIri((string)v, true, true, null
+                                            ((GenericJsonArray)expandedValue).Add(activeCtx.ExpandIri((string)v, true, true, null
                                                 , null));
                                         }
                                     }
                                     else
                                     {
-                                        if (value.Type == JTokenType.String)
+                                        if (value.Type == GenericJsonTokenType.String)
                                         {
                                             expandedValue = activeCtx.ExpandIri((string)value, true, true, null, null);
                                         }
                                         else
                                         {
                                             // TODO: SPEC: no mention of empty map check
-                                            if (value is JObject)
+                                            if (value is GenericJsonObject)
                                             {
-                                                if (((JObject)value).Count != 0)
+                                                if (((GenericJsonObject)value).Count != 0)
                                                 {
                                                     throw new JsonLdError(JsonLdError.Error.InvalidTypeValue, "@type value must be a an empty object for framing"
                                                         );
@@ -590,7 +591,7 @@ namespace JsonLD.Core
                                         // 7.4.6)
                                         if ("@value".Equals(expandedProperty))
                                         {
-                                            if (!value.IsNull() && (value is JObject || value is JArray))
+                                            if (!value.IsNull() && (value is GenericJsonObject || value is GenericJsonArray))
                                             {
                                                 throw new JsonLdError(JsonLdError.Error.InvalidValueObjectValue, "value of " + expandedProperty
                                                      + " must be a scalar or null");
@@ -607,7 +608,7 @@ namespace JsonLD.Core
                                             // 7.4.7)
                                             if ("@language".Equals(expandedProperty))
                                             {
-                                                if (!(value.Type == JTokenType.String))
+                                                if (!(value.Type == GenericJsonTokenType.String))
                                                 {
                                                     throw new JsonLdError(JsonLdError.Error.InvalidLanguageTaggedString, "Value of " 
                                                         + expandedProperty + " must be a string");
@@ -619,7 +620,7 @@ namespace JsonLD.Core
                                                 // 7.4.8)
                                                 if ("@index".Equals(expandedProperty))
                                                 {
-                                                    if (!(value.Type == JTokenType.String))
+                                                    if (!(value.Type == GenericJsonTokenType.String))
                                                     {
                                                         throw new JsonLdError(JsonLdError.Error.InvalidIndexValue, "Value of " + expandedProperty
                                                              + " must be a string");
@@ -639,16 +640,16 @@ namespace JsonLD.Core
                                                         // 7.4.9.2)
                                                         expandedValue = Expand(activeCtx, activeProperty, value);
                                                         // NOTE: step not in the spec yet
-                                                        if (!(expandedValue is JArray))
+                                                        if (!(expandedValue is GenericJsonArray))
                                                         {
-                                                            JArray tmp = new JArray();
+                                                            GenericJsonArray tmp = new GenericJsonArray();
                                                             tmp.Add(expandedValue);
                                                             expandedValue = tmp;
                                                         }
                                                         // 7.4.9.3)
-                                                        foreach (JToken o in (JArray)expandedValue)
+                                                        foreach (GenericJsonToken o in (GenericJsonArray)expandedValue)
                                                         {
-                                                            if (o is JObject && ((JObject)o).ContainsKey("@list"))
+                                                            if (o is GenericJsonObject && ((GenericJsonObject)o).ContainsKey("@list"))
                                                             {
                                                                 throw new JsonLdError(JsonLdError.Error.ListOfLists, "A list may not contain another list"
                                                                     );
@@ -667,7 +668,7 @@ namespace JsonLD.Core
                                                             // 7.4.11)
                                                             if ("@reverse".Equals(expandedProperty))
                                                             {
-                                                                if (!(value is JObject))
+                                                                if (!(value is GenericJsonObject))
                                                                 {
                                                                     throw new JsonLdError(JsonLdError.Error.InvalidReverseValue, "@reverse value must be an object"
                                                                         );
@@ -676,38 +677,38 @@ namespace JsonLD.Core
                                                                 expandedValue = Expand(activeCtx, "@reverse", value);
                                                                 // NOTE: algorithm assumes the result is a map
                                                                 // 7.4.11.2)
-                                                                if (((IDictionary<string, JToken>)expandedValue).ContainsKey("@reverse"))
+                                                                if (((IDictionary<string, GenericJsonToken>)expandedValue).ContainsKey("@reverse"))
                                                                 {
-                                                                    JObject reverse = (JObject)((JObject)expandedValue)["@reverse"];
+                                                                    GenericJsonObject reverse = (GenericJsonObject)((GenericJsonObject)expandedValue)["@reverse"];
                                                                     foreach (string property in reverse.GetKeys())
                                                                     {
-                                                                        JToken item = reverse[property];
+                                                                        GenericJsonToken item = reverse[property];
                                                                         // 7.4.11.2.1)
                                                                         if (!result.ContainsKey(property))
                                                                         {
-                                                                            result[property] = new JArray();
+                                                                            result[property] = new GenericJsonArray();
                                                                         }
                                                                         // 7.4.11.2.2)
-                                                                        if (item is JArray)
+                                                                        if (item is GenericJsonArray)
                                                                         {
-                                                                            JsonLD.Collections.AddAll(((JArray)result[property]), (JArray)item);
+                                                                            JsonLD.Collections.AddAll(((GenericJsonArray)result[property]), (GenericJsonArray)item);
                                                                         }
                                                                         else
                                                                         {
-                                                                            ((JArray)result[property]).Add(item);
+                                                                            ((GenericJsonArray)result[property]).Add(item);
                                                                         }
                                                                     }
                                                                 }
                                                                 // 7.4.11.3)
-                                                                if (((JObject)expandedValue).Count > (((JObject)expandedValue).ContainsKey("@reverse") ? 1 : 0))
+                                                                if (((GenericJsonObject)expandedValue).Count > (((GenericJsonObject)expandedValue).ContainsKey("@reverse") ? 1 : 0))
                                                                 {
                                                                     // 7.4.11.3.1)
                                                                     if (!result.ContainsKey("@reverse"))
                                                                     {
-                                                                        result["@reverse"] = new JObject();
+                                                                        result["@reverse"] = new GenericJsonObject();
                                                                     }
                                                                     // 7.4.11.3.2)
-                                                                    JObject reverseMap = (JObject)result["@reverse"];
+                                                                    GenericJsonObject reverseMap = (GenericJsonObject)result["@reverse"];
                                                                     // 7.4.11.3.3)
                                                                     foreach (string property in expandedValue.GetKeys())
                                                                     {
@@ -716,21 +717,21 @@ namespace JsonLD.Core
                                                                             continue;
                                                                         }
                                                                         // 7.4.11.3.3.1)
-                                                                        JArray items = (JArray)((JObject)expandedValue)[property];
-                                                                        foreach (JToken item in items)
+                                                                        GenericJsonArray items = (GenericJsonArray)((GenericJsonObject)expandedValue)[property];
+                                                                        foreach (GenericJsonToken item in items)
                                                                         {
                                                                             // 7.4.11.3.3.1.1)
-                                                                            if (item is JObject && (((JObject)item).ContainsKey("@value") || ((JObject)item).ContainsKey("@list")))
+                                                                            if (item is GenericJsonObject && (((GenericJsonObject)item).ContainsKey("@value") || ((GenericJsonObject)item).ContainsKey("@list")))
                                                                             {
                                                                                 throw new JsonLdError(JsonLdError.Error.InvalidReversePropertyValue);
                                                                             }
                                                                             // 7.4.11.3.3.1.2)
                                                                             if (!reverseMap.ContainsKey(property))
                                                                             {
-                                                                                reverseMap[property] = new JArray();
+                                                                                reverseMap[property] = new GenericJsonArray();
                                                                             }
                                                                             // 7.4.11.3.3.1.3)
-                                                                            ((JArray)reverseMap[property]).Add(item);
+                                                                            ((GenericJsonArray)reverseMap[property]).Add(item);
                                                                         }
                                                                     }
                                                                 }
@@ -766,62 +767,62 @@ namespace JsonLD.Core
                         else
                         {
                             // 7.5
-                            if ("@language".Equals(activeCtx.GetContainer(key)) && value is JObject)
+                            if ("@language".Equals(activeCtx.GetContainer(key)) && value is GenericJsonObject)
                             {
                                 // 7.5.1)
-                                expandedValue = new JArray();
+                                expandedValue = new GenericJsonArray();
                                 // 7.5.2)
                                 foreach (string language in value.GetKeys())
                                 {
-                                    JToken languageValue = ((IDictionary<string, JToken>)value)[language];
+                                    GenericJsonToken languageValue = ((IDictionary<string, GenericJsonToken>)value)[language];
                                     // 7.5.2.1)
-                                    if (!(languageValue is JArray))
+                                    if (!(languageValue is GenericJsonArray))
                                     {
-                                        JToken tmp = languageValue;
-                                        languageValue = new JArray();
-                                        ((JArray)languageValue).Add(tmp);
+                                        GenericJsonToken tmp = languageValue;
+                                        languageValue = new GenericJsonArray();
+                                        ((GenericJsonArray)languageValue).Add(tmp);
                                     }
                                     // 7.5.2.2)
-                                    foreach (JToken item in (JArray)languageValue)
+                                    foreach (GenericJsonToken item in (GenericJsonArray)languageValue)
                                     {
                                         // 7.5.2.2.1)
-                                        if (!(item.Type == JTokenType.String))
+                                        if (!(item.Type == GenericJsonTokenType.String))
                                         {
                                             throw new JsonLdError(JsonLdError.Error.InvalidLanguageMapValue, "Expected " + item
                                                 .ToString() + " to be a string");
                                         }
                                         // 7.5.2.2.2)
-                                        JObject tmp = new JObject();
+                                        GenericJsonObject tmp = new GenericJsonObject();
                                         tmp["@value"] = item;
                                         tmp["@language"] = language.ToLower();
-                                        ((JArray)expandedValue).Add(tmp);
+                                        ((GenericJsonArray)expandedValue).Add(tmp);
                                     }
                                 }
                             }
                             else
                             {
                                 // 7.6)
-                                if ("@index".Equals(activeCtx.GetContainer(key)) && value is JObject)
+                                if ("@index".Equals(activeCtx.GetContainer(key)) && value is GenericJsonObject)
                                 {
                                     // 7.6.1)
-                                    expandedValue = new JArray();
+                                    expandedValue = new GenericJsonArray();
                                     // 7.6.2)
-                                    JArray indexKeys = new JArray(value.GetKeys());
+                                    GenericJsonArray indexKeys = new GenericJsonArray(value.GetKeys());
                                     indexKeys.SortInPlace();
                                     foreach (string index in indexKeys)
                                     {
-                                        JToken indexValue = ((JObject)value)[index];
+                                        GenericJsonToken indexValue = ((GenericJsonObject)value)[index];
                                         // 7.6.2.1)
-                                        if (!(indexValue is JArray))
+                                        if (!(indexValue is GenericJsonArray))
                                         {
-                                            JToken tmp = indexValue;
-                                            indexValue = new JArray();
-                                            ((JArray)indexValue).Add(tmp);
+                                            GenericJsonToken tmp = indexValue;
+                                            indexValue = new GenericJsonArray();
+                                            ((GenericJsonArray)indexValue).Add(tmp);
                                         }
                                         // 7.6.2.2)
                                         indexValue = Expand(activeCtx, key, indexValue);
                                         // 7.6.2.3)
-                                        foreach (JObject item in (JArray)indexValue)
+                                        foreach (GenericJsonObject item in (GenericJsonArray)indexValue)
                                         {
                                             // 7.6.2.3.1)
                                             if (!item.ContainsKey("@index"))
@@ -829,7 +830,7 @@ namespace JsonLD.Core
                                                 item["@index"] = index;
                                             }
                                             // 7.6.2.3.2)
-                                            ((JArray)expandedValue).Add(item);
+                                            ((GenericJsonArray)expandedValue).Add(item);
                                         }
                                     }
                                 }
@@ -848,16 +849,16 @@ namespace JsonLD.Core
                         // 7.9)
                         if ("@list".Equals(activeCtx.GetContainer(key)))
                         {
-                            if (!(expandedValue is JObject) || !((JObject)expandedValue).ContainsKey("@list"))
+                            if (!(expandedValue is GenericJsonObject) || !((GenericJsonObject)expandedValue).ContainsKey("@list"))
                             {
-                                JToken tmp = expandedValue;
-                                if (!(tmp is JArray))
+                                GenericJsonToken tmp = expandedValue;
+                                if (!(tmp is GenericJsonArray))
                                 {
-                                    tmp = new JArray();
-                                    ((JArray)tmp).Add(expandedValue);
+                                    tmp = new GenericJsonArray();
+                                    ((GenericJsonArray)tmp).Add(expandedValue);
                                 }
-                                expandedValue = new JObject();
-                                ((JObject)expandedValue)["@list"] = tmp;
+                                expandedValue = new GenericJsonObject();
+                                ((GenericJsonObject)expandedValue)["@list"] = tmp;
                             }
                         }
                         // 7.10)
@@ -866,38 +867,38 @@ namespace JsonLD.Core
                             // 7.10.1)
                             if (!result.ContainsKey("@reverse"))
                             {
-                                result["@reverse"] = new JObject();
+                                result["@reverse"] = new GenericJsonObject();
                             }
                             // 7.10.2)
-                            JObject reverseMap = (JObject)result["@reverse"];
+                            GenericJsonObject reverseMap = (GenericJsonObject)result["@reverse"];
                             // 7.10.3)
-                            if (!(expandedValue is JArray))
+                            if (!(expandedValue is GenericJsonArray))
                             {
-                                JToken tmp = expandedValue;
-                                expandedValue = new JArray();
-                                ((JArray)expandedValue).Add(tmp);
+                                GenericJsonToken tmp = expandedValue;
+                                expandedValue = new GenericJsonArray();
+                                ((GenericJsonArray)expandedValue).Add(tmp);
                             }
                             // 7.10.4)
-                            foreach (JToken item in (JArray)expandedValue)
+                            foreach (GenericJsonToken item in (GenericJsonArray)expandedValue)
                             {
                                 // 7.10.4.1)
-                                if (item is JObject && (((JObject)item).ContainsKey("@value") || ((JObject)item).ContainsKey("@list")))
+                                if (item is GenericJsonObject && (((GenericJsonObject)item).ContainsKey("@value") || ((GenericJsonObject)item).ContainsKey("@list")))
                                 {
                                     throw new JsonLdError(JsonLdError.Error.InvalidReversePropertyValue);
                                 }
                                 // 7.10.4.2)
                                 if (!reverseMap.ContainsKey(expandedProperty))
                                 {
-                                    reverseMap[expandedProperty] = new JArray();
+                                    reverseMap[expandedProperty] = new GenericJsonArray();
                                 }
                                 // 7.10.4.3)
-                                if (item is JArray)
+                                if (item is GenericJsonArray)
                                 {
-                                    JsonLD.Collections.AddAll(((JArray)reverseMap[expandedProperty]), (JArray)item);
+                                    JsonLD.Collections.AddAll(((GenericJsonArray)reverseMap[expandedProperty]), (GenericJsonArray)item);
                                 }
                                 else
                                 {
-                                    ((JArray)reverseMap[expandedProperty]).Add(item);
+                                    ((GenericJsonArray)reverseMap[expandedProperty]).Add(item);
                                 }
                             }
                         }
@@ -907,16 +908,16 @@ namespace JsonLD.Core
                             // 7.11.1)
                             if (!result.ContainsKey(expandedProperty))
                             {
-                                result[expandedProperty] = new JArray();
+                                result[expandedProperty] = new GenericJsonArray();
                             }
                             // 7.11.2)
-                            if (expandedValue is JArray)
+                            if (expandedValue is GenericJsonArray)
                             {
-                                JsonLD.Collections.AddAll(((JArray)result[expandedProperty]), (JArray)expandedValue);
+                                JsonLD.Collections.AddAll(((GenericJsonArray)result[expandedProperty]), (GenericJsonArray)expandedValue);
                             }
                             else
                             {
-                                ((JArray)result[expandedProperty]).Add(expandedValue);
+                                ((GenericJsonArray)result[expandedProperty]).Add(expandedValue);
                             }
                         }
                     }
@@ -937,7 +938,7 @@ namespace JsonLD.Core
                                 );
                         }
                         // 8.2)
-                        JToken rval = result["@value"];
+                        GenericJsonToken rval = result["@value"];
                         if (rval.IsNull())
                         {
                             // nothing else is possible with result if we set it to
@@ -945,7 +946,7 @@ namespace JsonLD.Core
                             return null;
                         }
                         // 8.3)
-                        if (!(rval.Type == JTokenType.String) && result.ContainsKey("@language"))
+                        if (!(rval.Type == GenericJsonTokenType.String) && result.ContainsKey("@language"))
                         {
                             throw new JsonLdError(JsonLdError.Error.InvalidLanguageTaggedValue, "when @language is used, @value must be a string"
                                 );
@@ -956,7 +957,7 @@ namespace JsonLD.Core
                             if (result.ContainsKey("@type"))
                             {
                                 // TODO: is this enough for "is an IRI"
-                                if (!(result["@type"].Type == JTokenType.String) || ((string)result["@type"]).StartsWith("_:") ||
+                                if (!(result["@type"].Type == GenericJsonTokenType.String) || ((string)result["@type"]).StartsWith("_:") ||
                                      !((string)result["@type"]).Contains(":"))
                                 {
                                     throw new JsonLdError(JsonLdError.Error.InvalidTypedValue, "value of @type must be an IRI"
@@ -970,10 +971,10 @@ namespace JsonLD.Core
                         // 9)
                         if (result.ContainsKey("@type"))
                         {
-                            JToken rtype = result["@type"];
-                            if (!(rtype is JArray))
+                            GenericJsonToken rtype = result["@type"];
+                            if (!(rtype is GenericJsonArray))
                             {
-                                JArray tmp = new JArray();
+                                GenericJsonArray tmp = new GenericJsonArray();
                                 tmp.Add(rtype);
                                 result["@type"] = tmp;
                             }
@@ -1042,7 +1043,7 @@ namespace JsonLD.Core
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public virtual JToken Expand(Context activeCtx, JToken element)
+        public virtual GenericJsonToken Expand(Context activeCtx, GenericJsonToken element)
         {
             return Expand(activeCtx, null, element);
         }
@@ -1055,31 +1056,31 @@ namespace JsonLD.Core
         /// \_\_|\__, |\___/|_| |_|\__|_| |_|_| |_| |_| |___/
         /// </summary>
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        internal virtual void GenerateNodeMap(JToken element, JObject
+        internal virtual void GenerateNodeMap(GenericJsonToken element, GenericJsonObject
              nodeMap)
         {
             GenerateNodeMap(element, nodeMap, "@default", null, null, null);
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        internal virtual void GenerateNodeMap(JToken element, JObject
+        internal virtual void GenerateNodeMap(GenericJsonToken element, GenericJsonObject
              nodeMap, string activeGraph)
         {
             GenerateNodeMap(element, nodeMap, activeGraph, null, null, null);
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        internal virtual void GenerateNodeMap(JToken element, JObject
-             nodeMap, string activeGraph, JToken activeSubject, string activeProperty, JObject list)
+        internal virtual void GenerateNodeMap(GenericJsonToken element, GenericJsonObject
+             nodeMap, string activeGraph, GenericJsonToken activeSubject, string activeProperty, GenericJsonObject list)
         {
             GenerateNodeMap(element, nodeMap, activeGraph, activeSubject, activeProperty, list, skipSetContainsCheck: false);
         }
 
-        private void GenerateNodeMap(JToken element, JObject nodeMap,
-            string activeGraph, JToken activeSubject, string activeProperty, JObject list, bool skipSetContainsCheck)
+        private void GenerateNodeMap(GenericJsonToken element, GenericJsonObject nodeMap,
+            string activeGraph, GenericJsonToken activeSubject, string activeProperty, GenericJsonObject list, bool skipSetContainsCheck)
         {
             // 1)
-            if (element is JArray)
+            if (element is GenericJsonArray)
             {
                 JsonLdSet set = null;
 
@@ -1089,7 +1090,7 @@ namespace JsonLD.Core
                 }
 
                 // 1.1)
-                foreach (JToken item in (JArray)element)
+                foreach (GenericJsonToken item in (GenericJsonArray)element)
                 {
                     skipSetContainsCheck = false;
 
@@ -1103,29 +1104,29 @@ namespace JsonLD.Core
                 return;
             }
             // for convenience
-            IDictionary<string, JToken> elem = (IDictionary<string, JToken>)element;
+            IDictionary<string, GenericJsonToken> elem = (IDictionary<string, GenericJsonToken>)element;
             // 2)
-            if (!((IDictionary<string,JToken>)nodeMap).ContainsKey(activeGraph))
+            if (!((IDictionary<string,GenericJsonToken>)nodeMap).ContainsKey(activeGraph))
             {
-                nodeMap[activeGraph] = new JObject();
+                nodeMap[activeGraph] = new GenericJsonObject();
             }
-            JObject graph = (JObject)nodeMap[activeGraph
+            GenericJsonObject graph = (GenericJsonObject)nodeMap[activeGraph
                 ];
-            JObject node = (JObject)((activeSubject.IsNull() || activeSubject.Type != JTokenType.String) 
+            GenericJsonObject node = (GenericJsonObject)((activeSubject.IsNull() || activeSubject.Type != GenericJsonTokenType.String) 
                 ? null : graph[(string)activeSubject]);
             // 3)
             if (elem.ContainsKey("@type"))
             {
                 // 3.1)
-                JArray oldTypes;
-                JArray newTypes = new JArray();
-                if (elem["@type"] is JArray)
+                GenericJsonArray oldTypes;
+                GenericJsonArray newTypes = new GenericJsonArray();
+                if (elem["@type"] is GenericJsonArray)
                 {
-                    oldTypes = (JArray)elem["@type"];
+                    oldTypes = (GenericJsonArray)elem["@type"];
                 }
                 else
                 {
-                    oldTypes = new JArray();
+                    oldTypes = new GenericJsonArray();
                     oldTypes.Add((string)elem["@type"]);
                 }
                 foreach (string item in oldTypes)
@@ -1139,7 +1140,7 @@ namespace JsonLD.Core
                         newTypes.Add(item);
                     }
                 }
-                if (elem["@type"] is JArray)
+                if (elem["@type"] is GenericJsonArray)
                 {
                     elem["@type"] = newTypes;
                 }
@@ -1154,12 +1155,12 @@ namespace JsonLD.Core
                 // 4.1)
                 if (list == null)
                 {
-                    JsonLdUtils.MergeValue(node, activeProperty, (JObject)elem);
+                    JsonLdUtils.MergeValue(node, activeProperty, (GenericJsonObject)elem);
                 }
                 else
                 {
                     // 4.2)
-                    JsonLdUtils.MergeValue(list, "@list", (JObject)elem);
+                    JsonLdUtils.MergeValue(list, "@list", (GenericJsonObject)elem);
                 }
             }
             else
@@ -1168,8 +1169,8 @@ namespace JsonLD.Core
                 if (elem.ContainsKey("@list"))
                 {
                     // 5.1)
-                    JObject result = new JObject();
-                    result["@list"] = new JArray();
+                    GenericJsonObject result = new GenericJsonObject();
+                    result["@list"] = new GenericJsonArray();
                     // 5.2)
                     //for (final Object item : (List<Object>) elem.get("@list")) {
                     //    generateNodeMap(item, nodeMap, activeGraph, activeSubject, activeProperty, result);
@@ -1199,17 +1200,17 @@ namespace JsonLD.Core
                     // 6.3)
                     if (!graph.ContainsKey(id))
                     {
-                        JObject tmp = new JObject();
+                        GenericJsonObject tmp = new GenericJsonObject();
                         tmp["@id"] = id;
                         graph[id] = tmp;
                     }
                     // 6.4) TODO: SPEC this line is asked for by the spec, but it breaks various tests
                     //node = (Map<String, Object>) graph.get(id);
                     // 6.5)
-                    if (activeSubject is JObject)
+                    if (activeSubject is GenericJsonObject)
                     {
                         // 6.5.1)
-                        JsonLdUtils.MergeValue((JObject)graph[id], activeProperty, activeSubject
+                        JsonLdUtils.MergeValue((GenericJsonObject)graph[id], activeProperty, activeSubject
                             );
                     }
                     else
@@ -1217,7 +1218,7 @@ namespace JsonLD.Core
                         // 6.6)
                         if (activeProperty != null)
                         {
-                            JObject reference = new JObject();
+                            GenericJsonObject reference = new GenericJsonObject();
                             reference["@id"] = id;
                             // 6.6.2)
                             if (list == null)
@@ -1234,11 +1235,11 @@ namespace JsonLD.Core
                         }
                     }
                     // TODO: SPEC this is removed in the spec now, but it's still needed (see 6.4)
-                    node = (JObject)graph[id];
+                    node = (GenericJsonObject)graph[id];
                     // 6.7)
                     if (elem.ContainsKey("@type"))
                     {
-                        foreach (JToken type in (JArray)JsonLD.Collections.Remove(elem, "@type"
+                        foreach (GenericJsonToken type in (GenericJsonArray)JsonLD.Collections.Remove(elem, "@type"
                             ))
                         {
                             JsonLdUtils.MergeValue(node, "@type", type);
@@ -1247,7 +1248,7 @@ namespace JsonLD.Core
                     // 6.8)
                     if (elem.ContainsKey("@index"))
                     {
-                        JToken elemIndex = JsonLD.Collections.Remove(elem, "@index");
+                        GenericJsonToken elemIndex = JsonLD.Collections.Remove(elem, "@index");
                         if (node.ContainsKey("@index"))
                         {
                             if (!JsonLdUtils.DeepCompare(node["@index"], elemIndex))
@@ -1264,17 +1265,17 @@ namespace JsonLD.Core
                     if (elem.ContainsKey("@reverse"))
                     {
                         // 6.9.1)
-                        JObject referencedNode = new JObject();
+                        GenericJsonObject referencedNode = new GenericJsonObject();
                         referencedNode["@id"] = id;
                         // 6.9.2+6.9.4)
-                        JObject reverseMap = (JObject)JsonLD.Collections.Remove
+                        GenericJsonObject reverseMap = (GenericJsonObject)JsonLD.Collections.Remove
                             (elem, "@reverse");
                         // 6.9.3)
                         foreach (string property in reverseMap.GetKeys())
                         {
-                            JArray values = (JArray)reverseMap[property];
+                            GenericJsonArray values = (GenericJsonArray)reverseMap[property];
                             // 6.9.3.1)
-                            foreach (JToken value in values)
+                            foreach (GenericJsonToken value in values)
                             {
                                 // 6.9.3.1.1)
                                 GenerateNodeMap(value, nodeMap, activeGraph, referencedNode, property, null);
@@ -1288,12 +1289,12 @@ namespace JsonLD.Core
                             null, null);
                     }
                     // 6.11)
-                    JArray keys = new JArray(element.GetKeys());
+                    GenericJsonArray keys = new GenericJsonArray(element.GetKeys());
                     keys.SortInPlace();
                     foreach (string property_1 in keys)
                     {
                         var eachProperty_1 = property_1;
-                        JToken value = elem[eachProperty_1];
+                        GenericJsonToken value = elem[eachProperty_1];
                         // 6.11.1)
                         if (eachProperty_1.StartsWith("_:"))
                         {
@@ -1302,7 +1303,7 @@ namespace JsonLD.Core
                         // 6.11.2)
                         if (!node.ContainsKey(eachProperty_1))
                         {
-                            node[eachProperty_1] = new JArray();
+                            node[eachProperty_1] = new GenericJsonArray();
                         }
                         // 6.11.3)
                         GenerateNodeMap(value, nodeMap, activeGraph, id, eachProperty_1, null);
@@ -1311,7 +1312,7 @@ namespace JsonLD.Core
             }
         }
 
-        private readonly JObject blankNodeIdentifierMap = new JObject();
+        private readonly GenericJsonObject blankNodeIdentifierMap = new GenericJsonObject();
 
         private int blankNodeCounter = 0;
 
@@ -1366,7 +1367,7 @@ namespace JsonLD.Core
 
         private class EmbedNode
         {
-            public JToken parent = null;
+            public GenericJsonToken parent = null;
 
             public string property = null;
 
@@ -1378,7 +1379,7 @@ namespace JsonLD.Core
             private readonly JsonLdApi _enclosing;
         }
 
-        private JObject nodeMap;
+        private GenericJsonObject nodeMap;
 
         /// <summary>Performs JSON-LD framing.</summary>
         /// <remarks>Performs JSON-LD framing.</remarks>
@@ -1388,7 +1389,7 @@ namespace JsonLD.Core
         /// <returns>the framed output.</returns>
         /// <exception cref="JSONLDProcessingError">JSONLDProcessingError</exception>
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public virtual JArray Frame(JToken input, JArray frame)
+        public virtual GenericJsonArray Frame(GenericJsonToken input, GenericJsonArray frame)
         {
             // create framing state
             JsonLdApi.FramingContext state = new JsonLdApi.FramingContext(this);
@@ -1406,13 +1407,13 @@ namespace JsonLD.Core
             }
             // use tree map so keys are sorted by default
             // XXX BUG BUG BUG XXX (sblom) Figure out where this needs to be sorted and use extension methods to return sorted enumerators or something!
-            JObject nodes = new JObject();
+            GenericJsonObject nodes = new GenericJsonObject();
             GenerateNodeMap(input, nodes);
-            this.nodeMap = (JObject)nodes["@default"];
-            JArray framed = new JArray();
+            this.nodeMap = (GenericJsonObject)nodes["@default"];
+            GenericJsonArray framed = new GenericJsonArray();
             // NOTE: frame validation is done by the function not allowing anything
             // other than list to me passed
-            Frame(state, this.nodeMap, (frame != null && frame.Count > 0 ? (JObject)frame[0] : new JObject()), framed, null);
+            Frame(state, this.nodeMap, (frame != null && frame.Count > 0 ? (GenericJsonObject)frame[0] : new GenericJsonObject()), framed, null);
             return framed;
         }
 
@@ -1425,16 +1426,16 @@ namespace JsonLD.Core
         /// <param name="property">the parent property, initialized to null.</param>
         /// <exception cref="JSONLDProcessingError">JSONLDProcessingError</exception>
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        private void Frame(JsonLdApi.FramingContext state, JObject nodes
-            , JObject frame, JToken parent, string property)
+        private void Frame(JsonLdApi.FramingContext state, GenericJsonObject nodes
+            , GenericJsonObject frame, GenericJsonToken parent, string property)
         {
             // filter out subjects that match the frame
-            JObject matches = FilterNodes(state, nodes, frame);
+            GenericJsonObject matches = FilterNodes(state, nodes, frame);
             // get flags for current frame
             bool embedOn = GetFrameFlag(frame, "@embed", state.embed);
             bool explicitOn = GetFrameFlag(frame, "@explicit", state.@explicit);
             // add matches to output
-            JArray ids = new JArray(matches.GetKeys());
+            GenericJsonArray ids = new GenericJsonArray(matches.GetKeys());
             ids.SortInPlace();
             foreach (string id in ids)
             {
@@ -1443,7 +1444,7 @@ namespace JsonLD.Core
                     state.embeds = new Dictionary<string, JsonLdApi.EmbedNode>();
                 }
                 // start output
-                JObject output = new JObject();
+                GenericJsonObject output = new GenericJsonObject();
                 output["@id"] = id;
                 // prepare embed meta info
                 JsonLdApi.EmbedNode embeddedNode = new JsonLdApi.EmbedNode(this);
@@ -1454,9 +1455,9 @@ namespace JsonLD.Core
                 {
                     JsonLdApi.EmbedNode existing = state.embeds[id];
                     embedOn = false;
-                    if (existing.parent is JArray)
+                    if (existing.parent is GenericJsonArray)
                     {
-                        foreach (JToken p in (JArray)(existing.parent))
+                        foreach (GenericJsonToken p in (GenericJsonArray)(existing.parent))
                         {
                             if (JsonLdUtils.CompareValues(output, p))
                             {
@@ -1468,11 +1469,11 @@ namespace JsonLD.Core
                     else
                     {
                         // existing embed's parent is an object
-                        if (((JObject)existing.parent).ContainsKey(existing.property))
+                        if (((GenericJsonObject)existing.parent).ContainsKey(existing.property))
                         {
-                            foreach (JToken v in (JArray)((JObject)existing.parent)[existing.property])
+                            foreach (GenericJsonToken v in (GenericJsonArray)((GenericJsonObject)existing.parent)[existing.property])
                             {
-                                if (v is JObject && ((JObject)v)["@id"].SafeCompare(id))
+                                if (v is GenericJsonObject && ((GenericJsonObject)v)["@id"].SafeCompare(id))
                                 {
                                     embedOn = true;
                                     break;
@@ -1496,8 +1497,8 @@ namespace JsonLD.Core
                     // add embed meta info
                     state.embeds[id] = embeddedNode;
                     // iterate over subject properties
-                    JObject element = (JObject)matches[id];
-                    JArray props = new JArray(element.GetKeys());
+                    GenericJsonObject element = (GenericJsonObject)matches[id];
+                    GenericJsonArray props = new GenericJsonArray(element.GetKeys());
                     props.SortInPlace();
                     foreach (string prop in props)
                     {
@@ -1518,29 +1519,29 @@ namespace JsonLD.Core
                             continue;
                         }
                         // add objects
-                        JArray value = (JArray)element[prop];
-                        foreach (JToken item in value)
+                        GenericJsonArray value = (GenericJsonArray)element[prop];
+                        foreach (GenericJsonToken item in value)
                         {
                             // recurse into list
-                            if ((item is JObject) && ((JObject)item).ContainsKey("@list"))
+                            if ((item is GenericJsonObject) && ((GenericJsonObject)item).ContainsKey("@list"))
                             {
                                 // add empty list
-                                JObject list = new JObject();
-                                list["@list"] = new JArray();
+                                GenericJsonObject list = new GenericJsonObject();
+                                list["@list"] = new GenericJsonArray();
                                 AddFrameOutput(state, output, prop, list);
                                 // add list objects
-                                foreach (JToken listitem in (JArray)((JObject)item)["@list"
+                                foreach (GenericJsonToken listitem in (GenericJsonArray)((GenericJsonObject)item)["@list"
                                     ])
                                 {
                                     // recurse into subject reference
                                     if (JsonLdUtils.IsNodeReference(listitem))
                                     {
-                                        JObject tmp = new JObject();
-                                        string itemid = (string)((IDictionary<string, JToken>)listitem)["@id"];
+                                        GenericJsonObject tmp = new GenericJsonObject();
+                                        string itemid = (string)((IDictionary<string, GenericJsonToken>)listitem)["@id"];
                                         // TODO: nodes may need to be node_map,
                                         // which is global
                                         tmp[itemid] = this.nodeMap[itemid];
-                                        Frame(state, tmp, (JObject)((JArray)frame[prop])[0], list
+                                        Frame(state, tmp, (GenericJsonObject)((GenericJsonArray)frame[prop])[0], list
                                             , "@list");
                                     }
                                     else
@@ -1556,12 +1557,12 @@ namespace JsonLD.Core
                                 // recurse into subject reference
                                 if (JsonLdUtils.IsNodeReference(item))
                                 {
-                                    JObject tmp = new JObject();
-                                    string itemid = (string)((JObject)item)["@id"];
+                                    GenericJsonObject tmp = new GenericJsonObject();
+                                    string itemid = (string)((GenericJsonObject)item)["@id"];
                                     // TODO: nodes may need to be node_map, which is
                                     // global
                                     tmp[itemid] = this.nodeMap[itemid];
-                                    Frame(state, tmp, (JObject)((JArray)frame[prop])[0], output
+                                    Frame(state, tmp, (GenericJsonObject)((GenericJsonArray)frame[prop])[0], output
                                         , prop);
                                 }
                                 else
@@ -1574,7 +1575,7 @@ namespace JsonLD.Core
                         }
                     }
                     // handle defaults
-                    props = new JArray(frame.GetKeys());
+                    props = new GenericJsonArray(frame.GetKeys());
                     props.SortInPlace();
                     foreach (string prop_1 in props)
                     {
@@ -1583,30 +1584,30 @@ namespace JsonLD.Core
                         {
                             continue;
                         }
-                        JArray pf = (JArray)frame[prop_1];
-                        JObject propertyFrame = pf.Count > 0 ? (JObject)pf[0] : null;
+                        GenericJsonArray pf = (GenericJsonArray)frame[prop_1];
+                        GenericJsonObject propertyFrame = pf.Count > 0 ? (GenericJsonObject)pf[0] : null;
                         if (propertyFrame == null)
                         {
-                            propertyFrame = new JObject();
+                            propertyFrame = new GenericJsonObject();
                         }
                         bool omitDefaultOn = GetFrameFlag(propertyFrame, "@omitDefault", state.omitDefault
                             );
                         if (!omitDefaultOn && !output.ContainsKey(prop_1))
                         {
-                            JToken def = "@null";
+                            GenericJsonToken def = "@null";
                             if (propertyFrame.ContainsKey("@default"))
                             {
                                 def = JsonLdUtils.Clone(propertyFrame["@default"]);
                             }
-                            if (!(def is JArray))
+                            if (!(def is GenericJsonArray))
                             {
-                                JArray tmp = new JArray();
+                                GenericJsonArray tmp = new GenericJsonArray();
                                 tmp.Add(def);
                                 def = tmp;
                             }
-                            JObject tmp1 = new JObject();
+                            GenericJsonObject tmp1 = new GenericJsonObject();
                             tmp1["@preserve"] = def;
-                            JArray tmp2 = new JArray();
+                            GenericJsonArray tmp2 = new GenericJsonArray();
                             tmp2.Add(tmp1);
                             output[prop_1] = tmp2;
                         }
@@ -1617,23 +1618,23 @@ namespace JsonLD.Core
             }
         }
 
-        private bool GetFrameFlag(JObject frame, string name, bool thedefault
+        private bool GetFrameFlag(GenericJsonObject frame, string name, bool thedefault
             )
         {
-            JToken value = frame[name];
-            if (value is JArray)
+            GenericJsonToken value = frame[name];
+            if (value is GenericJsonArray)
             {
-                if (((JArray)value).Count > 0)
+                if (((GenericJsonArray)value).Count > 0)
                 {
-                    value = ((JArray)value)[0];
+                    value = ((GenericJsonArray)value)[0];
                 }
             }
-            if (value is JObject && ((JObject)value).ContainsKey("@value"
+            if (value is GenericJsonObject && ((GenericJsonObject)value).ContainsKey("@value"
                 ))
             {
-                value = ((JObject)value)["@value"];
+                value = ((GenericJsonObject)value)["@value"];
             }
-            if (value != null && value.Type == JTokenType.Boolean)
+            if (value != null && value.Type == GenericJsonTokenType.Boolean)
             {
                 return (bool)value;
             }
@@ -1649,21 +1650,21 @@ namespace JsonLD.Core
             // get existing embed
             IDictionary<string, JsonLdApi.EmbedNode> embeds = state.embeds;
             JsonLdApi.EmbedNode embed = embeds[id];
-            JToken parent = embed.parent;
+            GenericJsonToken parent = embed.parent;
             string property = embed.property;
             // create reference to replace embed
-            JObject node = new JObject();
+            GenericJsonObject node = new GenericJsonObject();
             node["@id"] = id;
             // remove existing embed
             if (JsonLdUtils.IsNode(parent))
             {
                 // replace subject with reference
-                JArray newvals = new JArray();
-                JArray oldvals = (JArray)((JObject)parent)[property
+                GenericJsonArray newvals = new GenericJsonArray();
+                GenericJsonArray oldvals = (GenericJsonArray)((GenericJsonObject)parent)[property
                     ];
-                foreach (JToken v in oldvals)
+                foreach (GenericJsonToken v in oldvals)
                 {
-                    if (v is JObject && ((JObject)v)["@id"].SafeCompare(id))
+                    if (v is GenericJsonObject && ((GenericJsonObject)v)["@id"].SafeCompare(id))
                     {
                         newvals.Add(node);
                     }
@@ -1672,7 +1673,7 @@ namespace JsonLD.Core
                         newvals.Add(v);
                     }
                 }
-                ((JObject)parent)[property] = newvals;
+                ((GenericJsonObject)parent)[property] = newvals;
             }
             // recursively remove dependent dangling embeds
             RemoveDependents(embeds, id);
@@ -1690,12 +1691,12 @@ namespace JsonLD.Core
                 {
                     continue;
                 }
-                JToken p = !e.parent.IsNull() ? e.parent : new JObject();
-                if (!(p is JObject))
+                GenericJsonToken p = !e.parent.IsNull() ? e.parent : new GenericJsonObject();
+                if (!(p is GenericJsonObject))
                 {
                     continue;
                 }
-                string pid = (string)((JObject)p)["@id"];
+                string pid = (string)((GenericJsonObject)p)["@id"];
                 if (Obj.Equals(id, pid))
                 {
                     JsonLD.Collections.Remove(embeds, id_dep);
@@ -1705,12 +1706,12 @@ namespace JsonLD.Core
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        private JObject FilterNodes(JsonLdApi.FramingContext state, JObject nodes, JObject frame)
+        private GenericJsonObject FilterNodes(JsonLdApi.FramingContext state, GenericJsonObject nodes, GenericJsonObject frame)
         {
-            JObject rval = new JObject();
+            GenericJsonObject rval = new GenericJsonObject();
             foreach (string id in nodes.GetKeys())
             {
-                JObject element = (JObject)nodes[id];
+                GenericJsonObject element = (GenericJsonObject)nodes[id];
                 if (element != null && FilterNode(state, element, frame))
                 {
                     rval[id] = element;
@@ -1720,39 +1721,39 @@ namespace JsonLD.Core
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        private bool FilterNode(JsonLdApi.FramingContext state, JObject node, JObject frame)
+        private bool FilterNode(JsonLdApi.FramingContext state, GenericJsonObject node, GenericJsonObject frame)
         {
-            JToken types = frame["@type"];
+            GenericJsonToken types = frame["@type"];
             if (!types.IsNull())
             {
-                if (!(types is JArray))
+                if (!(types is GenericJsonArray))
                 {
                     throw new JsonLdError(JsonLdError.Error.SyntaxError, "frame @type must be an array"
                         );
                 }
-                JToken nodeTypes = node["@type"];
+                GenericJsonToken nodeTypes = node["@type"];
                 if (nodeTypes.IsNull())
                 {
-                    nodeTypes = new JArray();
+                    nodeTypes = new GenericJsonArray();
                 }
                 else
                 {
-                    if (!(nodeTypes is JArray))
+                    if (!(nodeTypes is GenericJsonArray))
                     {
                         throw new JsonLdError(JsonLdError.Error.SyntaxError, "node @type must be an array"
                             );
                     }
                 }
-                if (((JArray)types).Count == 1 && ((JArray)types)[0] is JObject
-                     && ((JObject)((JArray)types)[0]).Count == 0)
+                if (((GenericJsonArray)types).Count == 1 && ((GenericJsonArray)types)[0] is GenericJsonObject
+                     && ((GenericJsonObject)((GenericJsonArray)types)[0]).Count == 0)
                 {
-                    return !((JArray)nodeTypes).IsEmpty();
+                    return !((GenericJsonArray)nodeTypes).IsEmpty();
                 }
                 else
                 {
-                    foreach (JToken i in (JArray)nodeTypes)
+                    foreach (GenericJsonToken i in (GenericJsonArray)nodeTypes)
                     {
-                        foreach (JToken j in (JArray)types)
+                        foreach (GenericJsonToken j in (GenericJsonArray)types)
                         {
                             if (JsonLdUtils.DeepCompare(i, j))
                             {
@@ -1782,22 +1783,22 @@ namespace JsonLD.Core
         /// <param name="parent">the parent to add to.</param>
         /// <param name="property">the parent property.</param>
         /// <param name="output">the output to add.</param>
-        private static void AddFrameOutput(JsonLdApi.FramingContext state, JToken parent, 
-            string property, JToken output)
+        private static void AddFrameOutput(JsonLdApi.FramingContext state, GenericJsonToken parent, 
+            string property, GenericJsonToken output)
         {
-            if (parent is JObject)
+            if (parent is GenericJsonObject)
             {
-                JArray prop = (JArray)((JObject)parent)[property];
+                GenericJsonArray prop = (GenericJsonArray)((GenericJsonObject)parent)[property];
                 if (prop == null)
                 {
-                    prop = new JArray();
-                    ((JObject)parent)[property] = prop;
+                    prop = new GenericJsonArray();
+                    ((GenericJsonObject)parent)[property] = prop;
                 }
                 prop.Add(output);
             }
             else
             {
-                ((JArray)parent).Add(output);
+                ((GenericJsonArray)parent).Add(output);
             }
         }
 
@@ -1813,31 +1814,33 @@ namespace JsonLD.Core
         /// <param name="element">the subject.</param>
         /// <param name="property">the property.</param>
         /// <param name="output">the output.</param>
-        private void EmbedValues(JsonLdApi.FramingContext state, JObject element, string property, JToken output)
+        private void EmbedValues(JsonLdApi.FramingContext state, GenericJsonObject element, string property, GenericJsonToken output)
         {
             // embed subject properties in output
-            JArray objects = (JArray)element[property];
-            foreach (JToken o in objects)
+            GenericJsonArray objects = (GenericJsonArray)element[property];
+            foreach (GenericJsonToken o in objects)
             {
                 var eachObj = o;
 
-                if (eachObj is JObject && ((JObject)eachObj).ContainsKey("@list"))
+                if (eachObj is GenericJsonObject && ((GenericJsonObject)eachObj).ContainsKey("@list"))
                 {
-                    JObject list = new JObject { { "@list", new JArray() } };
-                    if (output is JArray)
+                    GenericJsonObject list = new GenericJsonObject { { "@list", new GenericJsonArray() } };
+                    if (output is GenericJsonArray)
                     {
-                        ((JArray)output).Add(list);
+                        ((GenericJsonArray)output).Add(list);
                     }
                     else
                     {
-                        output[property] = new JArray(list);
+                        // TODO(sblom): What the hell does this even mean in JSON.NET?
+                        //output[property] = new GenericJsonArray(list);
+                        output[property] = new GenericJsonArray();
                     }
-                    EmbedValues(state, (JObject)eachObj, "@list", list["@list"]);
+                    EmbedValues(state, (GenericJsonObject)eachObj, "@list", list["@list"]);
                 }
                 // handle subject reference
                 else if (JsonLdUtils.IsNodeReference(eachObj))
                 {
-                    string sid = (string)((JObject)eachObj)["@id"];
+                    string sid = (string)((GenericJsonObject)eachObj)["@id"];
                     // embed full subject if isn't already embedded
                     if (!state.embeds.ContainsKey(sid))
                     {
@@ -1847,11 +1850,11 @@ namespace JsonLD.Core
                         embed.property = property;
                         state.embeds[sid] = embed;
                         // recurse into subject
-                        eachObj = new JObject();
-                        JObject s = (JObject)this.nodeMap[sid];
+                        eachObj = new GenericJsonObject();
+                        GenericJsonObject s = (GenericJsonObject)this.nodeMap[sid];
                         if (s == null)
                         {
-                            s = new JObject();
+                            s = new GenericJsonObject();
                             s["@id"] = sid;
                         }
                         foreach (string prop in s.GetKeys())
@@ -1859,7 +1862,7 @@ namespace JsonLD.Core
                             // copy keywords
                             if (JsonLdUtils.IsKeyword(prop))
                             {
-                                ((JObject)eachObj)[prop] = JsonLdUtils.Clone(s[prop]);
+                                ((GenericJsonObject)eachObj)[prop] = JsonLdUtils.Clone(s[prop]);
                                 continue;
                             }
                             EmbedValues(state, s, prop, eachObj);
@@ -1880,7 +1883,7 @@ namespace JsonLD.Core
         private class UsagesNode
         {
             public UsagesNode(JsonLdApi _enclosing, JsonLdApi.NodeMapNode node, string property
-                , JObject value)
+                , GenericJsonObject value)
             {
                 this._enclosing = _enclosing;
                 this.node = node;
@@ -1892,13 +1895,13 @@ namespace JsonLD.Core
 
             public string property = null;
 
-            public JObject value = null;
+            public GenericJsonObject value = null;
 
             private readonly JsonLdApi _enclosing;
         }
 
         //[System.Serializable]
-        private class NodeMapNode : JObject
+        private class NodeMapNode : GenericJsonObject
         {
             public IList<UsagesNode> usages = new List<UsagesNode>();
 
@@ -1919,7 +1922,7 @@ namespace JsonLD.Core
                 if (this.ContainsKey(JSONLDConsts.RdfFirst))
                 {
                     keys++;
-                    if (!(this[JSONLDConsts.RdfFirst] is JArray && ((JArray)this[JSONLDConsts.RdfFirst
+                    if (!(this[JSONLDConsts.RdfFirst] is GenericJsonArray && ((GenericJsonArray)this[JSONLDConsts.RdfFirst
                         ]).Count == 1))
                     {
                         return false;
@@ -1928,7 +1931,7 @@ namespace JsonLD.Core
                 if (this.ContainsKey(JSONLDConsts.RdfRest))
                 {
                     keys++;
-                    if (!(this[JSONLDConsts.RdfRest] is JArray && ((JArray)this[JSONLDConsts.RdfRest
+                    if (!(this[JSONLDConsts.RdfRest] is GenericJsonArray && ((GenericJsonArray)this[JSONLDConsts.RdfRest
                         ]).Count == 1))
                     {
                         return false;
@@ -1937,8 +1940,8 @@ namespace JsonLD.Core
                 if (this.ContainsKey("@type"))
                 {
                     keys++;
-                    if (!(this["@type"] is JArray && ((JArray)this["@type"]).Count == 1) && JSONLDConsts
-                        .RdfList.Equals(((JArray)this["@type"])[0]))
+                    if (!(this["@type"] is GenericJsonArray && ((GenericJsonArray)this["@type"]).Count == 1) && JSONLDConsts
+                        .RdfList.Equals(((GenericJsonArray)this["@type"])[0]))
                     {
                         return false;
                     }
@@ -1956,9 +1959,9 @@ namespace JsonLD.Core
             }
 
             // return this node without the usages variable
-            public virtual JObject Serialize()
+            public virtual GenericJsonObject Serialize()
             {
-                return new JObject(this);
+                return new GenericJsonObject((IDictionary<string, object>)this.Unwrap());
             }
 
             private readonly JsonLdApi _enclosing;
@@ -1971,27 +1974,27 @@ namespace JsonLD.Core
         /// <param name="callback">(err, output) called once the operation completes.</param>
         /// <exception cref="JSONLDProcessingError">JSONLDProcessingError</exception>
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public virtual JArray FromRDF(RDFDataset dataset)
+        public virtual GenericJsonArray FromRDF(RDFDataset dataset)
         {
             // 1)
-            JObject defaultGraph = new JObject();
+            GenericJsonObject defaultGraph = new GenericJsonObject();
             // 2)
-            JObject graphMap = new JObject();
+            GenericJsonObject graphMap = new GenericJsonObject();
             graphMap["@default"] = defaultGraph;
             // 3/3.1)
             foreach (string name in dataset.GraphNames())
             {
                 IList<RDFDataset.Quad> graph = dataset.GetQuads(name);
                 // 3.2+3.4)
-                JObject nodeMap;
+                GenericJsonObject nodeMap;
                 if (!graphMap.ContainsKey(name))
                 {
-                    nodeMap = new JObject();
+                    nodeMap = new GenericJsonObject();
                     graphMap[name] = nodeMap;
                 }
                 else
                 {
-                    nodeMap = (JObject)graphMap[name];
+                    nodeMap = (GenericJsonObject)graphMap[name];
                 }
                 // 3.3)
                 if (!"@default".Equals(name) && !Obj.Contains(defaultGraph, name))
@@ -2029,7 +2032,7 @@ namespace JsonLD.Core
                         continue;
                     }
                     // 3.5.5)
-                    JObject value = @object.ToObject(opts.GetUseNativeTypes());
+                    GenericJsonObject value = @object.ToObject(opts.GetUseNativeTypes());
                     // 3.5.6+7)
                     JsonLdUtils.MergeValue(node, predicate, value);
                     // 3.5.8)
@@ -2044,7 +2047,7 @@ namespace JsonLD.Core
             // 4)
             foreach (string name_1 in graphMap.GetKeys())
             {
-                JObject graph = (JObject)graphMap[name_1];
+                GenericJsonObject graph = (GenericJsonObject)graphMap[name_1];
                 // 4.1)
                 if (!graph.ContainsKey(JSONLDConsts.RdfNil))
                 {
@@ -2058,15 +2061,15 @@ namespace JsonLD.Core
                     // 4.3.1)
                     JsonLdApi.NodeMapNode node = usage.node;
                     string property = usage.property;
-                    JObject head = usage.value;
+                    GenericJsonObject head = usage.value;
                     // 4.3.2)
-                    JArray list = new JArray();
-                    JArray listNodes = new JArray();
+                    GenericJsonArray list = new GenericJsonArray();
+                    GenericJsonArray listNodes = new GenericJsonArray();
                     // 4.3.3)
                     while (JSONLDConsts.RdfRest.Equals(property) && node.IsWellFormedListNode())
                     {
                         // 4.3.3.1)
-                        list.Add(((JArray)node[JSONLDConsts.RdfFirst])[0]);
+                        list.Add(((GenericJsonArray)node[JSONLDConsts.RdfFirst])[0]);
                         // 4.3.3.2)
                         listNodes.Add((string)node["@id"]);
                         // 4.3.3.3)
@@ -2092,7 +2095,7 @@ namespace JsonLD.Core
                         // 4.3.4.3)
                         string headId = (string)head["@id"];
                         // 4.3.4.4-5)
-                        head = (JObject)((JArray)graph[headId][JSONLDConsts.RdfRest
+                        head = (GenericJsonObject)((GenericJsonArray)graph[headId][JSONLDConsts.RdfRest
                             ])[0];
                         // 4.3.4.6)
                         list.RemoveAt(list.Count - 1);
@@ -2112,9 +2115,9 @@ namespace JsonLD.Core
                 }
             }
             // 5)
-            JArray result = new JArray();
+            GenericJsonArray result = new GenericJsonArray();
             // 6)
-            JArray ids = new JArray(defaultGraph.GetKeys());
+            GenericJsonArray ids = new GenericJsonArray(defaultGraph.GetKeys());
 
             if (opts.GetSortGraphsFromRdf())
             {
@@ -2128,9 +2131,9 @@ namespace JsonLD.Core
                 if (graphMap.ContainsKey(subject_1))
                 {
                     // 6.1.1)
-                    node["@graph"] = new JArray();
+                    node["@graph"] = new GenericJsonArray();
                     // 6.1.2)
-                    JArray keys = new JArray(graphMap[subject_1].GetKeys());
+                    GenericJsonArray keys = new GenericJsonArray(graphMap[subject_1].GetKeys());
 
                     if (opts.GetSortGraphNodesFromRdf())
                     {
@@ -2144,7 +2147,7 @@ namespace JsonLD.Core
                         {
                             continue;
                         }
-                        ((JArray)node["@graph"]).Add(n.Serialize());
+                        ((GenericJsonArray)node["@graph"]).Add(n.Serialize());
                     }
                 }
                 // 6.2)
@@ -2168,8 +2171,8 @@ namespace JsonLD.Core
         {
             // TODO: make the default generateNodeMap call (i.e. without a
             // graphName) create and return the nodeMap
-            JObject nodeMap = new JObject();
-            nodeMap["@default"] = new JObject();
+            GenericJsonObject nodeMap = new GenericJsonObject();
+            nodeMap["@default"] = new GenericJsonObject();
             GenerateNodeMap(this.value, nodeMap);
             RDFDataset dataset = new RDFDataset(this);
             foreach (string graphName in nodeMap.GetKeys())
@@ -2179,7 +2182,7 @@ namespace JsonLD.Core
                 {
                     continue;
                 }
-                JObject graph = (JObject)nodeMap[graphName
+                GenericJsonObject graph = (GenericJsonObject)nodeMap[graphName
                     ];
                 dataset.GraphToRDF(graphName, graph);
             }

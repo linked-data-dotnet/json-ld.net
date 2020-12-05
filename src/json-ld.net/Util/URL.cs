@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using JsonLD.GenericJson;
 using JsonLD.Util;
 using Newtonsoft.Json.Linq;
 
@@ -193,14 +194,14 @@ namespace JsonLD.Util
             return rval;
         }
 
-        public static string RemoveBase(JToken baseobj, string iri)
+        public static string RemoveBase(GenericJsonToken baseobj, string iri)
         {
             if (baseobj.IsNull())
             {
                 return iri;
             }
             URL @base;
-            if (baseobj.Type == JTokenType.String)
+            if (baseobj.Type == GenericJsonTokenType.String)
             {
                 @base = URL.Parse((string)baseobj);
             }

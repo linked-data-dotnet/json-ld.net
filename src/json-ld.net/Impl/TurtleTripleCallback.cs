@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using JsonLD.Core;
-using Newtonsoft.Json.Linq;
+using JsonLD.GenericJson;
 
 namespace JsonLD.Impl
 {
@@ -42,8 +42,8 @@ namespace JsonLD.Impl
                 availableNamespaces[e.Value] = e.Key;
             }
             usedNamespaces = new HashSet<string>();
-            JObject refs = new JObject();
-            JObject ttl = new JObject();
+            GenericJsonObject refs = new GenericJsonObject();
+            GenericJsonObject ttl = new GenericJsonObject();
             foreach (string graphName in dataset.Keys)
             {
                 string localGraphName = graphName;
@@ -62,8 +62,8 @@ namespace JsonLD.Impl
                 // subjid -> [ ref, ref, ref ]
                 string prevSubject = string.Empty;
                 string prevPredicate = string.Empty;
-                JObject thisSubject = null;
-                JArray thisPredicate = null;
+                GenericJsonObject thisSubject = null;
+                GenericJsonArray thisPredicate = null;
                 foreach (RDFDataset.Quad triple in triples)
                 {
                     string subject = triple.GetSubject().GetValue();
@@ -79,11 +79,11 @@ namespace JsonLD.Impl
                             // new predicate
                             if (thisSubject.ContainsKey(predicate))
                             {
-                                thisPredicate = (JArray)thisSubject[predicate];
+                                thisPredicate = (GenericJsonArray)thisSubject[predicate];
                             }
                             else
                             {
-                                thisPredicate = new JArray();
+                                thisPredicate = new GenericJsonArray();
                                 thisSubject[predicate] = thisPredicate;
                             }
                             prevPredicate = predicate;
@@ -94,20 +94,20 @@ namespace JsonLD.Impl
                         // new subject
                         if (ttl.ContainsKey(subject))
                         {
-                            thisSubject = (JObject)ttl[subject];
+                            thisSubject = (GenericJsonObject)ttl[subject];
                         }
                         else
                         {
-                            thisSubject = new JObject();
+                            thisSubject = new GenericJsonObject();
                             ttl[subject] = thisSubject;
                         }
                         if (thisSubject.ContainsKey(predicate))
                         {
-                            thisPredicate = (JArray)thisSubject[predicate];
+                            thisPredicate = (GenericJsonArray)thisSubject[predicate];
                         }
                         else
                         {
-                            thisPredicate = new JArray();
+                            thisPredicate = new GenericJsonArray();
                             thisSubject[predicate] = thisPredicate;
                         }
                         prevSubject = subject;
@@ -125,34 +125,34 @@ namespace JsonLD.Impl
                             // add ref to o
                             if (!refs.ContainsKey(o))
                             {
-                                refs[o] = new JArray();
+                                refs[o] = new GenericJsonArray();
                             }
-                            ((JArray)refs[o]).Add(thisPredicate);
+                            ((GenericJsonArray)refs[o]).Add(thisPredicate);
                         }
                         thisPredicate.Add(o);
                     }
                 }
             }
-            JObject collections = new JObject();
-            JArray subjects = new JArray(ttl.GetKeys());
+            GenericJsonObject collections = new GenericJsonObject();
+            GenericJsonArray subjects = new GenericJsonArray(ttl.GetKeys());
             // find collections
             foreach (string subj in subjects)
             {
-                JObject preds = (JObject)ttl[subj];
+                GenericJsonObject preds = (GenericJsonObject)ttl[subj];
                 if (preds != null && preds.ContainsKey(JSONLDConsts.RdfFirst))
                 {
-                    JArray col = new JArray();
+                    GenericJsonArray col = new GenericJsonArray();
                     collections[subj] = col;
                     while (true)
                     {
-                        JArray first = (JArray)JsonLD.Collections.Remove(preds, JSONLDConsts.RdfFirst);
-                        JToken o = first[0];
+                        GenericJsonArray first = (GenericJsonArray)JsonLD.Collections.Remove(preds, JSONLDConsts.RdfFirst);
+                        GenericJsonToken o = first[0];
                         col.Add(o);
                         // refs
                         if (refs.ContainsKey((string)o))
                         {
-                            ((JArray)refs[(string)o]).Remove(first);
-                            ((JArray)refs[(string)o]).Add(col);
+                            ((GenericJsonArray)refs[(string)o]).Remove(first);
+                            ((GenericJsonArray)refs[(string)o]).Add(col);
                         }
                         string next = (string)JsonLD.Collections.Remove(preds, JSONLDConsts.RdfRest)[0
                             ];
@@ -165,10 +165,10 @@ namespace JsonLD.Impl
                         // it to this col and break out
                         if (collections.ContainsKey(next))
                         {
-                            JsonLD.Collections.AddAll(col, (JArray)JsonLD.Collections.Remove(collections, next));
+                            JsonLD.Collections.AddAll(col, (GenericJsonArray)JsonLD.Collections.Remove(collections, next));
                             break;
                         }
-                        preds = (JObject)JsonLD.Collections.Remove(ttl, next);
+                        preds = (GenericJsonObject)JsonLD.Collections.Remove(ttl, next);
                         JsonLD.Collections.Remove(refs, next);
                     }
                 }
@@ -179,32 +179,32 @@ namespace JsonLD.Impl
             {
                 // skip items if there is more than one reference to them in the
                 // graph
-                if (((JArray)refs[id]).Count > 1)
+                if (((GenericJsonArray)refs[id]).Count > 1)
                 {
                     continue;
                 }
                 // otherwise embed them into the referenced location
-                JToken @object = JsonLD.Collections.Remove(ttl, id);
+                GenericJsonToken @object = JsonLD.Collections.Remove(ttl, id);
                 if (collections.ContainsKey(id))
                 {
-                    @object = new JObject();
-                    JArray tmp = new JArray();
+                    @object = new GenericJsonObject();
+                    GenericJsonArray tmp = new GenericJsonArray();
                     tmp.Add(JsonLD.Collections.Remove(collections, id));
-                    ((JObject)@object)[ColsKey] = tmp;
+                    ((GenericJsonObject)@object)[ColsKey] = tmp;
                 }
-                JArray predicate = (JArray)refs[id][0];
+                GenericJsonArray predicate = (GenericJsonArray)refs[id][0];
                 // replace the one bnode ref with the object
-                predicate[predicate.LastIndexOf(id)] = (JToken)@object;
+                predicate[predicate.LastIndexOf(id)] = (GenericJsonToken)@object;
             }
             // replace the rest of the collections
             foreach (string id_1 in collections.GetKeys())
             {
-                JObject subj_1 = (JObject)ttl[id_1];
+                GenericJsonObject subj_1 = (GenericJsonObject)ttl[id_1];
                 if (!subj_1.ContainsKey(ColsKey))
                 {
-                    subj_1[ColsKey] = new JArray();
+                    subj_1[ColsKey] = new GenericJsonArray();
                 }
-                ((JArray)subj_1[ColsKey]).Add(collections[id_1]);
+                ((GenericJsonArray)subj_1[ColsKey]).Add(collections[id_1]);
             }
             // build turtle output
             string output = GenerateTurtle(ttl, 0, 0, false);
@@ -263,8 +263,8 @@ namespace JsonLD.Impl
                 else
                 {
                     // must be an object
-                    JObject tmp = new JObject();
-                    tmp["_:x"] = (JObject)@object;
+                    GenericJsonObject tmp = new GenericJsonObject();
+                    tmp["_:x"] = (GenericJsonObject)@object;
                     obj = GenerateTurtle(tmp, indentation + 1, lineLength, true);
                 }
             }
@@ -302,14 +302,14 @@ namespace JsonLD.Impl
             return rval;
         }
 
-        private string GenerateTurtle(JObject ttl, int indentation, int lineLength, bool isObject)
+        private string GenerateTurtle(GenericJsonObject ttl, int indentation, int lineLength, bool isObject)
         {
             string rval = string.Empty;
             IEnumerator<string> subjIter = ttl.GetKeys().GetEnumerator();
             while (subjIter.MoveNext())
             {
                 string subject = subjIter.Current;
-                JObject subjval = (JObject)ttl[subject];
+                GenericJsonObject subjval = (GenericJsonObject)ttl[subject];
                 // boolean isBlankNode = subject.startsWith("_:");
                 bool hasOpenBnodeBracket = false;
                 if (subject.StartsWith("_:"))
@@ -329,16 +329,17 @@ namespace JsonLD.Impl
                     // check for collection
                     if (subjval.ContainsKey(ColsKey))
                     {
-                        JArray collections = (JArray)JsonLD.Collections.Remove(subjval, ColsKey);
-                        foreach (JToken collection in collections)
+                        GenericJsonArray collections = (GenericJsonArray)JsonLD.Collections.Remove(subjval, ColsKey);
+                        foreach (GenericJsonToken collection in collections)
                         {
                             rval += "( ";
                             lineLength += 2;
 
-                            IEnumerator<JToken> objIter = ((JArray)collection).Children().GetEnumerator();
+                            // TODO(sblom): What does JSON.NET "Children" do?
+                            IEnumerator<GenericJsonToken> objIter = ((GenericJsonArray)collection).GetEnumerator();
                             while (objIter.MoveNext())
                             {
-                                JToken @object = objIter.Current;
+                                GenericJsonToken @object = objIter.Current;
                                 rval += GenerateObject(@object, string.Empty, objIter.MoveNext(), indentation, lineLength
                                     );
                                 lineLength = rval.Length - rval.LastIndexOf("\n");
@@ -360,10 +361,10 @@ namespace JsonLD.Impl
                     string predicate = predIter.Current;
                     rval += GetURI(predicate) + " ";
                     lineLength += predicate.Length + 1;
-                    IEnumerator<JToken> objIter = ((JArray)ttl[subject][predicate]).Children().GetEnumerator();
+                    IEnumerator<GenericJsonToken> objIter = ((GenericJsonArray)ttl[subject][predicate]).GetEnumerator();
                     while (objIter.MoveNext())
                     {
-                        JToken @object = objIter.Current;
+                        GenericJsonToken @object = objIter.Current;
                         rval += GenerateObject(@object, ",", objIter.MoveNext(), indentation, lineLength);
                         lineLength = rval.Length - rval.LastIndexOf("\n");
                     }

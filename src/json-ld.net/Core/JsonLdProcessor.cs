@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using JsonLD.Core;
+using JsonLD.GenericJson;
 using JsonLD.Impl;
 using Newtonsoft.Json.Linq;
 
@@ -13,34 +14,34 @@ namespace JsonLD.Core
     public class JsonLdProcessor
     {
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public static JObject Compact(JToken input, JToken context, JsonLdOptions opts)
+        public static GenericJsonObject Compact(GenericJsonToken input, GenericJsonToken context, JsonLdOptions opts)
         {
             // 1)
             // TODO: look into java futures/promises
             // 2-6) NOTE: these are all the same steps as in expand
-            JToken expanded = Expand(input, opts);
+            GenericJsonToken expanded = Expand(input, opts);
             // 7)
-            if (context is JObject && ((IDictionary<string, JToken>)context).ContainsKey(
+            if (context is GenericJsonObject && ((IDictionary<string, GenericJsonToken>)context).ContainsKey(
                 "@context"))
             {
-                context = ((JObject)context)["@context"];
+                context = ((GenericJsonObject)context)["@context"];
             }
             Context activeCtx = new Context(opts);
             activeCtx = activeCtx.Parse(context);
             // 8)
-            JToken compacted = new JsonLdApi(opts).Compact(activeCtx, null, expanded, opts.GetCompactArrays
+            GenericJsonToken compacted = new JsonLdApi(opts).Compact(activeCtx, null, expanded, opts.GetCompactArrays
                 ());
             // final step of Compaction Algorithm
             // TODO: SPEC: the result result is a NON EMPTY array,
-            if (compacted is JArray)
+            if (compacted is GenericJsonArray)
             {
-                if (((JArray)compacted).IsEmpty())
+                if (((GenericJsonArray)compacted).IsEmpty())
                 {
-                    compacted = new JObject();
+                    compacted = new GenericJsonObject();
                 }
                 else
                 {
-                    JObject tmp = new JObject();
+                    GenericJsonObject tmp = new GenericJsonObject();
                     // TODO: SPEC: doesn't specify to use vocab = true here
                     tmp[activeCtx.CompactIri("@graph", true)] = compacted;
                     compacted = tmp;
@@ -50,24 +51,24 @@ namespace JsonLD.Core
             {
                 // TODO: figure out if we can make "@context" appear at the start of
                 // the keySet
-                if ((context is JObject && !((JObject)context).IsEmpty())
-                     || (context is JArray && !((JArray)context).IsEmpty()))
+                if ((context is GenericJsonObject && !((GenericJsonObject)context).IsEmpty())
+                     || (context is GenericJsonArray && !((GenericJsonArray)context).IsEmpty()))
                 {
                     compacted["@context"] = context;
                 }
             }
             // 9)
-            return (JObject)compacted;
+            return (GenericJsonObject)compacted;
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public static JArray Expand(JToken input, JsonLdOptions opts)
+        public static GenericJsonArray Expand(GenericJsonToken input, JsonLdOptions opts)
         {
             // 1)
             // TODO: look into java futures/promises
 
             // 2) verification of DOMString IRI
-            bool isIriString = input.Type == JTokenType.String;
+            bool isIriString = input.Type == GenericJsonTokenType.String;
             if (isIriString)
             {
                 bool hasColon = false;
@@ -112,11 +113,11 @@ namespace JsonLD.Core
             // 4)
             if (opts.GetExpandContext() != null)
             {
-                JObject exCtx = opts.GetExpandContext();
-                if (exCtx is JObject && ((IDictionary<string, JToken>)exCtx).ContainsKey("@context"
+                GenericJsonObject exCtx = opts.GetExpandContext();
+                if (exCtx is GenericJsonObject && ((IDictionary<string, GenericJsonToken>)exCtx).ContainsKey("@context"
                     ))
                 {
-                    exCtx = (JObject)((IDictionary<string, JToken>)exCtx)["@context"];
+                    exCtx = (GenericJsonObject)((IDictionary<string, GenericJsonToken>)exCtx)["@context"];
                 }
                 activeCtx = activeCtx.Parse(exCtx);
             }
@@ -124,43 +125,43 @@ namespace JsonLD.Core
             // TODO: add support for getting a context from HTTP when content-type
             // is set to a jsonld compatable format
             // 6)
-            JToken expanded = new JsonLdApi(opts).Expand(activeCtx, input);
+            GenericJsonToken expanded = new JsonLdApi(opts).Expand(activeCtx, input);
             // final step of Expansion Algorithm
-            if (expanded is JObject && ((IDictionary<string,JToken>)expanded).ContainsKey("@graph") && (
-                (IDictionary<string, JToken>)expanded).Count == 1)
+            if (expanded is GenericJsonObject && ((IDictionary<string,GenericJsonToken>)expanded).ContainsKey("@graph") && (
+                (IDictionary<string, GenericJsonToken>)expanded).Count == 1)
             {
-                expanded = ((JObject)expanded)["@graph"];
+                expanded = ((GenericJsonObject)expanded)["@graph"];
             }
             else
             {
                 if (expanded.IsNull())
                 {
-                    expanded = new JArray();
+                    expanded = new GenericJsonArray();
                 }
             }
             // normalize to an array
-            if (!(expanded is JArray))
+            if (!(expanded is GenericJsonArray))
             {
-                JArray tmp = new JArray();
+                GenericJsonArray tmp = new GenericJsonArray();
                 tmp.Add(expanded);
                 expanded = tmp;
             }
-            return (JArray)expanded;
+            return (GenericJsonArray)expanded;
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public static JArray Expand(JToken input)
+        public static GenericJsonArray Expand(GenericJsonToken input)
         {
             return Expand(input, new JsonLdOptions(string.Empty));
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public static JToken Flatten(JToken input, JToken context, JsonLdOptions opts)
+        public static GenericJsonToken Flatten(GenericJsonToken input, GenericJsonToken context, JsonLdOptions opts)
         {
             // 2-6) NOTE: these are all the same steps as in expand
-            JArray expanded = Expand(input, opts);
+            GenericJsonArray expanded = Expand(input, opts);
             // 7)
-            if (context is JObject && ((IDictionary<string, JToken>)context).ContainsKey(
+            if (context is GenericJsonObject && ((IDictionary<string, GenericJsonToken>)context).ContainsKey(
                 "@context"))
             {
                 context = context["@context"];
@@ -169,55 +170,55 @@ namespace JsonLD.Core
             // 9) NOTE: the next block is the Flattening Algorithm described in
             // http://json-ld.org/spec/latest/json-ld-api/#flattening-algorithm
             // 1)
-            JObject nodeMap = new JObject();
-            nodeMap["@default"] = new JObject();
+            GenericJsonObject nodeMap = new GenericJsonObject();
+            nodeMap["@default"] = new GenericJsonObject();
             // 2)
             new JsonLdApi(opts).GenerateNodeMap(expanded, nodeMap);
             // 3)
-            JObject defaultGraph = (JObject)JsonLD.Collections.Remove
+            GenericJsonObject defaultGraph = (GenericJsonObject)JsonLD.Collections.Remove
                 (nodeMap, "@default");
             // 4)
             foreach (string graphName in nodeMap.GetKeys())
             {
-                JObject graph = (JObject)nodeMap[graphName];
+                GenericJsonObject graph = (GenericJsonObject)nodeMap[graphName];
                 // 4.1+4.2)
-                JObject entry;
+                GenericJsonObject entry;
                 if (!defaultGraph.ContainsKey(graphName))
                 {
-                    entry = new JObject();
+                    entry = new GenericJsonObject();
                     entry["@id"] = graphName;
                     defaultGraph[graphName] = entry;
                 }
                 else
                 {
-                    entry = (JObject)defaultGraph[graphName];
+                    entry = (GenericJsonObject)defaultGraph[graphName];
                 }
                 // 4.3)
                 // TODO: SPEC doesn't specify that this should only be added if it
                 // doesn't exists
                 if (!entry.ContainsKey("@graph"))
                 {
-                    entry["@graph"] = new JArray();
+                    entry["@graph"] = new GenericJsonArray();
                 }
-                JArray keys = new JArray(graph.GetKeys());
+                GenericJsonArray keys = new GenericJsonArray(graph.GetKeys());
                 keys.SortInPlace();
                 foreach (string id in keys)
                 {
-                    JObject node = (JObject)graph[id];
+                    GenericJsonObject node = (GenericJsonObject)graph[id];
                     if (!(node.ContainsKey("@id") && node.Count == 1))
                     {
-                        ((JArray)entry["@graph"]).Add(node);
+                        ((GenericJsonArray)entry["@graph"]).Add(node);
                     }
                 }
             }
             // 5)
-            JArray flattened = new JArray();
+            GenericJsonArray flattened = new GenericJsonArray();
             // 6)
-            JArray keys_1 = new JArray(defaultGraph.GetKeys());
+            GenericJsonArray keys_1 = new GenericJsonArray(defaultGraph.GetKeys());
             keys_1.SortInPlace();
             foreach (string id_1 in keys_1)
             {
-                JObject node = (JObject)defaultGraph[id_1
+                GenericJsonObject node = (GenericJsonObject)defaultGraph[id_1
                     ];
                 if (!(node.ContainsKey("@id") && node.Count == 1))
                 {
@@ -230,16 +231,16 @@ namespace JsonLD.Core
                 Context activeCtx = new Context(opts);
                 activeCtx = activeCtx.Parse(context);
                 // TODO: only instantiate one jsonldapi
-                JToken compacted = new JsonLdApi(opts).Compact(activeCtx, null, flattened, opts.GetCompactArrays
+                GenericJsonToken compacted = new JsonLdApi(opts).Compact(activeCtx, null, flattened, opts.GetCompactArrays
                     ());
-                if (!(compacted is JArray))
+                if (!(compacted is GenericJsonArray))
                 {
-                    JArray tmp = new JArray();
+                    GenericJsonArray tmp = new GenericJsonArray();
                     tmp.Add(compacted);
                     compacted = tmp;
                 }
                 string alias = activeCtx.CompactIri("@graph");
-                JObject rval = activeCtx.Serialize();
+                GenericJsonObject rval = activeCtx.Serialize();
                 rval[alias] = compacted;
                 return rval;
             }
@@ -247,35 +248,35 @@ namespace JsonLD.Core
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public static JToken Flatten(JToken input, JsonLdOptions opts)
+        public static GenericJsonToken Flatten(GenericJsonToken input, JsonLdOptions opts)
         {
             return Flatten(input, null, opts);
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public static JObject Frame(JToken input, JToken frame, JsonLdOptions
+        public static GenericJsonObject Frame(GenericJsonToken input, GenericJsonToken frame, JsonLdOptions
              options)
         {
-            if (frame is JObject)
+            if (frame is GenericJsonObject)
             {
-                frame = JsonLdUtils.Clone((JObject)frame);
+                frame = JsonLdUtils.Clone((GenericJsonObject)frame);
             }
             // TODO string/IO input
-            JToken expandedInput = Expand(input, options);
-            JArray expandedFrame = Expand(frame, options);
+            GenericJsonToken expandedInput = Expand(input, options);
+            GenericJsonArray expandedFrame = Expand(frame, options);
             JsonLdApi api = new JsonLdApi(expandedInput, options);
-            JArray framed = api.Frame(expandedInput, expandedFrame);
+            GenericJsonArray framed = api.Frame(expandedInput, expandedFrame);
             Context activeCtx = api.context.Parse(frame["@context"
                 ]);
-            JToken compacted = api.Compact(activeCtx, null, framed);
-            if (!(compacted is JArray))
+            GenericJsonToken compacted = api.Compact(activeCtx, null, framed);
+            if (!(compacted is GenericJsonArray))
             {
-                JArray tmp = new JArray();
+                GenericJsonArray tmp = new GenericJsonArray();
                 tmp.Add(compacted);
                 compacted = tmp;
             }
             string alias = activeCtx.CompactIri("@graph");
-            JObject rval = activeCtx.Serialize();
+            GenericJsonObject rval = activeCtx.Serialize();
             rval[alias] = compacted;
             JsonLdUtils.RemovePreserve(activeCtx, rval, options);
             return rval;
@@ -323,11 +324,11 @@ namespace JsonLD.Core
         /// <?></?>
         /// <param name="callback">(err, output) called once the operation completes.</param>
         /// <exception cref="JsonLDNet.Core.JsonLdError"></exception>
-        public static JToken FromRDF(JToken dataset, JsonLdOptions options)
+        public static GenericJsonToken FromRDF(GenericJsonToken dataset, JsonLdOptions options)
         {
             // handle non specified serializer case
             IRDFParser parser = null;
-            if (options.format == null && dataset.Type == JTokenType.String)
+            if (options.format == null && dataset.Type == GenericJsonTokenType.String)
             {
                 // attempt to parse the input as nquads
                 options.format = "application/nquads";
@@ -345,7 +346,7 @@ namespace JsonLD.Core
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public static JToken FromRDF(JToken dataset)
+        public static GenericJsonToken FromRDF(GenericJsonToken dataset)
         {
             return FromRDF(dataset, new JsonLdOptions(string.Empty));
         }
@@ -353,12 +354,12 @@ namespace JsonLD.Core
         /// <summary>Uses a specific serializer.</summary>
         /// <remarks>Uses a specific serializer.</remarks>
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public static JToken FromRDF(JToken input, JsonLdOptions options, IRDFParser parser
+        public static GenericJsonToken FromRDF(GenericJsonToken input, JsonLdOptions options, IRDFParser parser
             )
         {
             RDFDataset dataset = parser.Parse(input);
             // convert from RDF
-            JToken rval = new JsonLdApi(options).FromRDF(dataset);
+            GenericJsonToken rval = new JsonLdApi(options).FromRDF(dataset);
             // re-process using the generated context if outputForm is set
             if (options.outputForm != null)
             {
@@ -389,7 +390,7 @@ namespace JsonLD.Core
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public static JToken FromRDF(JToken input, IRDFParser parser)
+        public static GenericJsonToken FromRDF(GenericJsonToken input, IRDFParser parser)
         {
             return FromRDF(input, new JsonLdOptions(string.Empty), parser);
         }
@@ -404,30 +405,30 @@ namespace JsonLD.Core
         /// <?></?>
         /// <param name="callback">(err, dataset) called once the operation completes.</param>
         /// <exception cref="JsonLDNet.Core.JsonLdError"></exception>
-        public static object ToRDF(JToken input, IJSONLDTripleCallback callback, JsonLdOptions
+        public static object ToRDF(GenericJsonToken input, IJSONLDTripleCallback callback, JsonLdOptions
              options)
         {
-            JToken expandedInput = Expand(input, options);
+            GenericJsonToken expandedInput = Expand(input, options);
             JsonLdApi api = new JsonLdApi(expandedInput, options);
             RDFDataset dataset = api.ToRDF();
             // generate namespaces from context
             if (options.useNamespaces)
             {
-                JArray _input;
-                if (input is JArray)
+                GenericJsonArray _input;
+                if (input is GenericJsonArray)
                 {
-                    _input = (JArray)input;
+                    _input = (GenericJsonArray)input;
                 }
                 else
                 {
-                    _input = new JArray();
-                    _input.Add((JObject)input);
+                    _input = new GenericJsonArray();
+                    _input.Add((GenericJsonObject)input);
                 }
-                foreach (JToken e in _input)
+                foreach (GenericJsonToken e in _input)
                 {
-                    if (((JObject)e).ContainsKey("@context"))
+                    if (((GenericJsonObject)e).ContainsKey("@context"))
                     {
-                        dataset.ParseContext((JObject)e["@context"]);
+                        dataset.ParseContext((GenericJsonObject)e["@context"]);
                     }
                 }
             }
@@ -457,19 +458,19 @@ namespace JsonLD.Core
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public static object ToRDF(JToken input, JsonLdOptions options)
+        public static object ToRDF(GenericJsonToken input, JsonLdOptions options)
         {
             return ToRDF(input, null, options);
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public static object ToRDF(JToken input, IJSONLDTripleCallback callback)
+        public static object ToRDF(GenericJsonToken input, IJSONLDTripleCallback callback)
         {
             return ToRDF(input, callback, new JsonLdOptions(string.Empty));
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public static object ToRDF(JToken input)
+        public static object ToRDF(GenericJsonToken input)
         {
             return ToRDF(input, new JsonLdOptions(string.Empty));
         }
@@ -485,7 +486,7 @@ namespace JsonLD.Core
         /// <param name="callback">(err, normalized) called once the operation completes.</param>
         /// <exception cref="JSONLDProcessingError">JSONLDProcessingError</exception>
         /// <exception cref="JsonLDNet.Core.JsonLdError"></exception>
-        public static object Normalize(JToken input, JsonLdOptions options)
+        public static object Normalize(GenericJsonToken input, JsonLdOptions options)
         {
             JsonLdOptions opts = options.Clone();
             opts.format = null;
@@ -494,7 +495,7 @@ namespace JsonLD.Core
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public static object Normalize(JToken input)
+        public static object Normalize(GenericJsonToken input)
         {
             return Normalize(input, new JsonLdOptions(string.Empty));
         }

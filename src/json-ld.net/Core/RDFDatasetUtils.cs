@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using JsonLD.Core;
+using JsonLD.GenericJson;
 using Newtonsoft.Json.Linq;
 
 namespace JsonLD.Core
@@ -14,20 +15,20 @@ namespace JsonLD.Core
         /// <param name="namer">a UniqueNamer for assigning blank node names.</param>
         /// <returns>the array of RDF triples for the given graph.</returns>
         [Obsolete]
-        internal static JArray GraphToRDF(JObject graph, UniqueNamer
+        internal static GenericJsonArray GraphToRDF(GenericJsonObject graph, UniqueNamer
              namer)
         {
             // use RDFDataset.graphToRDF
-            JArray rval = new JArray();
+            GenericJsonArray rval = new GenericJsonArray();
             foreach (string id in graph.GetKeys())
             {
-                JObject node = (JObject)graph[id];
-                JArray properties = new JArray(node.GetKeys());
+                GenericJsonObject node = (GenericJsonObject)graph[id];
+                GenericJsonArray properties = new GenericJsonArray(node.GetKeys());
                 properties.SortInPlace();
                 foreach (string property in properties)
                 {
                     var eachProperty = property;
-                    JToken items = node[eachProperty];
+                    GenericJsonToken items = node[eachProperty];
                     if ("@type".Equals(eachProperty))
                     {
                         eachProperty = JSONLDConsts.RdfType;
@@ -39,10 +40,10 @@ namespace JsonLD.Core
                             continue;
                         }
                     }
-                    foreach (JToken item in (JArray)items)
+                    foreach (GenericJsonToken item in (GenericJsonArray)items)
                     {
                         // RDF subjects
-                        JObject subject = new JObject();
+                        GenericJsonObject subject = new GenericJsonObject();
                         if (id.IndexOf("_:") == 0)
                         {
                             subject["type"] = "blank node";
@@ -54,13 +55,13 @@ namespace JsonLD.Core
                             subject["value"] = id;
                         }
                         // RDF predicates
-                        JObject predicate = new JObject();
+                        GenericJsonObject predicate = new GenericJsonObject();
                         predicate["type"] = "IRI";
                         predicate["value"] = eachProperty;
                         // convert @list to triples
                         if (JsonLdUtils.IsList(item))
                         {
-                            ListToRDF((JArray)((JObject)item)["@list"], namer, subject
+                            ListToRDF((GenericJsonArray)((GenericJsonObject)item)["@list"], namer, subject
                                 , predicate, rval);
                         }
                         else
@@ -92,25 +93,25 @@ namespace JsonLD.Core
         /// <param name="subject">the subject for the head of the list.</param>
         /// <param name="predicate">the predicate for the head of the list.</param>
         /// <param name="triples">the array of triples to append to.</param>
-        private static void ListToRDF(JArray list, UniqueNamer namer, JObject subject, JObject predicate, JArray triples
+        private static void ListToRDF(GenericJsonArray list, UniqueNamer namer, GenericJsonObject subject, GenericJsonObject predicate, GenericJsonArray triples
             )
         {
-            JObject first = new JObject();
+            GenericJsonObject first = new GenericJsonObject();
             first["type"] = "IRI";
             first["value"] = JSONLDConsts.RdfFirst;
-            JObject rest = new JObject();
+            GenericJsonObject rest = new GenericJsonObject();
             rest["type"] = "IRI";
             rest["value"] = JSONLDConsts.RdfRest;
-            JObject nil = new JObject();
+            GenericJsonObject nil = new GenericJsonObject();
             nil["type"] = "IRI";
             nil["value"] = JSONLDConsts.RdfNil;
-            foreach (JToken item in list)
+            foreach (GenericJsonToken item in list)
             {
-                JObject blankNode = new JObject();
+                GenericJsonObject blankNode = new GenericJsonObject();
                 blankNode["type"] = "blank node";
                 blankNode["value"] = namer.GetName();
                 {
-                    JObject tmp = new JObject();
+                    GenericJsonObject tmp = new GenericJsonObject();
                     tmp["subject"] = subject;
                     tmp["predicate"] = predicate;
                     tmp["object"] = blankNode;
@@ -118,9 +119,9 @@ namespace JsonLD.Core
                 }
                 subject = blankNode;
                 predicate = first;
-                JToken @object = ObjectToRDF(item, namer);
+                GenericJsonToken @object = ObjectToRDF(item, namer);
                 {
-                    JObject tmp = new JObject();
+                    GenericJsonObject tmp = new GenericJsonObject();
                     tmp["subject"] = subject;
                     tmp["predicate"] = predicate;
                     tmp["object"] = @object;
@@ -128,7 +129,7 @@ namespace JsonLD.Core
                 }
                 predicate = rest;
             }
-            JObject tmp_1 = new JObject();
+            GenericJsonObject tmp_1 = new GenericJsonObject();
             tmp_1["subject"] = subject;
             tmp_1["predicate"] = predicate;
             tmp_1["object"] = nil;
@@ -146,27 +147,27 @@ namespace JsonLD.Core
         /// <param name="item">the JSON-LD value or node object.</param>
         /// <param name="namer">the UniqueNamer to use to assign blank node names.</param>
         /// <returns>the RDF literal or RDF resource.</returns>
-        private static JObject ObjectToRDF(JToken item, UniqueNamer namer)
+        private static GenericJsonObject ObjectToRDF(GenericJsonToken item, UniqueNamer namer)
         {
-            JObject @object = new JObject();
+            GenericJsonObject @object = new GenericJsonObject();
             // convert value object to RDF
             if (JsonLdUtils.IsValue(item))
             {
                 @object["type"] = "literal";
-                JToken value = ((JObject)item)["@value"];
-                JToken datatype = ((JObject)item)["@type"];
+                GenericJsonToken value = ((GenericJsonObject)item)["@value"];
+                GenericJsonToken datatype = ((GenericJsonObject)item)["@type"];
                 // convert to XSD datatypes as appropriate
-                if (value.Type == JTokenType.Boolean || value.Type == JTokenType.Float || value.Type == JTokenType.Integer )
+                if (value.Type == GenericJsonTokenType.Boolean || value.Type == GenericJsonTokenType.Float || value.Type == GenericJsonTokenType.Integer )
                 {
                     // convert to XSD datatype
-                    if (value.Type == JTokenType.Boolean)
+                    if (value.Type == GenericJsonTokenType.Boolean)
                     {
                         @object["value"] = value.ToString();
                         @object["datatype"] = datatype.IsNull() ? JSONLDConsts.XsdBoolean : datatype;
                     }
                     else
                     {
-                        if (value.Type == JTokenType.Float)
+                        if (value.Type == GenericJsonTokenType.Float)
                         {
                             // canonical double representation
                             @object["value"] = string.Format("{0:0.0###############E0}", (double)value);
@@ -182,11 +183,11 @@ namespace JsonLD.Core
                 }
                 else
                 {
-                    if (((IDictionary<string, JToken>)item).ContainsKey("@language"))
+                    if (((IDictionary<string, GenericJsonToken>)item).ContainsKey("@language"))
                     {
                         @object["value"] = value;
                         @object["datatype"] = datatype.IsNull() ? JSONLDConsts.RdfLangstring : datatype;
-                        @object["language"] = ((IDictionary<string, JToken>)item)["@language"];
+                        @object["language"] = ((IDictionary<string, GenericJsonToken>)item)["@language"];
                     }
                     else
                     {
@@ -198,7 +199,7 @@ namespace JsonLD.Core
             else
             {
                 // convert string/node object to RDF
-                string id = JsonLdUtils.IsObject(item) ? (string)((JObject)item
+                string id = JsonLdUtils.IsObject(item) ? (string)((GenericJsonObject)item
                     )["@id"] : (string)item;
                 if (id.IndexOf("_:") == 0)
                 {

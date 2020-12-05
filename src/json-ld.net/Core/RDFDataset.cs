@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using JsonLD.Core;
+using JsonLD.GenericJson;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -169,19 +170,19 @@ namespace JsonLD.Core
             /// <returns>the JSON-LD object.</returns>
             /// <exception cref="JsonLdError">JsonLdError</exception>
             /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-            internal virtual JObject ToObject(bool useNativeTypes)
+            internal virtual GenericJsonObject ToObject(bool useNativeTypes)
             {
                 // If value is an an IRI or a blank node identifier, return a new
                 // JSON object consisting
                 // of a single member @id whose value is set to value.
                 if (IsIRI() || IsBlankNode())
                 {
-                    JObject obj = new JObject();
+                    GenericJsonObject obj = new GenericJsonObject();
                     obj["@id"] = GetValue();
                     return obj;
                 }
                 // convert literal object to JSON-LD
-                JObject rval = new JObject();
+                GenericJsonObject rval = new GenericJsonObject();
                 rval["@value"] = GetValue();
                 // add language
                 if (GetLanguage() != null)
@@ -447,9 +448,9 @@ namespace JsonLD.Core
 
         /// <summary>Returns a valid @context containing any namespaces set</summary>
         /// <returns></returns>
-        public virtual JObject GetContext()
+        public virtual GenericJsonObject GetContext()
         {
-            JObject rval = new JObject();
+            GenericJsonObject rval = new GenericJsonObject();
             rval.PutAll(context);
             // replace "" with "@vocab"
             if (rval.ContainsKey(string.Empty))
@@ -461,11 +462,11 @@ namespace JsonLD.Core
 
         /// <summary>parses a @context object and sets any namespaces found within it</summary>
         /// <param name="context"></param>
-        public virtual void ParseContext(JObject context)
+        public virtual void ParseContext(GenericJsonObject context)
         {
             foreach (string key in context.GetKeys())
             {
-                JToken val = context[key];
+                GenericJsonToken val = context[key];
                 if ("@vocab".Equals(key))
                 {
                     if (val.IsNull() || JsonLdUtils.IsString(val))
@@ -480,7 +481,7 @@ namespace JsonLD.Core
                     if ("@context".Equals(key))
                     {
                         // go deeper!
-                        ParseContext((JObject)context["@context"]);
+                        ParseContext((GenericJsonObject)context["@context"]);
                     }
                     else
                     {
@@ -489,16 +490,16 @@ namespace JsonLD.Core
                             // TODO: should we make sure val is a valid URI prefix (i.e. it
                             // ends with /# or ?)
                             // or is it ok that full URIs for terms are used?
-                            if (val.Type == JTokenType.String)
+                            if (val.Type == GenericJsonTokenType.String)
                             {
                                 SetNamespace(key, (string)context[key]);
                             }
                             else
                             {
-                                if (JsonLdUtils.IsObject(val) && ((JObject)val).ContainsKey("@id"
+                                if (JsonLdUtils.IsObject(val) && ((GenericJsonObject)val).ContainsKey("@id"
                                     ))
                                 {
-                                    SetNamespace(key, (string)((JObject)val)["@id"]);
+                                    SetNamespace(key, (string)((GenericJsonObject)val)["@id"]);
                                 }
                             }
                         }
@@ -591,7 +592,7 @@ namespace JsonLD.Core
         /// <summary>Creates an array of RDF triples for the given graph.</summary>
         /// <remarks>Creates an array of RDF triples for the given graph.</remarks>
         /// <param name="graph">the graph to create RDF triples for.</param>
-        internal virtual void GraphToRDF(string graphName, JObject graph
+        internal virtual void GraphToRDF(string graphName, GenericJsonObject graph
             )
         {
             // 4.2)
@@ -605,17 +606,17 @@ namespace JsonLD.Core
                 {
                     continue;
                 }
-                JObject node = (JObject)graph[id];
-                JArray properties = new JArray(node.GetKeys());
+                GenericJsonObject node = (GenericJsonObject)graph[id];
+                GenericJsonArray properties = new GenericJsonArray(node.GetKeys());
                 properties.SortInPlace();
                 foreach (string property in properties)
                 {
                     var localProperty = property;
-                    JArray values;
+                    GenericJsonArray values;
                     // 4.3.2.1)
                     if ("@type".Equals(localProperty))
                     {
-                        values = (JArray)node["@type"];
+                        values = (GenericJsonArray)node["@type"];
                         localProperty = JSONLDConsts.RdfType;
                     }
                     else
@@ -641,7 +642,7 @@ namespace JsonLD.Core
                                 }
                                 else
                                 {
-                                    values = (JArray)node[localProperty];
+                                    values = (GenericJsonArray)node[localProperty];
                                 }
                             }
                         }
@@ -666,12 +667,12 @@ namespace JsonLD.Core
                     {
                         predicate = new RDFDataset.IRI(localProperty);
                     }
-                    foreach (JToken item in values)
+                    foreach (GenericJsonToken item in values)
                     {
                         // convert @list to triples
                         if (JsonLdUtils.IsList(item))
                         {
-                            JArray list = (JArray)((JObject)item)["@list"];
+                            GenericJsonArray list = (GenericJsonArray)((GenericJsonObject)item)["@list"];
                             RDFDataset.Node last = null;
                             RDFDataset.Node firstBNode = nil;
                             if (!list.IsEmpty())
@@ -721,18 +722,18 @@ namespace JsonLD.Core
         /// <param name="item">the JSON-LD value or node object.</param>
         /// <param name="namer">the UniqueNamer to use to assign blank node names.</param>
         /// <returns>the RDF literal or RDF resource.</returns>
-        private RDFDataset.Node ObjectToRDF(JToken item)
+        private RDFDataset.Node ObjectToRDF(GenericJsonToken item)
         {
             // convert value object to RDF
             if (JsonLdUtils.IsValue(item))
             {
-                JToken value = ((JObject)item)["@value"];
-                JToken datatype = ((JObject)item)["@type"];
+                GenericJsonToken value = ((GenericJsonObject)item)["@value"];
+                GenericJsonToken datatype = ((GenericJsonObject)item)["@type"];
                 // convert to XSD datatypes as appropriate
-                if (value.Type == JTokenType.Boolean || value.Type == JTokenType.Float || value.Type == JTokenType.Integer)
+                if (value.Type == GenericJsonTokenType.Boolean || value.Type == GenericJsonTokenType.Float || value.Type == GenericJsonTokenType.Integer)
                 {
                     // convert to XSD datatype
-                    if (value.Type == JTokenType.Boolean)
+                    if (value.Type == GenericJsonTokenType.Boolean)
                     {
                         var serializeObject = JsonConvert.SerializeObject(value, Formatting.None).Trim('"');
                         return new RDFDataset.Literal(serializeObject, datatype.IsNull() ? JSONLDConsts.XsdBoolean
@@ -740,13 +741,13 @@ namespace JsonLD.Core
                     }
                     else
                     {
-                        if (value.Type == JTokenType.Float || datatype.SafeCompare(JSONLDConsts.XsdDouble))
+                        if (value.Type == GenericJsonTokenType.Float || datatype.SafeCompare(JSONLDConsts.XsdDouble))
                         {
-                            // Workaround for Newtonsoft.Json's refusal to cast a JTokenType.Integer to a double.
-                            if (value.Type == JTokenType.Integer)
+                            // Workaround for Newtonsoft.Json's refusal to cast a GenericJsonTokenType.Integer to a double.
+                            if (value.Type == GenericJsonTokenType.Integer)
                             {
-                                int number = (int)value;
-                                value = new JValue((double)number);
+                                long number = (long)value;
+                                value = new GenericJsonValue((double)number);
                             }
                             // canonical double representation
                             return new RDFDataset.Literal(string.Format(CultureInfo.InvariantCulture, "{0:0.0###############E0}", (double)value), datatype.IsNull() ? JSONLDConsts.XsdDouble
@@ -761,10 +762,10 @@ namespace JsonLD.Core
                 }
                 else
                 {
-                    if (((JObject)item).ContainsKey("@language"))
+                    if (((GenericJsonObject)item).ContainsKey("@language"))
                     {
                         return new RDFDataset.Literal((string)value, datatype.IsNull() ? JSONLDConsts.RdfLangstring
-                             : (string)datatype, (string)((JObject)item)["@language"]);
+                             : (string)datatype, (string)((GenericJsonObject)item)["@language"]);
                     }
                     else
                     {
@@ -780,7 +781,7 @@ namespace JsonLD.Core
                 string id;
                 if (JsonLdUtils.IsObject(item))
                 {
-                    id = (string)((JObject)item)["@id"];
+                    id = (string)((GenericJsonObject)item)["@id"];
                     if (JsonLdUtils.IsRelativeIri(id))
                     {
                         return null;

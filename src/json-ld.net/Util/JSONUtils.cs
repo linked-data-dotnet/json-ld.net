@@ -8,6 +8,7 @@ using System.Net;
 using Newtonsoft.Json.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using JsonLD.GenericJson;
 
 namespace JsonLD.Util
 {
@@ -21,26 +22,26 @@ namespace JsonLD.Util
 
         /// <exception cref="Com.Fasterxml.Jackson.Core.JsonParseException"></exception>
         /// <exception cref="System.IO.IOException"></exception>
-        public static JToken FromString(string jsonString)
+        public static GenericJsonToken FromString(string jsonString)
         {
             return FromReader(new StringReader(jsonString));
         }
 
         /// <exception cref="System.IO.IOException"></exception>
-        public static JToken FromReader(TextReader r)
+        public static GenericJsonToken FromReader(TextReader r)
         {
             var serializer = new JsonSerializer();
             
             using (var reader = new JsonTextReader(r))
             {
-                var result = (JToken)serializer.Deserialize(reader);
+                var result = (GenericJsonToken)serializer.Deserialize(reader);
                 return result;
             }
         }
 
         /// <exception cref="Com.Fasterxml.Jackson.Core.JsonGenerationException"></exception>
         /// <exception cref="System.IO.IOException"></exception>
-        public static void Write(TextWriter w, JToken jsonObject)
+        public static void Write(TextWriter w, GenericJsonToken jsonObject)
         {
             var serializer = new JsonSerializer();
             using (var writer = new JsonTextWriter(w))
@@ -51,7 +52,7 @@ namespace JsonLD.Util
 
         /// <exception cref="Com.Fasterxml.Jackson.Core.JsonGenerationException"></exception>
         /// <exception cref="System.IO.IOException"></exception>
-        public static void WritePrettyPrint(TextWriter w, JToken jsonObject)
+        public static void WritePrettyPrint(TextWriter w, GenericJsonToken jsonObject)
         {
             var serializer = new JsonSerializer();
             using (var writer = new JsonTextWriter(w))
@@ -62,7 +63,7 @@ namespace JsonLD.Util
         }
 
         /// <exception cref="System.IO.IOException"></exception>
-        public static JToken FromInputStream(Stream content)
+        public static GenericJsonToken FromInputStream(Stream content)
         {
             return FromInputStream(content, "UTF-8");
         }
@@ -71,12 +72,12 @@ namespace JsonLD.Util
         // inputstreams w.o.
         // encoding!!
         /// <exception cref="System.IO.IOException"></exception>
-        public static JToken FromInputStream(Stream content, string enc)
+        public static GenericJsonToken FromInputStream(Stream content, string enc)
         {
             return FromReader(new StreamReader(content, System.Text.Encoding.GetEncoding(enc)));
         }
 
-        public static string ToPrettyString(JToken obj)
+        public static string ToPrettyString(GenericJsonToken obj)
         {
             StringWriter sw = new StringWriter();
             try
@@ -94,7 +95,7 @@ namespace JsonLD.Util
             return sw.ToString();
         }
 
-        public static string ToString(JToken obj)
+        public static string ToString(GenericJsonToken obj)
         {
             // throws
             // JsonGenerationException,
@@ -115,7 +116,7 @@ namespace JsonLD.Util
             return sw.ToString();
         }
 
-        public static JToken FromURL(Uri url)
+        public static GenericJsonToken FromURL(Uri url)
         {
             return FromURLAsync(url).ConfigureAwait(false).GetAwaiter().GetResult();
         }
@@ -137,7 +138,7 @@ namespace JsonLD.Util
         /// 	</exception>
         /// <exception cref="System.IO.IOException">If there was an error resolving the resource.
         /// 	</exception>
-        public static async Task<JToken> FromURLAsync(Uri url)
+        public static async Task<GenericJsonToken> FromURLAsync(Uri url)
         {
             using (var response = await LDHttpClient.FetchAsync(url.ToString()).ConfigureAwait(false)) {
                 return FromInputStream(await response.Content.ReadAsStreamAsync().ConfigureAwait(false));

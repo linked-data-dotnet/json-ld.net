@@ -1,3 +1,4 @@
+using JsonLD.GenericJson;
 using Newtonsoft.Json.Linq;
 
 namespace JsonLD.Core
@@ -16,7 +17,7 @@ namespace JsonLD.Core
             }
         }
 
-        public virtual JToken Document
+        public virtual GenericJsonToken Document
         {
             get
             {
@@ -40,7 +41,7 @@ namespace JsonLD.Core
             }
         }
 
-        public virtual JToken Context
+        public virtual GenericJsonToken Context
         {
             get
             {
@@ -54,18 +55,18 @@ namespace JsonLD.Core
 
         internal string documentUrl;
 
-        internal JToken document;
+        internal GenericJsonToken document;
 
         internal string contextUrl;
 
-        internal JToken context;
+        internal GenericJsonToken context;
 
-        public RemoteDocument(string url, JToken document)
+        public RemoteDocument(string url, GenericJsonToken document)
             : this(url, document, null)
         {
         }
 
-        public RemoteDocument(string url, JToken document, string context)
+        public RemoteDocument(string url, GenericJsonToken document, string context)
         {
             this.documentUrl = url;
             this.document = document;

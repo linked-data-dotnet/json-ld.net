@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using JsonLD.Core;
+using JsonLD.GenericJson;
 using JsonLD.Util;
 using Newtonsoft.Json.Linq;
 
@@ -40,7 +41,7 @@ namespace JsonLD.Core
         /// <param name="v">the value to check.</param>
         /// <?></?>
         /// <returns>true if the value is a keyword, false if not.</returns>
-        internal static bool IsKeyword(JToken key)
+        internal static bool IsKeyword(GenericJsonToken key)
         {
             if (!IsString(key))
             {
@@ -50,7 +51,7 @@ namespace JsonLD.Core
             return keywords.Contains(keyString);
         }
 
-        public static bool DeepCompare(JToken v1, JToken v2, bool listOrderMatters)
+        public static bool DeepCompare(GenericJsonToken v1, GenericJsonToken v2, bool listOrderMatters)
         {
             if (v1 == null)
             {
@@ -64,17 +65,17 @@ namespace JsonLD.Core
                 }
                 else
                 {
-                    if (v1 is JObject && v2 is JObject)
+                    if (v1 is GenericJsonObject && v2 is GenericJsonObject)
                     {
-                        JObject m1 = (JObject)v1;
-                        JObject m2 = (JObject)v2;
+                        GenericJsonObject m1 = (GenericJsonObject)v1;
+                        GenericJsonObject m2 = (GenericJsonObject)v2;
                         if (m1.Count != m2.Count)
                         {
                             return false;
                         }
                         foreach (string key in m1.GetKeys())
                         {
-                            if (!((IDictionary<string,JToken>)m2).ContainsKey(key) ||
+                            if (!((IDictionary<string,GenericJsonToken>)m2).ContainsKey(key) ||
                                 !DeepCompare(m1[key], m2[key], listOrderMatters))
                             {
                                 return false;
@@ -84,10 +85,10 @@ namespace JsonLD.Core
                     }
                     else
                     {
-                        if (v1 is JArray && v2 is JArray)
+                        if (v1 is GenericJsonArray && v2 is GenericJsonArray)
                         {
-                            JArray l1 = (JArray)v1;
-                            JArray l2 = (JArray)v2;
+                            GenericJsonArray l1 = (GenericJsonArray)v1;
+                            GenericJsonArray l2 = (GenericJsonArray)v2;
                             var l1Count = l1.Count;
                             var l2Count = l2.Count;
                             if (l1Count != l2Count)
@@ -99,7 +100,7 @@ namespace JsonLD.Core
                             bool[] alreadyMatched = new bool[l2Count];
                             for (int i = 0; i < l1Count; i++)
                             {
-                                JToken o1 = l1[i];
+                                GenericJsonToken o1 = l1[i];
                                 bool gotmatch = false;
                                 if (listOrderMatters)
                                 {
@@ -135,14 +136,14 @@ namespace JsonLD.Core
             }
         }
 
-        public static bool DeepCompare(JToken v1, JToken v2)
+        public static bool DeepCompare(GenericJsonToken v1, GenericJsonToken v2)
         {
             return DeepCompare(v1, v2, false);
         }
 
-        public static bool DeepContains(JArray values, JToken value)
+        public static bool DeepContains(GenericJsonArray values, GenericJsonToken value)
         {
-            foreach (JToken item in values)
+            foreach (GenericJsonToken item in values)
             {
                 if (DeepCompare(item, value, false))
                 {
@@ -152,57 +153,57 @@ namespace JsonLD.Core
             return false;
         }
 
-        internal static void MergeValue(JObject obj, string key, JToken value)
+        internal static void MergeValue(GenericJsonObject obj, string key, GenericJsonToken value)
         {
             MergeValue(obj, key, value, skipSetContainsCheck: false);
         }
 
-        internal static void MergeValue(JObject obj, string key, JToken value, bool skipSetContainsCheck)
+        internal static void MergeValue(GenericJsonObject obj, string key, GenericJsonToken value, bool skipSetContainsCheck)
         {
             if (obj == null)
             {
                 return;
             }
-            JArray values = (JArray)obj[key];
+            GenericJsonArray values = (GenericJsonArray)obj[key];
             if (values == null)
             {
-                values = new JArray();
+                values = new GenericJsonArray();
                 obj[key] = values;
             }
             if (skipSetContainsCheck ||
                 "@list".Equals(key) ||
-                (value is JObject && ((IDictionary<string, JToken>)value).ContainsKey("@list")) ||
-                !DeepContains(values, (JToken)value))
+                (value is GenericJsonObject && ((IDictionary<string, GenericJsonToken>)value).ContainsKey("@list")) ||
+                !DeepContains(values, (GenericJsonToken)value))
             {
                 values.Add(value);
             }
         }
 
-        internal static void MergeCompactedValue(JObject obj, string 
-            key, JToken value)
+        internal static void MergeCompactedValue(GenericJsonObject obj, string 
+            key, GenericJsonToken value)
         {
             if (obj == null)
             {
                 return;
             }
-            JToken prop = obj[key];
+            GenericJsonToken prop = obj[key];
             if (prop.IsNull())
             {
                 obj[key] = value;
                 return;
             }
-            if (!(prop is JArray))
+            if (!(prop is GenericJsonArray))
             {
-                JArray tmp = new JArray();
+                GenericJsonArray tmp = new GenericJsonArray();
                 tmp.Add(prop);
             }
-            if (value is JArray)
+            if (value is GenericJsonArray)
             {
-                JsonLD.Collections.AddAll(((JArray)prop), (JArray)value);
+                JsonLD.Collections.AddAll(((GenericJsonArray)prop), (GenericJsonArray)value);
             }
             else
             {
-                ((JArray)prop).Add(value);
+                ((GenericJsonArray)prop).Add(value);
             }
         }
 
@@ -216,16 +217,16 @@ namespace JsonLD.Core
         /// <remarks>Returns true if the given value is a subject with properties.</remarks>
         /// <param name="v">the value to check.</param>
         /// <returns>true if the value is a subject with properties, false if not.</returns>
-        internal static bool IsNode(JToken v)
+        internal static bool IsNode(GenericJsonToken v)
         {
             // Note: A value is a subject if all of these hold true:
             // 1. It is an Object.
             // 2. It is not a @value, @set, or @list.
             // 3. It has more than 1 key OR any existing key is not @id.
-            if (v is JObject && !(((IDictionary<string, JToken>)v).ContainsKey("@value") || ((IDictionary<string, JToken>
-                )v).ContainsKey("@set") || ((IDictionary<string, JToken>)v).ContainsKey("@list")))
+            if (v is GenericJsonObject && !(((IDictionary<string, GenericJsonToken>)v).ContainsKey("@value") || ((IDictionary<string, GenericJsonToken>
+                )v).ContainsKey("@set") || ((IDictionary<string, GenericJsonToken>)v).ContainsKey("@list")))
             {
-                return ((IDictionary<string, JToken>)v).Count > 1 || !((IDictionary<string, JToken>)v).ContainsKey
+                return ((IDictionary<string, GenericJsonToken>)v).Count > 1 || !((IDictionary<string, GenericJsonToken>)v).ContainsKey
                     ("@id");
             }
             return false;
@@ -235,13 +236,13 @@ namespace JsonLD.Core
         /// <remarks>Returns true if the given value is a subject reference.</remarks>
         /// <param name="v">the value to check.</param>
         /// <returns>true if the value is a subject reference, false if not.</returns>
-        internal static bool IsNodeReference(JToken v)
+        internal static bool IsNodeReference(GenericJsonToken v)
         {
             // Note: A value is a subject reference if all of these hold true:
             // 1. It is an Object.
             // 2. It has a single key: @id.
-            return (v is JObject && ((IDictionary<string, JToken>)v).Count == 1 && ((IDictionary
-                <string, JToken>)v).ContainsKey("@id"));
+            return (v is GenericJsonObject && ((IDictionary<string, GenericJsonToken>)v).Count == 1 && ((IDictionary
+                <string, GenericJsonToken>)v).ContainsKey("@id"));
         }
 
         // TODO: fix this test
@@ -268,17 +269,17 @@ namespace JsonLD.Core
         /// <param name="value">the value to add.</param>
         /// <?></?>
         /// <?></?>
-        internal static void AddValue(JObject subject, string property
-            , JToken value, bool propertyIsArray, bool allowDuplicate)
+        internal static void AddValue(GenericJsonObject subject, string property
+            , GenericJsonToken value, bool propertyIsArray, bool allowDuplicate)
         {
             if (IsArray(value))
             {
-                if (((JArray)value).Count == 0 && propertyIsArray && !subject.ContainsKey(property
+                if (((GenericJsonArray)value).Count == 0 && propertyIsArray && !subject.ContainsKey(property
                     ))
                 {
-                    subject[property] = new JArray();
+                    subject[property] = new GenericJsonArray();
                 }
-                foreach (JToken val in (JArray)value)
+                foreach (GenericJsonToken val in (GenericJsonArray)value)
                 {
                     AddValue(subject, property, val, propertyIsArray, allowDuplicate);
                 }
@@ -292,24 +293,24 @@ namespace JsonLD.Core
                     // make property an array if value not present or always an array
                     if (!IsArray(subject[property]) && (!hasValue || propertyIsArray))
                     {
-                        JArray tmp = new JArray();
+                        GenericJsonArray tmp = new GenericJsonArray();
                         tmp.Add(subject[property]);
                         subject[property] = tmp;
                     }
                     // add new value
                     if (!hasValue)
                     {
-                        ((JArray)subject[property]).Add(value);
+                        ((GenericJsonArray)subject[property]).Add(value);
                     }
                 }
                 else
                 {
                     // add new value as a set or single value
-                    JToken tmp;
+                    GenericJsonToken tmp;
                     if (propertyIsArray)
                     {
-                        tmp = new JArray();
-                        ((JArray)tmp).Add(value);
+                        tmp = new GenericJsonArray();
+                        ((GenericJsonArray)tmp).Add(value);
                     }
                     else
                     {
@@ -320,14 +321,14 @@ namespace JsonLD.Core
             }
         }
 
-        internal static void AddValue(JObject subject, string property
-            , JToken value, bool propertyIsArray)
+        internal static void AddValue(GenericJsonObject subject, string property
+            , GenericJsonToken value, bool propertyIsArray)
         {
             AddValue(subject, property, value, propertyIsArray, true);
         }
 
-        internal static void AddValue(JObject subject, string property
-            , JToken value)
+        internal static void AddValue(GenericJsonObject subject, string property
+            , GenericJsonToken value)
         {
             AddValue(subject, property, value, false, true);
         }
@@ -342,7 +343,7 @@ namespace JsonLD.Core
         /// we may need to re-implement the parser here to support the
         /// flexibility required
         /// </returns>
-        private static string PrependBase(JToken baseobj, string iri)
+        private static string PrependBase(GenericJsonToken baseobj, string iri)
         {
             // already an absolute IRI
             if (iri.IndexOf(":") != -1)
@@ -420,32 +421,32 @@ namespace JsonLD.Core
         /// <returns>the expanded language map.</returns>
         /// <exception cref="JsonLdError">JsonLdError</exception>
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        internal static JArray ExpandLanguageMap(JObject languageMap
+        internal static GenericJsonArray ExpandLanguageMap(GenericJsonObject languageMap
             )
         {
-            JArray rval = new JArray();
+            GenericJsonArray rval = new GenericJsonArray();
             IList<string> keys = new List<string>(languageMap.GetKeys());
             keys.SortInPlace();
             // lexicographically sort languages
             foreach (string key in keys)
             {
-                JToken val;
+                GenericJsonToken val;
                 if (!IsArray(languageMap[key]))
                 {
-                    val = new JArray();
-                    ((JArray)val).Add(languageMap[key]);
+                    val = new GenericJsonArray();
+                    ((GenericJsonArray)val).Add(languageMap[key]);
                 }
                 else
                 {
-                    val = (JArray)languageMap[key];
+                    val = (GenericJsonArray)languageMap[key];
                 }
-                foreach (JToken item in val)
+                foreach (GenericJsonToken item in val)
                 {
                     if (!IsString(item))
                     {
                         throw new JsonLdError(JsonLdError.Error.SyntaxError);
                     }
-                    JObject tmp = new JObject();
+                    GenericJsonObject tmp = new GenericJsonObject();
                     tmp["@value"] = item;
                     tmp["@language"] = key.ToLower();
                     rval.Add(tmp);
@@ -459,26 +460,26 @@ namespace JsonLD.Core
         /// <param name="v">the value to check.</param>
         /// <exception cref="JsonLdError">JsonLdError</exception>
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        internal static bool ValidateTypeValue(JToken v)
+        internal static bool ValidateTypeValue(GenericJsonToken v)
         {
             if (v.IsNull())
             {
                 throw new ArgumentNullException("\"@type\" value cannot be null");
             }
             // must be a string, subject reference, or empty object
-            if (v.Type == JTokenType.String || (v is JObject && (((JObject)v).ContainsKey
-                ("@id") || ((JArray)v).Count == 0)))
+            if (v.Type == GenericJsonTokenType.String || (v is GenericJsonObject && (((GenericJsonObject)v).ContainsKey
+                ("@id") || ((GenericJsonArray)v).Count == 0)))
             {
                 return true;
             }
             // must be an array
             bool isValid = false;
-            if (v is JArray)
+            if (v is GenericJsonArray)
             {
                 isValid = true;
-                foreach (JToken i in (JArray)v)
+                foreach (GenericJsonToken i in (GenericJsonArray)v)
                 {
-                    if (!(i.Type == JTokenType.String || i is JObject && ((JObject)i).ContainsKey
+                    if (!(i.Type == GenericJsonTokenType.String || i is GenericJsonObject && ((GenericJsonObject)i).ContainsKey
                         ("@id")))
                     {
                         isValid = false;
@@ -498,7 +499,7 @@ namespace JsonLD.Core
         /// <param name="base">the base IRI.</param>
         /// <param name="iri">the absolute IRI.</param>
         /// <returns>the relative IRI if relative to base, otherwise the absolute IRI.</returns>
-        private static string RemoveBase(JToken baseobj, string iri)
+        private static string RemoveBase(GenericJsonToken baseobj, string iri)
         {
             URL @base;
             if (IsString(baseobj))
@@ -592,16 +593,16 @@ namespace JsonLD.Core
         /// <returns>the resulting output.</returns>
         /// <exception cref="JsonLdError">JsonLdError</exception>
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        internal static JToken RemovePreserve(Context ctx, JToken input, JsonLdOptions opts
+        internal static GenericJsonToken RemovePreserve(Context ctx, GenericJsonToken input, JsonLdOptions opts
             )
         {
             // recurse through arrays
             if (IsArray(input))
             {
-                JArray output = new JArray();
-                foreach (JToken i in (JArray)input)
+                GenericJsonArray output = new GenericJsonArray();
+                foreach (GenericJsonToken i in (GenericJsonArray)input)
                 {
-                    JToken result = RemovePreserve(ctx, i, opts);
+                    GenericJsonToken result = RemovePreserve(ctx, i, opts);
                     // drop nulls from arrays
                     if (!result.IsNull())
                     {
@@ -615,13 +616,13 @@ namespace JsonLD.Core
                 if (IsObject(input))
                 {
                     // remove @preserve
-                    if (((JObject)input).ContainsKey("@preserve"))
+                    if (((GenericJsonObject)input).ContainsKey("@preserve"))
                     {
-                        if (((JObject)input)["@preserve"].SafeCompare("@null"))
+                        if (((GenericJsonObject)input)["@preserve"].SafeCompare("@null"))
                         {
                             return null;
                         }
-                        return ((JObject)input)["@preserve"];
+                        return ((GenericJsonObject)input)["@preserve"];
                     }
                     // skip @values
                     if (IsValue(input))
@@ -631,21 +632,21 @@ namespace JsonLD.Core
                     // recurse through @lists
                     if (IsList(input))
                     {
-                        ((JObject)input)["@list"] = RemovePreserve(ctx, ((JObject)input)["@list"], opts);
+                        ((GenericJsonObject)input)["@list"] = RemovePreserve(ctx, ((GenericJsonObject)input)["@list"], opts);
                         return input;
                     }
                     // recurse through properties
                     foreach (string prop in input.GetKeys())
                     {
-                        JToken result = RemovePreserve(ctx, ((JObject)input)[prop], opts
+                        GenericJsonToken result = RemovePreserve(ctx, ((GenericJsonObject)input)[prop], opts
                             );
                         string container = ctx.GetContainer(prop);
-                        if (opts.GetCompactArrays() && IsArray(result) && ((JArray)result).Count ==
+                        if (opts.GetCompactArrays() && IsArray(result) && ((GenericJsonArray)result).Count ==
                              1 && container == null)
                         {
-                            result = ((JArray)result)[0];
+                            result = ((GenericJsonArray)result)[0];
                         }
-                        ((JObject)input)[prop] = result;
+                        ((GenericJsonObject)input)[prop] = result;
                     }
                 }
             }
@@ -718,21 +719,21 @@ namespace JsonLD.Core
         /// <param name="property">the property to check.</param>
         /// <param name="value">the value to check.</param>
         /// <returns>true if the value exists, false if not.</returns>
-        internal static bool HasValue(JObject subject, string property
-            , JToken value)
+        internal static bool HasValue(GenericJsonObject subject, string property
+            , GenericJsonToken value)
         {
             bool rval = false;
             if (HasProperty(subject, property))
             {
-                JToken val = subject[property];
+                GenericJsonToken val = subject[property];
                 bool isList = IsList(val);
-                if (isList || val is JArray)
+                if (isList || val is GenericJsonArray)
                 {
                     if (isList)
                     {
-                        val = (JObject)val["@list"];
+                        val = (GenericJsonObject)val["@list"];
                     }
-                    foreach (JToken i in (JArray)val)
+                    foreach (GenericJsonToken i in (GenericJsonArray)val)
                     {
                         if (CompareValues(value, i))
                         {
@@ -743,7 +744,7 @@ namespace JsonLD.Core
                 }
                 else
                 {
-                    if (!(value is JArray))
+                    if (!(value is GenericJsonArray))
                     {
                         rval = CompareValues(value, val);
                     }
@@ -752,14 +753,14 @@ namespace JsonLD.Core
             return rval;
         }
 
-        private static bool HasProperty(JObject subject, string property
+        private static bool HasProperty(GenericJsonObject subject, string property
             )
         {
             bool rval = false;
             if (subject.ContainsKey(property))
             {
-                JToken value = subject[property];
-                rval = (!(value is JArray) || ((JArray)value).Count > 0);
+                GenericJsonToken value = subject[property];
+                rval = (!(value is GenericJsonArray) || ((GenericJsonArray)value).Count > 0);
             }
             return rval;
         }
@@ -775,22 +776,22 @@ namespace JsonLD.Core
         /// <param name="v1">the first value.</param>
         /// <param name="v2">the second value.</param>
         /// <returns>true if v1 and v2 are considered equal, false if not.</returns>
-        internal static bool CompareValues(JToken v1, JToken v2)
+        internal static bool CompareValues(GenericJsonToken v1, GenericJsonToken v2)
         {
             if (v1.Equals(v2))
             {
                 return true;
             }
-            if (IsValue(v1) && IsValue(v2) && Obj.Equals(((JObject)v1)["@value"
-                ], ((JObject)v2)["@value"]) && Obj.Equals(((JObject)v1)["@type"], ((JObject)v2)["@type"]) && Obj.Equals
-                (((JObject)v1)["@language"], ((JObject)v2
-                )["@language"]) && Obj.Equals(((JObject)v1)["@index"], ((JObject)v2)["@index"]))
+            if (IsValue(v1) && IsValue(v2) && Obj.Equals(((GenericJsonObject)v1)["@value"
+                ], ((GenericJsonObject)v2)["@value"]) && Obj.Equals(((GenericJsonObject)v1)["@type"], ((GenericJsonObject)v2)["@type"]) && Obj.Equals
+                (((GenericJsonObject)v1)["@language"], ((GenericJsonObject)v2
+                )["@language"]) && Obj.Equals(((GenericJsonObject)v1)["@index"], ((GenericJsonObject)v2)["@index"]))
             {
                 return true;
             }
-            if ((v1 is JObject && ((JObject)v1).ContainsKey("@id")) &&
-                 (v2 is JObject && ((JObject)v2).ContainsKey("@id")) &&
-                ((JObject)v1)["@id"].Equals(((JObject)v2
+            if ((v1 is GenericJsonObject && ((GenericJsonObject)v1).ContainsKey("@id")) &&
+                 (v2 is GenericJsonObject && ((GenericJsonObject)v2).ContainsKey("@id")) &&
+                ((GenericJsonObject)v1)["@id"].Equals(((GenericJsonObject)v2
                 )["@id"]))
             {
                 return true;
@@ -804,20 +805,20 @@ namespace JsonLD.Core
         /// <param name="property">the property that relates the value to the subject.</param>
         /// <param name="value">the value to remove.</param>
         /// <?></?>
-        internal static void RemoveValue(JObject subject, string property
-            , JObject value)
+        internal static void RemoveValue(GenericJsonObject subject, string property
+            , GenericJsonObject value)
         {
             RemoveValue(subject, property, value, false);
         }
 
-        internal static void RemoveValue(JObject subject, string property
-            , JObject value, bool propertyIsArray)
+        internal static void RemoveValue(GenericJsonObject subject, string property
+            , GenericJsonObject value, bool propertyIsArray)
         {
             // filter out value
-            JArray values = new JArray();
-            if (subject[property] is JArray)
+            GenericJsonArray values = new GenericJsonArray();
+            if (subject[property] is GenericJsonArray)
             {
-                foreach (JToken e in ((JArray)subject[property]))
+                foreach (GenericJsonToken e in ((GenericJsonArray)subject[property]))
                 {
                     if (!e.SafeCompare(value))
                     {
@@ -853,22 +854,22 @@ namespace JsonLD.Core
         /// <remarks>Returns true if the given value is a blank node.</remarks>
         /// <param name="v">the value to check.</param>
         /// <returns>true if the value is a blank node, false if not.</returns>
-        internal static bool IsBlankNode(JToken v)
+        internal static bool IsBlankNode(GenericJsonToken v)
         {
             // Note: A value is a blank node if all of these hold true:
             // 1. It is an Object.
             // 2. If it has an @id key its value begins with '_:'.
             // 3. It has no keys OR is not a @value, @set, or @list.
-            if (v is JObject)
+            if (v is GenericJsonObject)
             {
-                if (((JObject)v).ContainsKey("@id"))
+                if (((GenericJsonObject)v).ContainsKey("@id"))
                 {
-                    return ((string)((JObject)v)["@id"]).StartsWith("_:");
+                    return ((string)((GenericJsonObject)v)["@id"]).StartsWith("_:");
                 }
                 else
                 {
-                    return ((JObject)v).Count == 0 || !(((JObject)v).ContainsKey("@value") ||
-                         ((JObject)v).ContainsKey("@set") || ((JObject)v).ContainsKey("@list"));
+                    return ((GenericJsonObject)v).Count == 0 || !(((GenericJsonObject)v).ContainsKey("@value") ||
+                         ((GenericJsonObject)v).ContainsKey("@set") || ((GenericJsonObject)v).ContainsKey("@list"));
                 }
             }
             return false;
@@ -885,13 +886,13 @@ namespace JsonLD.Core
         /// <param name="callback">(err, input) called once the operation completes.</param>
         /// <exception cref="JsonLdError">JsonLdError</exception>
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        internal static void ResolveContextUrls(JToken input)
+        internal static void ResolveContextUrls(GenericJsonToken input)
         {
-            Resolve(input, new JObject());
+            Resolve(input, new GenericJsonObject());
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        private static void Resolve(JToken input, JObject cycles)
+        private static void Resolve(GenericJsonToken input, GenericJsonObject cycles)
         {
             Pattern regex = Pattern.Compile("(http|https)://(\\w+:{0,1}\\w*@)?(\\S+)(:[0-9]+)?(/|/([\\w#!:.?+=&%@!\\-/]))?"
                 );
@@ -900,7 +901,7 @@ namespace JsonLD.Core
                 throw new JsonLdError(JsonLdError.Error.UnknownError);
             }
             // for tracking the URLs to resolve
-            JObject urls = new JObject();
+            GenericJsonObject urls = new GenericJsonObject();
             // find all URLs in the given input
             if (!FindContextUrls(input, urls, false))
             {
@@ -908,7 +909,7 @@ namespace JsonLD.Core
                 FindContextUrls(input, urls, true);
             }
             // queue all unresolved URLs
-            JArray queue = new JArray();
+            GenericJsonArray queue = new GenericJsonArray();
             foreach (string url in urls.GetKeys())
             {
                 if (urls[url].SafeCompare(false))
@@ -930,15 +931,15 @@ namespace JsonLD.Core
                 {
                     throw new JsonLdError(JsonLdError.Error.UnknownError);
                 }
-                JObject _cycles = (JObject)Clone(cycles);
+                GenericJsonObject _cycles = (GenericJsonObject)Clone(cycles);
                 _cycles[url_1] = true;
                 try
                 {
-                    JObject ctx = (JObject)new DocumentLoader().LoadDocument(url_1).Document;
+                    GenericJsonObject ctx = (GenericJsonObject)new DocumentLoader().LoadDocument(url_1).Document;
                     if (!ctx.ContainsKey("@context"))
                     {
-                        ctx = new JObject();
-                        ctx["@context"] = new JObject();
+                        ctx = new GenericJsonObject();
+                        ctx["@context"] = new GenericJsonObject();
                     }
                     Resolve(ctx, _cycles);
                     urls[url_1] = ctx["@context"];
@@ -970,13 +971,13 @@ namespace JsonLD.Core
         /// <param name="replace">true to replace the URLs in the given input with the</param>
         /// <contexts>from the urls map, false not to.</contexts>
         /// <returns>true if new URLs to resolve were found, false if not.</returns>
-        private static bool FindContextUrls(JToken input, JObject urls
+        private static bool FindContextUrls(GenericJsonToken input, GenericJsonObject urls
             , bool replace)
         {
             int count = urls.Count;
-            if (input is JArray)
+            if (input is GenericJsonArray)
             {
-                foreach (JToken i in (JArray)input)
+                foreach (GenericJsonToken i in (GenericJsonArray)input)
                 {
                     FindContextUrls(i, urls, replace);
                 }
@@ -984,41 +985,41 @@ namespace JsonLD.Core
             }
             else
             {
-                if (input is JObject)
+                if (input is GenericJsonObject)
                 {
                     foreach (string key in input.GetKeys())
                     {
                         if (!"@context".Equals(key))
                         {
-                            FindContextUrls(((JObject)input)[key], urls, replace);
+                            FindContextUrls(((GenericJsonObject)input)[key], urls, replace);
                             continue;
                         }
                         // get @context
-                        JToken ctx = ((JObject)input)[key];
+                        GenericJsonToken ctx = ((GenericJsonObject)input)[key];
                         // array @context
-                        if (ctx is JArray)
+                        if (ctx is GenericJsonArray)
                         {
-                            int length = ((JArray)ctx).Count;
+                            int length = ((GenericJsonArray)ctx).Count;
                             for (int i = 0; i < length; i++)
                             {
-                                JToken _ctx = ((JArray)ctx)[i];
-                                if (_ctx.Type == JTokenType.String)
+                                GenericJsonToken _ctx = ((GenericJsonArray)ctx)[i];
+                                if (_ctx.Type == GenericJsonTokenType.String)
                                 {
                                     // replace w/@context if requested
                                     if (replace)
                                     {
                                         _ctx = urls[(string)_ctx];
-                                        if (_ctx is JArray)
+                                        if (_ctx is GenericJsonArray)
                                         {
                                             // add flattened context
-                                            ((JArray)ctx).RemoveAt(i);
-                                            JsonLD.Collections.AddAllObj(((JArray)ctx), (ICollection)_ctx);
-                                            i += ((JArray)_ctx).Count;
-                                            length += ((JArray)_ctx).Count;
+                                            ((GenericJsonArray)ctx).RemoveAt(i);
+                                            JsonLD.Collections.AddAllObj(((GenericJsonArray)ctx), (ICollection)_ctx);
+                                            i += ((GenericJsonArray)_ctx).Count;
+                                            length += ((GenericJsonArray)_ctx).Count;
                                         }
                                         else
                                         {
-                                            ((JArray)ctx)[i] = _ctx;
+                                            ((GenericJsonArray)ctx)[i] = _ctx;
                                         }
                                     }
                                     else
@@ -1035,12 +1036,12 @@ namespace JsonLD.Core
                         else
                         {
                             // string @context
-                            if (ctx.Type == JTokenType.String)
+                            if (ctx.Type == GenericJsonTokenType.String)
                             {
                                 // replace w/@context if requested
                                 if (replace)
                                 {
-                                    ((JObject)input)[key] = urls[(string)ctx];
+                                    ((GenericJsonObject)input)[key] = urls[(string)ctx];
                                 }
                                 else
                                 {
@@ -1059,7 +1060,7 @@ namespace JsonLD.Core
             return false;
         }
 
-        internal static JToken Clone(JToken value)
+        internal static GenericJsonToken Clone(GenericJsonToken value)
         {
             return value.DeepClone();
         }
@@ -1067,44 +1068,44 @@ namespace JsonLD.Core
         /// <summary>Returns true if the given value is a JSON-LD Array</summary>
         /// <param name="v">the value to check.</param>
         /// <returns></returns>
-        internal static bool IsArray(JToken v)
+        internal static bool IsArray(GenericJsonToken v)
         {
-            return (v is JArray);
+            return (v is GenericJsonArray);
         }
 
         /// <summary>Returns true if the given value is a JSON-LD List</summary>
         /// <param name="v">the value to check.</param>
         /// <returns></returns>
-        internal static bool IsList(JToken v)
+        internal static bool IsList(GenericJsonToken v)
         {
-            return (v is JObject && ((IDictionary<string, JToken>)v).ContainsKey("@list")
+            return (v is GenericJsonObject && ((IDictionary<string, GenericJsonToken>)v).ContainsKey("@list")
                 );
         }
 
         /// <summary>Returns true if the given value is a JSON-LD Object</summary>
         /// <param name="v">the value to check.</param>
         /// <returns></returns>
-        internal static bool IsObject(JToken v)
+        internal static bool IsObject(GenericJsonToken v)
         {
-            return (v is JObject);
+            return (v is GenericJsonObject);
         }
 
         /// <summary>Returns true if the given value is a JSON-LD value</summary>
         /// <param name="v">the value to check.</param>
         /// <returns></returns>
-        internal static bool IsValue(JToken v)
+        internal static bool IsValue(GenericJsonToken v)
         {
-            return (v is JObject && ((IDictionary<string, JToken>)v).ContainsKey("@value"
+            return (v is GenericJsonObject && ((IDictionary<string, GenericJsonToken>)v).ContainsKey("@value"
                 ));
         }
 
         /// <summary>Returns true if the given value is a JSON-LD string</summary>
         /// <param name="v">the value to check.</param>
         /// <returns></returns>
-        internal static bool IsString(JToken v)
+        internal static bool IsString(GenericJsonToken v)
         {
             // TODO: should this return true for arrays of strings as well?
-            return (v.Type == JTokenType.String);
+            return (v.Type == GenericJsonTokenType.String);
         }
     }
 }
