@@ -10,6 +10,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using JsonLD.OmniJson;
 
 namespace JsonLD.Core
 {
@@ -42,6 +43,18 @@ namespace JsonLD.Core
             }
 
             return contentType;
+        }
+
+
+        public virtual OmniJsonToken Deserialize(Stream stream)
+        {
+            return null;
+            // TODO: We really need a stream reader version of this.
+        }
+
+        public virtual OmniJsonToken Deserialize(string document)
+        {
+            return OmniJsonToken.CreateGenericJsonToken(TinyJson.JSONParser.FromJson<object>(document));
         }
 
         /// <exception cref="JsonLDNet.Core.JsonLdError"></exception>
@@ -93,10 +106,10 @@ namespace JsonLD.Core
                         doc.context = remoteContext.document;
                     }
 
-                    Stream stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                    string str = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
                     doc.DocumentUrl = finalUrl;
-                    doc.Document = JSONUtils.FromInputStream(stream);
+                    doc.Document = Deserialize(str);
                 }
             }
             catch (JsonLdError)

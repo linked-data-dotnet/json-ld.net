@@ -1,5 +1,4 @@
 using JsonLD.Core;
-using Newtonsoft.Json.Linq;
 
 namespace JsonLD.Core
 {

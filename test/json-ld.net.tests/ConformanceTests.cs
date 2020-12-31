@@ -7,7 +7,8 @@ using Xunit;
 using System.IO;
 using JsonLD.Core;
 using JsonLD.Util;
-using JsonLD.GenericJson;
+using JsonLD.OmniJson;
+using System.Diagnostics;
 
 namespace JsonLD.Test
 {
@@ -16,7 +17,7 @@ namespace JsonLD.Test
         [Theory, ClassData(typeof(ConformanceCases))]
         public void ConformanceTestPasses(string id, ConformanceCase conformanceCase)
         {
-            GenericJsonToken result = conformanceCase.run();
+            OmniJsonToken result = conformanceCase.run();
             if (conformanceCase.error != null)
             {
                 Assert.True(((string)result["error"]).StartsWith((string)conformanceCase.error), "Resulting error doesn't match expectations.");
@@ -28,10 +29,10 @@ namespace JsonLD.Test
                     #if DEBUG
                     Console.WriteLine(id);
                     Console.WriteLine("Actual:");
-                    Console.Write(JSONUtils.ToPrettyString(result));
+                    Console.Write(TinyJson.JSONWriter.ToJson(result));
                     Console.WriteLine("--------------------------");
                     Console.WriteLine("Expected:");
-                    Console.Write(JSONUtils.ToPrettyString(conformanceCase.output));
+                    Console.Write(TinyJson.JSONWriter.ToJson(conformanceCase.output));
                     Console.WriteLine("--------------------------");
                     #endif
 
@@ -43,12 +44,12 @@ namespace JsonLD.Test
 
     public class ConformanceCase
     {
-        public GenericJsonToken input { get; set; }
-        public GenericJsonToken context { get; set; }
-        public GenericJsonToken frame { get; set; }
-        public GenericJsonToken output { get; set; }
-        public GenericJsonToken error { get; set; }
-        public Func<GenericJsonToken> run { get; set; }
+        public OmniJsonToken input { get; set; }
+        public OmniJsonToken context { get; set; }
+        public OmniJsonToken frame { get; set; }
+        public OmniJsonToken output { get; set; }
+        public OmniJsonToken error { get; set; }
+        public Func<OmniJsonToken> run { get; set; }
     }
 
     public class ConformanceCases: IEnumerable<object[]>
@@ -77,12 +78,12 @@ namespace JsonLD.Test
 
             foreach (string manifest in manifests)
             {
-                GenericJsonToken manifestJson = jsonFetcher.GetJson(manifest, rootDirectory);
+                OmniJsonToken manifestJson = jsonFetcher.GetJson(manifest, rootDirectory);
                 var isRemoteTest = (string)manifestJson["name"] == "Remote document";
 
-                foreach (GenericJsonObject testcase in manifestJson["sequence"])
+                foreach (OmniJsonObject testcase in manifestJson["sequence"])
                 {
-                    Func<GenericJsonToken> run;
+                    Func<OmniJsonToken> run;
                     ConformanceCase newCase = new ConformanceCase();
 
                     // Load input file if not remote test. Remote tests load from the web at test execution time.
@@ -95,7 +96,7 @@ namespace JsonLD.Test
 
                     var options = new JsonLdOptions("http://json-ld.org/test-suite/tests/" + (string)testcase["input"]);
 
-                    var testType = (GenericJsonArray)testcase["@type"];
+                    var testType = (OmniJsonArray)testcase["@type"];
 
                     if (testType.Any((s) => (string)s == "jld:NegativeEvaluationTest"))
                     {
@@ -122,12 +123,12 @@ namespace JsonLD.Test
                         throw new Exception("Expecting either positive or negative evaluation test.");
                     }
 
-                    GenericJsonToken optionToken;
-                    GenericJsonToken value;
+                    OmniJsonToken optionToken;
+                    OmniJsonToken value;
 
                     if (testcase.TryGetValue("option", out optionToken))
                     {
-                        GenericJsonObject optionDescription = (GenericJsonObject)optionToken;
+                        OmniJsonObject optionDescription = (OmniJsonObject)optionToken;
 
                         if (optionDescription.TryGetValue("compactArrays", out value))
                         {
@@ -140,7 +141,7 @@ namespace JsonLD.Test
                         if (optionDescription.TryGetValue("expandContext", out value))
                         {
                             newCase.context = jsonFetcher.GetJson(testcase["option"]["expandContext"], rootDirectory);
-                            options.SetExpandContext((GenericJsonObject)newCase.context);
+                            options.SetExpandContext((OmniJsonObject)newCase.context);
                         }
                         if (optionDescription.TryGetValue("produceGeneralizedRdf", out value))
                         {
@@ -174,14 +175,14 @@ namespace JsonLD.Test
                     }
                     else if (testType.Any((s) => (string)s == "jld:NormalizeTest"))
                     {
-                        run = () => new GenericJsonValue(
+                        run = () => new OmniJsonValue(
                                 RDFDatasetUtils.ToNQuads((RDFDataset)JsonLdProcessor.Normalize(newCase.input, options)).Replace("\n", "\r\n")
                             );
                     }
                     else if (testType.Any((s) => (string)s == "jld:ToRDFTest"))
                     {
                         options.format = "application/nquads";
-                        run = () => new GenericJsonValue(
+                        run = () => new OmniJsonValue(
                             ((string)JsonLdProcessor.ToRDF(newCase.input, options)).Replace("\n", "\r\n")
                         );
                     }
@@ -197,20 +198,20 @@ namespace JsonLD.Test
 
                     if (isRemoteTest)
                     {
-                        Func<GenericJsonToken> innerRun = run;
+                        Func<OmniJsonToken> innerRun = run;
                         run = () =>
                         {
                             var remoteDoc = options.documentLoader.LoadDocument("https://json-ld.org/test-suite/tests/" + (string)testcase["input"]);
                             newCase.input = remoteDoc.Document;
                             options.SetBase(remoteDoc.DocumentUrl);
-                            options.SetExpandContext((GenericJsonObject)remoteDoc.Context);
+                            options.SetExpandContext((OmniJsonObject)remoteDoc.Context);
                             return innerRun();
                         };
                     }
 
                     if (testType.Any((s) => (string)s == "jld:NegativeEvaluationTest"))
                     {
-                        Func<GenericJsonToken> innerRun = run;
+                        Func<OmniJsonToken> innerRun = run;
                         run = () =>
                         {
                             try
@@ -219,7 +220,7 @@ namespace JsonLD.Test
                             }
                             catch (JsonLdError err)
                             {
-                                GenericJsonObject result = new GenericJsonObject();
+                                OmniJsonObject result = new OmniJsonObject();
                                 result["error"] = err.Message;
                                 return result;
                             }
@@ -228,7 +229,14 @@ namespace JsonLD.Test
 
                     newCase.run = run;
 
-                    yield return new object[] { manifest + (string)testcase["@id"], newCase };
+#if false
+                    var cases = @"flatten-manifest.jsonld#t0002".Split("\r\n");
+
+                    var id = manifest + (string)testcase["@id"];
+
+                    if (cases.Contains(id))
+#endif
+                        yield return new object[] { manifest + (string)testcase["@id"], newCase };
                 }
             }
         }

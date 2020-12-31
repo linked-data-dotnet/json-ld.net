@@ -2,9 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using JsonLD.Core;
 using JsonLD.Util;
-using Newtonsoft.Json.Linq;
 using System;
-using JsonLD.GenericJson;
+using JsonLD.OmniJson;
 
 namespace JsonLD.Core
 {
@@ -14,7 +13,7 @@ namespace JsonLD.Core
 
         internal JsonLdOptions opts;
 
-        internal GenericJsonToken value = null;
+        internal OmniJsonToken value = null;
 
         internal Context context = null;
 
@@ -24,13 +23,13 @@ namespace JsonLD.Core
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public JsonLdApi(GenericJsonToken input, JsonLdOptions opts)
+        public JsonLdApi(OmniJsonToken input, JsonLdOptions opts)
         {
             Initialize(input, null, opts);
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public JsonLdApi(GenericJsonToken input, GenericJsonToken context, JsonLdOptions opts)
+        public JsonLdApi(OmniJsonToken input, OmniJsonToken context, JsonLdOptions opts)
         {
             Initialize(input, null, opts);
         }
@@ -48,12 +47,12 @@ namespace JsonLD.Core
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        private void Initialize(GenericJsonToken input, GenericJsonToken context, JsonLdOptions opts)
+        private void Initialize(OmniJsonToken input, OmniJsonToken context, JsonLdOptions opts)
         {
             // set option defaults (TODO: clone?)
             // NOTE: sane defaults should be set in JsonLdOptions constructor
             this.opts = opts;
-            if (input is GenericJsonArray || input is GenericJsonObject)
+            if (input is OmniJsonArray || input is OmniJsonObject)
             {
                 this.value = JsonLdUtils.Clone(input);
             }
@@ -75,19 +74,19 @@ namespace JsonLD.Core
         /// <param name="compactArrays"></param>
         /// <returns></returns>
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public virtual GenericJsonToken Compact(Context activeCtx, string activeProperty, GenericJsonToken element
+        public virtual OmniJsonToken Compact(Context activeCtx, string activeProperty, OmniJsonToken element
             , bool compactArrays)
         {
             // 2)
-            if (element is GenericJsonArray)
+            if (element is OmniJsonArray)
             {
                 // 2.1)
-                GenericJsonArray result = new GenericJsonArray();
+                OmniJsonArray result = new OmniJsonArray();
                 // 2.2)
-                foreach (GenericJsonToken item in element)
+                foreach (OmniJsonToken item in element)
                 {
                     // 2.2.1)
-                    GenericJsonToken compactedItem = Compact(activeCtx, activeProperty, item, compactArrays);
+                    OmniJsonToken compactedItem = Compact(activeCtx, activeProperty, item, compactArrays);
                     // 2.2.2)
                     if (!compactedItem.IsNull())
                     {
@@ -104,15 +103,15 @@ namespace JsonLD.Core
                 return result;
             }
             // 3)
-            if (element is GenericJsonObject)
+            if (element is OmniJsonObject)
             {
                 // access helper
-                IDictionary<string, GenericJsonToken> elem = (IDictionary<string, GenericJsonToken>)element;
+                IDictionary<string, OmniJsonToken> elem = (IDictionary<string, OmniJsonToken>)element;
                 // 4
                 if (elem.ContainsKey("@value") || elem.ContainsKey("@id"))
                 {
-                    GenericJsonToken compactedValue = activeCtx.CompactValue(activeProperty, (GenericJsonObject)element);
-                    if (!(compactedValue is GenericJsonObject || compactedValue is GenericJsonArray))
+                    OmniJsonToken compactedValue = activeCtx.CompactValue(activeProperty, (OmniJsonObject)element);
+                    if (!(compactedValue is OmniJsonObject || compactedValue is OmniJsonArray))
                     {
                         return compactedValue;
                     }
@@ -120,19 +119,19 @@ namespace JsonLD.Core
                 // 5)
                 bool insideReverse = ("@reverse".Equals(activeProperty));
                 // 6)
-                GenericJsonObject result = new GenericJsonObject();
+                OmniJsonObject result = new OmniJsonObject();
                 // 7)
-                GenericJsonArray keys = new GenericJsonArray(element.GetKeys());
+                OmniJsonArray keys = new OmniJsonArray(element.GetKeys());
                 keys.SortInPlace();
                 foreach (string expandedProperty in keys)
                 {
-                    GenericJsonToken expandedValue = elem[expandedProperty];
+                    OmniJsonToken expandedValue = elem[expandedProperty];
                     // 7.1)
                     if ("@id".Equals(expandedProperty) || "@type".Equals(expandedProperty))
                     {
-                        GenericJsonToken compactedValue;
+                        OmniJsonToken compactedValue;
                         // 7.1.1)
-                        if (expandedValue.Type == GenericJsonTokenType.String)
+                        if (expandedValue.Type == OmniJsonTokenType.String)
                         {
                             compactedValue = activeCtx.CompactIri((string)expandedValue, "@type".Equals(expandedProperty
                                 ));
@@ -140,9 +139,9 @@ namespace JsonLD.Core
                         else
                         {
                             // 7.1.2)
-                            GenericJsonArray types = new GenericJsonArray();
+                            OmniJsonArray types = new OmniJsonArray();
                             // 7.1.2.2)
-                            foreach (string expandedType in (GenericJsonArray)expandedValue)
+                            foreach (string expandedType in (OmniJsonArray)expandedValue)
                             {
                                 types.Add(activeCtx.CompactIri(expandedType, true));
                             }
@@ -170,20 +169,20 @@ namespace JsonLD.Core
                     if ("@reverse".Equals(expandedProperty))
                     {
                         // 7.2.1)
-                        GenericJsonObject compactedValue = (GenericJsonObject)Compact(activeCtx, "@reverse", expandedValue, compactArrays);
+                        OmniJsonObject compactedValue = (OmniJsonObject)Compact(activeCtx, "@reverse", expandedValue, compactArrays);
                         // 7.2.2)
                         List<string> properties = new List<string>(compactedValue.GetKeys());
                         foreach (string property in properties)
                         {
-                            GenericJsonToken value = compactedValue[property];
+                            OmniJsonToken value = compactedValue[property];
                             // 7.2.2.1)
                             if (activeCtx.IsReverseProperty(property))
                             {
                                 // 7.2.2.1.1)
                                 if (("@set".Equals(activeCtx.GetContainer(property)) || !compactArrays) && !(value
-                                     is GenericJsonArray))
+                                     is OmniJsonArray))
                                 {
-                                    GenericJsonArray tmp = new GenericJsonArray();
+                                    OmniJsonArray tmp = new OmniJsonArray();
                                     tmp.Add(value);
                                     result[property] = tmp;
                                 }
@@ -195,20 +194,20 @@ namespace JsonLD.Core
                                 else
                                 {
                                     // 7.2.2.1.3)
-                                    if (!(result[property] is GenericJsonArray))
+                                    if (!(result[property] is OmniJsonArray))
                                     {
-                                        GenericJsonArray tmp = new GenericJsonArray();
+                                        OmniJsonArray tmp = new OmniJsonArray();
                                         tmp.Add(result[property]);
                                         result[property] = tmp;
                                     }
-                                    if (value is GenericJsonArray)
+                                    if (value is OmniJsonArray)
                                     {
-                                        JsonLD.Collections.AddAll(((GenericJsonArray)result[property]), (GenericJsonArray)value
+                                        JsonLD.Collections.AddAll(((OmniJsonArray)result[property]), (OmniJsonArray)value
                                             );
                                     }
                                     else
                                     {
-                                        ((GenericJsonArray)result[property]).Add(value);
+                                        ((OmniJsonArray)result[property]).Add(value);
                                     }
                                 }
                                 // 7.2.2.1.4) TODO: this doesn't seem safe (i.e.
@@ -249,7 +248,7 @@ namespace JsonLD.Core
                     // NOTE: expanded value must be an array due to expansion
                     // algorithm.
                     // 7.5)
-                    if (((GenericJsonArray)expandedValue).Count == 0)
+                    if (((OmniJsonArray)expandedValue).Count == 0)
                     {
                         // 7.5.1)
                         string itemActiveProperty = activeCtx.CompactIri(expandedProperty, expandedValue, 
@@ -257,21 +256,21 @@ namespace JsonLD.Core
                         // 7.5.2)
                         if (!result.ContainsKey(itemActiveProperty))
                         {
-                            result[itemActiveProperty] = new GenericJsonArray();
+                            result[itemActiveProperty] = new OmniJsonArray();
                         }
                         else
                         {
-                            GenericJsonToken value = result[itemActiveProperty];
-                            if (!(value is GenericJsonArray))
+                            OmniJsonToken value = result[itemActiveProperty];
+                            if (!(value is OmniJsonArray))
                             {
-                                GenericJsonArray tmp = new GenericJsonArray();
+                                OmniJsonArray tmp = new OmniJsonArray();
                                 tmp.Add(value);
                                 result[itemActiveProperty] = tmp;
                             }
                         }
                     }
                     // 7.6)
-                    foreach (GenericJsonToken expandedItem in (GenericJsonArray)expandedValue)
+                    foreach (OmniJsonToken expandedItem in (OmniJsonArray)expandedValue)
                     {
                         // 7.6.1)
                         string itemActiveProperty = activeCtx.CompactIri(expandedProperty, expandedItem, 
@@ -279,23 +278,23 @@ namespace JsonLD.Core
                         // 7.6.2)
                         string container = activeCtx.GetContainer(itemActiveProperty);
                         // get @list value if appropriate
-                        bool isList = (expandedItem is GenericJsonObject && ((IDictionary<string, GenericJsonToken>)expandedItem
+                        bool isList = (expandedItem is OmniJsonObject && ((IDictionary<string, OmniJsonToken>)expandedItem
                             ).ContainsKey("@list"));
-                        GenericJsonToken list = null;
+                        OmniJsonToken list = null;
                         if (isList)
                         {
-                            list = ((IDictionary<string, GenericJsonToken>)expandedItem)["@list"];
+                            list = ((IDictionary<string, OmniJsonToken>)expandedItem)["@list"];
                         }
                         // 7.6.3)
-                        GenericJsonToken compactedItem = Compact(activeCtx, itemActiveProperty, isList ? list : expandedItem
+                        OmniJsonToken compactedItem = Compact(activeCtx, itemActiveProperty, isList ? list : expandedItem
                             , compactArrays);
                         // 7.6.4)
                         if (isList)
                         {
                             // 7.6.4.1)
-                            if (!(compactedItem is GenericJsonArray))
+                            if (!(compactedItem is OmniJsonArray))
                             {
-                                GenericJsonArray tmp = new GenericJsonArray();
+                                OmniJsonArray tmp = new OmniJsonArray();
                                 tmp.Add(compactedItem);
                                 compactedItem = tmp;
                             }
@@ -303,15 +302,15 @@ namespace JsonLD.Core
                             if (!"@list".Equals(container))
                             {
                                 // 7.6.4.2.1)
-                                GenericJsonObject wrapper = new GenericJsonObject();
+                                OmniJsonObject wrapper = new OmniJsonObject();
                                 // TODO: SPEC: no mention of vocab = true
                                 wrapper[activeCtx.CompactIri("@list", true)] = compactedItem;
                                 compactedItem = wrapper;
                                 // 7.6.4.2.2)
-                                if (((IDictionary<string, GenericJsonToken>)expandedItem).ContainsKey("@index"))
+                                if (((IDictionary<string, OmniJsonToken>)expandedItem).ContainsKey("@index"))
                                 {
-                                    ((IDictionary<string, GenericJsonToken>)compactedItem)[activeCtx.CompactIri("@index", true)
-                                        ] = ((IDictionary<string, GenericJsonToken>)expandedItem)["@index"];
+                                    ((IDictionary<string, OmniJsonToken>)compactedItem)[activeCtx.CompactIri("@index", true)
+                                        ] = ((IDictionary<string, OmniJsonToken>)expandedItem)["@index"];
                                 }
                             }
                             else
@@ -330,19 +329,19 @@ namespace JsonLD.Core
                         if ("@language".Equals(container) || "@index".Equals(container))
                         {
                             // 7.6.5.1)
-                            GenericJsonObject mapObject;
+                            OmniJsonObject mapObject;
                             if (result.ContainsKey(itemActiveProperty))
                             {
-                                mapObject = (GenericJsonObject)result[itemActiveProperty];
+                                mapObject = (OmniJsonObject)result[itemActiveProperty];
                             }
                             else
                             {
-                                mapObject = new GenericJsonObject();
+                                mapObject = new OmniJsonObject();
                                 result[itemActiveProperty] = mapObject;
                             }
                             // 7.6.5.2)
-                            if ("@language".Equals(container) && (compactedItem is GenericJsonObject && ((IDictionary
-                                <string, GenericJsonToken>)compactedItem).ContainsKey("@value")))
+                            if ("@language".Equals(container) && (compactedItem is OmniJsonObject && ((IDictionary
+                                <string, OmniJsonToken>)compactedItem).ContainsKey("@value")))
                             {
                                 compactedItem = compactedItem["@value"];
                             }
@@ -355,16 +354,16 @@ namespace JsonLD.Core
                             }
                             else
                             {
-                                GenericJsonArray tmp;
-                                if (!(mapObject[mapKey] is GenericJsonArray))
+                                OmniJsonArray tmp;
+                                if (!(mapObject[mapKey] is OmniJsonArray))
                                 {
-                                    tmp = new GenericJsonArray();
+                                    tmp = new OmniJsonArray();
                                     tmp.Add(mapObject[mapKey]);
                                     mapObject[mapKey] = tmp;
                                 }
                                 else
                                 {
-                                    tmp = (GenericJsonArray)mapObject[mapKey];
+                                    tmp = (OmniJsonArray)mapObject[mapKey];
                                 }
                                 tmp.Add(compactedItem);
                             }
@@ -375,10 +374,10 @@ namespace JsonLD.Core
                             // 7.6.6.1)
                             bool check = (!compactArrays || "@set".Equals(container) || "@list".Equals(container
                                 ) || "@list".Equals(expandedProperty) || "@graph".Equals(expandedProperty)) && (
-                                !(compactedItem is GenericJsonArray));
+                                !(compactedItem is OmniJsonArray));
                             if (check)
                             {
-                                GenericJsonArray tmp = new GenericJsonArray();
+                                OmniJsonArray tmp = new OmniJsonArray();
                                 tmp.Add(compactedItem);
                                 compactedItem = tmp;
                             }
@@ -389,19 +388,19 @@ namespace JsonLD.Core
                             }
                             else
                             {
-                                if (!(result[itemActiveProperty] is GenericJsonArray))
+                                if (!(result[itemActiveProperty] is OmniJsonArray))
                                 {
-                                    GenericJsonArray tmp = new GenericJsonArray();
+                                    OmniJsonArray tmp = new OmniJsonArray();
                                     tmp.Add(result[itemActiveProperty]);
                                     result[itemActiveProperty] = tmp;
                                 }
-                                if (compactedItem is GenericJsonArray)
+                                if (compactedItem is OmniJsonArray)
                                 {
-                                    JsonLD.Collections.AddAll(((GenericJsonArray)result[itemActiveProperty]), (GenericJsonArray)compactedItem);
+                                    JsonLD.Collections.AddAll(((OmniJsonArray)result[itemActiveProperty]), (OmniJsonArray)compactedItem);
                                 }
                                 else
                                 {
-                                    ((GenericJsonArray)result[itemActiveProperty]).Add(compactedItem);
+                                    ((OmniJsonArray)result[itemActiveProperty]).Add(compactedItem);
                                 }
                             }
                         }
@@ -415,7 +414,7 @@ namespace JsonLD.Core
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public virtual GenericJsonToken Compact(Context activeCtx, string activeProperty, GenericJsonToken element
+        public virtual OmniJsonToken Compact(Context activeCtx, string activeProperty, OmniJsonToken element
             )
         {
             return Compact(activeCtx, activeProperty, element, true);
@@ -431,7 +430,7 @@ namespace JsonLD.Core
         /// <returns></returns>
         /// <exception cref="JsonLdError">JsonLdError</exception>
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public virtual GenericJsonToken Expand(Context activeCtx, string activeProperty, GenericJsonToken element)
+        public virtual OmniJsonToken Expand(Context activeCtx, string activeProperty, OmniJsonToken element)
         {
             // 1)
             if (element.IsNull())
@@ -439,18 +438,18 @@ namespace JsonLD.Core
                 return null;
             }
             // 3)
-            if (element is GenericJsonArray)
+            if (element is OmniJsonArray)
             {
                 // 3.1)
-                GenericJsonArray result = new GenericJsonArray();
+                OmniJsonArray result = new OmniJsonArray();
                 // 3.2)
-                foreach (GenericJsonToken item in (GenericJsonArray)element)
+                foreach (OmniJsonToken item in (OmniJsonArray)element)
                 {
                     // 3.2.1)
-                    GenericJsonToken v = Expand(activeCtx, activeProperty, item);
+                    OmniJsonToken v = Expand(activeCtx, activeProperty, item);
                     // 3.2.2)
                     if (("@list".Equals(activeProperty) || "@list".Equals(activeCtx.GetContainer(activeProperty
-                        ))) && (v is GenericJsonArray || (v is GenericJsonObject && ((IDictionary<string, GenericJsonToken>)v).ContainsKey
+                        ))) && (v is OmniJsonArray || (v is OmniJsonObject && ((IDictionary<string, OmniJsonToken>)v).ContainsKey
                         ("@list"))))
                     {
                         throw new JsonLdError(JsonLdError.Error.ListOfLists, "lists of lists are not permitted."
@@ -461,9 +460,9 @@ namespace JsonLD.Core
                         // 3.2.3)
                         if (!v.IsNull())
                         {
-                            if (v is GenericJsonArray)
+                            if (v is OmniJsonArray)
                             {
-                                JsonLD.Collections.AddAll(result, (GenericJsonArray)v);
+                                JsonLD.Collections.AddAll(result, (OmniJsonArray)v);
                             }
                             else
                             {
@@ -478,23 +477,23 @@ namespace JsonLD.Core
             else
             {
                 // 4)
-                if (element is GenericJsonObject)
+                if (element is OmniJsonObject)
                 {
                     // access helper
-                    IDictionary<string, GenericJsonToken> elem = (GenericJsonObject)element;
+                    IDictionary<string, OmniJsonToken> elem = (OmniJsonObject)element;
                     // 5)
                     if (elem.ContainsKey("@context"))
                     {
                         activeCtx = activeCtx.Parse(elem["@context"]);
                     }
                     // 6)
-                    GenericJsonObject result = new GenericJsonObject();
+                    OmniJsonObject result = new OmniJsonObject();
                     // 7)
-                    GenericJsonArray keys = new GenericJsonArray(element.GetKeys());
+                    OmniJsonArray keys = new OmniJsonArray(element.GetKeys());
                     keys.SortInPlace();
                     foreach (string key in keys)
                     {
-                        GenericJsonToken value = elem[key];
+                        OmniJsonToken value = elem[key];
                         // 7.1)
                         if (key.Equals("@context"))
                         {
@@ -502,7 +501,7 @@ namespace JsonLD.Core
                         }
                         // 7.2)
                         string expandedProperty = activeCtx.ExpandIri(key, false, true, null, null);
-                        GenericJsonToken expandedValue = null;
+                        OmniJsonToken expandedValue = null;
                         // 7.3)
                         if (expandedProperty == null || (!expandedProperty.Contains(":") && !JsonLdUtils.IsKeyword
                             (expandedProperty)))
@@ -527,7 +526,7 @@ namespace JsonLD.Core
                             // 7.4.3)
                             if ("@id".Equals(expandedProperty))
                             {
-                                if (!(value.Type == GenericJsonTokenType.String))
+                                if (!(value.Type == OmniJsonTokenType.String))
                                 {
                                     throw new JsonLdError(JsonLdError.Error.InvalidIdValue, "value of @id must be a string"
                                         );
@@ -539,32 +538,32 @@ namespace JsonLD.Core
                                 // 7.4.4)
                                 if ("@type".Equals(expandedProperty))
                                 {
-                                    if (value is GenericJsonArray)
+                                    if (value is OmniJsonArray)
                                     {
-                                        expandedValue = new GenericJsonArray();
-                                        foreach (GenericJsonToken v in (GenericJsonArray)value)
+                                        expandedValue = new OmniJsonArray();
+                                        foreach (OmniJsonToken v in (OmniJsonArray)value)
                                         {
-                                            if (v.Type != GenericJsonTokenType.String)
+                                            if (v.Type != OmniJsonTokenType.String)
                                             {
                                                 throw new JsonLdError(JsonLdError.Error.InvalidTypeValue, "@type value must be a string or array of strings"
                                                     );
                                             }
-                                            ((GenericJsonArray)expandedValue).Add(activeCtx.ExpandIri((string)v, true, true, null
+                                            ((OmniJsonArray)expandedValue).Add(activeCtx.ExpandIri((string)v, true, true, null
                                                 , null));
                                         }
                                     }
                                     else
                                     {
-                                        if (value.Type == GenericJsonTokenType.String)
+                                        if (value.Type == OmniJsonTokenType.String)
                                         {
                                             expandedValue = activeCtx.ExpandIri((string)value, true, true, null, null);
                                         }
                                         else
                                         {
                                             // TODO: SPEC: no mention of empty map check
-                                            if (value is GenericJsonObject)
+                                            if (value is OmniJsonObject)
                                             {
-                                                if (((GenericJsonObject)value).Count != 0)
+                                                if (((OmniJsonObject)value).Count != 0)
                                                 {
                                                     throw new JsonLdError(JsonLdError.Error.InvalidTypeValue, "@type value must be a an empty object for framing"
                                                         );
@@ -591,7 +590,7 @@ namespace JsonLD.Core
                                         // 7.4.6)
                                         if ("@value".Equals(expandedProperty))
                                         {
-                                            if (!value.IsNull() && (value is GenericJsonObject || value is GenericJsonArray))
+                                            if (!value.IsNull() && (value is OmniJsonObject || value is OmniJsonArray))
                                             {
                                                 throw new JsonLdError(JsonLdError.Error.InvalidValueObjectValue, "value of " + expandedProperty
                                                      + " must be a scalar or null");
@@ -608,7 +607,7 @@ namespace JsonLD.Core
                                             // 7.4.7)
                                             if ("@language".Equals(expandedProperty))
                                             {
-                                                if (!(value.Type == GenericJsonTokenType.String))
+                                                if (!(value.Type == OmniJsonTokenType.String))
                                                 {
                                                     throw new JsonLdError(JsonLdError.Error.InvalidLanguageTaggedString, "Value of " 
                                                         + expandedProperty + " must be a string");
@@ -620,7 +619,7 @@ namespace JsonLD.Core
                                                 // 7.4.8)
                                                 if ("@index".Equals(expandedProperty))
                                                 {
-                                                    if (!(value.Type == GenericJsonTokenType.String))
+                                                    if (!(value.Type == OmniJsonTokenType.String))
                                                     {
                                                         throw new JsonLdError(JsonLdError.Error.InvalidIndexValue, "Value of " + expandedProperty
                                                              + " must be a string");
@@ -640,16 +639,16 @@ namespace JsonLD.Core
                                                         // 7.4.9.2)
                                                         expandedValue = Expand(activeCtx, activeProperty, value);
                                                         // NOTE: step not in the spec yet
-                                                        if (!(expandedValue is GenericJsonArray))
+                                                        if (!(expandedValue is OmniJsonArray))
                                                         {
-                                                            GenericJsonArray tmp = new GenericJsonArray();
+                                                            OmniJsonArray tmp = new OmniJsonArray();
                                                             tmp.Add(expandedValue);
                                                             expandedValue = tmp;
                                                         }
                                                         // 7.4.9.3)
-                                                        foreach (GenericJsonToken o in (GenericJsonArray)expandedValue)
+                                                        foreach (OmniJsonToken o in (OmniJsonArray)expandedValue)
                                                         {
-                                                            if (o is GenericJsonObject && ((GenericJsonObject)o).ContainsKey("@list"))
+                                                            if (o is OmniJsonObject && JavaCompat.ContainsKey(((OmniJsonObject)o), "@list"))
                                                             {
                                                                 throw new JsonLdError(JsonLdError.Error.ListOfLists, "A list may not contain another list"
                                                                     );
@@ -668,7 +667,7 @@ namespace JsonLD.Core
                                                             // 7.4.11)
                                                             if ("@reverse".Equals(expandedProperty))
                                                             {
-                                                                if (!(value is GenericJsonObject))
+                                                                if (!(value is OmniJsonObject))
                                                                 {
                                                                     throw new JsonLdError(JsonLdError.Error.InvalidReverseValue, "@reverse value must be an object"
                                                                         );
@@ -677,38 +676,38 @@ namespace JsonLD.Core
                                                                 expandedValue = Expand(activeCtx, "@reverse", value);
                                                                 // NOTE: algorithm assumes the result is a map
                                                                 // 7.4.11.2)
-                                                                if (((IDictionary<string, GenericJsonToken>)expandedValue).ContainsKey("@reverse"))
+                                                                if (((IDictionary<string, OmniJsonToken>)expandedValue).ContainsKey("@reverse"))
                                                                 {
-                                                                    GenericJsonObject reverse = (GenericJsonObject)((GenericJsonObject)expandedValue)["@reverse"];
+                                                                    OmniJsonObject reverse = (OmniJsonObject)((OmniJsonObject)expandedValue)["@reverse"];
                                                                     foreach (string property in reverse.GetKeys())
                                                                     {
-                                                                        GenericJsonToken item = reverse[property];
+                                                                        OmniJsonToken item = reverse[property];
                                                                         // 7.4.11.2.1)
                                                                         if (!result.ContainsKey(property))
                                                                         {
-                                                                            result[property] = new GenericJsonArray();
+                                                                            result[property] = new OmniJsonArray();
                                                                         }
                                                                         // 7.4.11.2.2)
-                                                                        if (item is GenericJsonArray)
+                                                                        if (item is OmniJsonArray)
                                                                         {
-                                                                            JsonLD.Collections.AddAll(((GenericJsonArray)result[property]), (GenericJsonArray)item);
+                                                                            JsonLD.Collections.AddAll(((OmniJsonArray)result[property]), (OmniJsonArray)item);
                                                                         }
                                                                         else
                                                                         {
-                                                                            ((GenericJsonArray)result[property]).Add(item);
+                                                                            ((OmniJsonArray)result[property]).Add(item);
                                                                         }
                                                                     }
                                                                 }
                                                                 // 7.4.11.3)
-                                                                if (((GenericJsonObject)expandedValue).Count > (((GenericJsonObject)expandedValue).ContainsKey("@reverse") ? 1 : 0))
+                                                                if (((OmniJsonObject)expandedValue).Count > (JavaCompat.ContainsKey(((OmniJsonObject)expandedValue), "@reverse") ? 1 : 0))
                                                                 {
                                                                     // 7.4.11.3.1)
-                                                                    if (!result.ContainsKey("@reverse"))
+                                                                    if (!JavaCompat.ContainsKey(result, "@reverse"))
                                                                     {
-                                                                        result["@reverse"] = new GenericJsonObject();
+                                                                        result["@reverse"] = new OmniJsonObject();
                                                                     }
                                                                     // 7.4.11.3.2)
-                                                                    GenericJsonObject reverseMap = (GenericJsonObject)result["@reverse"];
+                                                                    OmniJsonObject reverseMap = (OmniJsonObject)result["@reverse"];
                                                                     // 7.4.11.3.3)
                                                                     foreach (string property in expandedValue.GetKeys())
                                                                     {
@@ -717,21 +716,21 @@ namespace JsonLD.Core
                                                                             continue;
                                                                         }
                                                                         // 7.4.11.3.3.1)
-                                                                        GenericJsonArray items = (GenericJsonArray)((GenericJsonObject)expandedValue)[property];
-                                                                        foreach (GenericJsonToken item in items)
+                                                                        OmniJsonArray items = (OmniJsonArray)((OmniJsonObject)expandedValue)[property];
+                                                                        foreach (OmniJsonToken item in items)
                                                                         {
                                                                             // 7.4.11.3.3.1.1)
-                                                                            if (item is GenericJsonObject && (((GenericJsonObject)item).ContainsKey("@value") || ((GenericJsonObject)item).ContainsKey("@list")))
+                                                                            if (item is OmniJsonObject && (JavaCompat.ContainsKey(((OmniJsonObject)item), "@value") || JavaCompat.ContainsKey(((OmniJsonObject)item), "@list")))
                                                                             {
                                                                                 throw new JsonLdError(JsonLdError.Error.InvalidReversePropertyValue);
                                                                             }
                                                                             // 7.4.11.3.3.1.2)
-                                                                            if (!reverseMap.ContainsKey(property))
+                                                                            if (!JavaCompat.ContainsKey(reverseMap, property))
                                                                             {
-                                                                                reverseMap[property] = new GenericJsonArray();
+                                                                                reverseMap[property] = new OmniJsonArray();
                                                                             }
                                                                             // 7.4.11.3.3.1.3)
-                                                                            ((GenericJsonArray)reverseMap[property]).Add(item);
+                                                                            ((OmniJsonArray)reverseMap[property]).Add(item);
                                                                         }
                                                                     }
                                                                 }
@@ -767,62 +766,62 @@ namespace JsonLD.Core
                         else
                         {
                             // 7.5
-                            if ("@language".Equals(activeCtx.GetContainer(key)) && value is GenericJsonObject)
+                            if ("@language".Equals(activeCtx.GetContainer(key)) && value is OmniJsonObject)
                             {
                                 // 7.5.1)
-                                expandedValue = new GenericJsonArray();
+                                expandedValue = new OmniJsonArray();
                                 // 7.5.2)
                                 foreach (string language in value.GetKeys())
                                 {
-                                    GenericJsonToken languageValue = ((IDictionary<string, GenericJsonToken>)value)[language];
+                                    OmniJsonToken languageValue = ((IDictionary<string, OmniJsonToken>)value)[language];
                                     // 7.5.2.1)
-                                    if (!(languageValue is GenericJsonArray))
+                                    if (!(languageValue is OmniJsonArray))
                                     {
-                                        GenericJsonToken tmp = languageValue;
-                                        languageValue = new GenericJsonArray();
-                                        ((GenericJsonArray)languageValue).Add(tmp);
+                                        OmniJsonToken tmp = languageValue;
+                                        languageValue = new OmniJsonArray();
+                                        ((OmniJsonArray)languageValue).Add(tmp);
                                     }
                                     // 7.5.2.2)
-                                    foreach (GenericJsonToken item in (GenericJsonArray)languageValue)
+                                    foreach (OmniJsonToken item in (OmniJsonArray)languageValue)
                                     {
                                         // 7.5.2.2.1)
-                                        if (!(item.Type == GenericJsonTokenType.String))
+                                        if (!(item.Type == OmniJsonTokenType.String))
                                         {
                                             throw new JsonLdError(JsonLdError.Error.InvalidLanguageMapValue, "Expected " + item
                                                 .ToString() + " to be a string");
                                         }
                                         // 7.5.2.2.2)
-                                        GenericJsonObject tmp = new GenericJsonObject();
+                                        OmniJsonObject tmp = new OmniJsonObject();
                                         tmp["@value"] = item;
                                         tmp["@language"] = language.ToLower();
-                                        ((GenericJsonArray)expandedValue).Add(tmp);
+                                        ((OmniJsonArray)expandedValue).Add(tmp);
                                     }
                                 }
                             }
                             else
                             {
                                 // 7.6)
-                                if ("@index".Equals(activeCtx.GetContainer(key)) && value is GenericJsonObject)
+                                if ("@index".Equals(activeCtx.GetContainer(key)) && value is OmniJsonObject)
                                 {
                                     // 7.6.1)
-                                    expandedValue = new GenericJsonArray();
+                                    expandedValue = new OmniJsonArray();
                                     // 7.6.2)
-                                    GenericJsonArray indexKeys = new GenericJsonArray(value.GetKeys());
+                                    OmniJsonArray indexKeys = new OmniJsonArray(value.GetKeys());
                                     indexKeys.SortInPlace();
                                     foreach (string index in indexKeys)
                                     {
-                                        GenericJsonToken indexValue = ((GenericJsonObject)value)[index];
+                                        OmniJsonToken indexValue = ((OmniJsonObject)value)[index];
                                         // 7.6.2.1)
-                                        if (!(indexValue is GenericJsonArray))
+                                        if (!(indexValue is OmniJsonArray))
                                         {
-                                            GenericJsonToken tmp = indexValue;
-                                            indexValue = new GenericJsonArray();
-                                            ((GenericJsonArray)indexValue).Add(tmp);
+                                            OmniJsonToken tmp = indexValue;
+                                            indexValue = new OmniJsonArray();
+                                            ((OmniJsonArray)indexValue).Add(tmp);
                                         }
                                         // 7.6.2.2)
                                         indexValue = Expand(activeCtx, key, indexValue);
                                         // 7.6.2.3)
-                                        foreach (GenericJsonObject item in (GenericJsonArray)indexValue)
+                                        foreach (OmniJsonObject item in (OmniJsonArray)indexValue)
                                         {
                                             // 7.6.2.3.1)
                                             if (!item.ContainsKey("@index"))
@@ -830,7 +829,7 @@ namespace JsonLD.Core
                                                 item["@index"] = index;
                                             }
                                             // 7.6.2.3.2)
-                                            ((GenericJsonArray)expandedValue).Add(item);
+                                            ((OmniJsonArray)expandedValue).Add(item);
                                         }
                                     }
                                 }
@@ -849,16 +848,16 @@ namespace JsonLD.Core
                         // 7.9)
                         if ("@list".Equals(activeCtx.GetContainer(key)))
                         {
-                            if (!(expandedValue is GenericJsonObject) || !((GenericJsonObject)expandedValue).ContainsKey("@list"))
+                            if (!(expandedValue is OmniJsonObject) || !JavaCompat.ContainsKey(((OmniJsonObject)expandedValue), "@list"))
                             {
-                                GenericJsonToken tmp = expandedValue;
-                                if (!(tmp is GenericJsonArray))
+                                OmniJsonToken tmp = expandedValue;
+                                if (!(tmp is OmniJsonArray))
                                 {
-                                    tmp = new GenericJsonArray();
-                                    ((GenericJsonArray)tmp).Add(expandedValue);
+                                    tmp = new OmniJsonArray();
+                                    ((OmniJsonArray)tmp).Add(expandedValue);
                                 }
-                                expandedValue = new GenericJsonObject();
-                                ((GenericJsonObject)expandedValue)["@list"] = tmp;
+                                expandedValue = new OmniJsonObject();
+                                ((OmniJsonObject)expandedValue)["@list"] = tmp;
                             }
                         }
                         // 7.10)
@@ -867,38 +866,38 @@ namespace JsonLD.Core
                             // 7.10.1)
                             if (!result.ContainsKey("@reverse"))
                             {
-                                result["@reverse"] = new GenericJsonObject();
+                                result["@reverse"] = new OmniJsonObject();
                             }
                             // 7.10.2)
-                            GenericJsonObject reverseMap = (GenericJsonObject)result["@reverse"];
+                            OmniJsonObject reverseMap = (OmniJsonObject)result["@reverse"];
                             // 7.10.3)
-                            if (!(expandedValue is GenericJsonArray))
+                            if (!(expandedValue is OmniJsonArray))
                             {
-                                GenericJsonToken tmp = expandedValue;
-                                expandedValue = new GenericJsonArray();
-                                ((GenericJsonArray)expandedValue).Add(tmp);
+                                OmniJsonToken tmp = expandedValue;
+                                expandedValue = new OmniJsonArray();
+                                ((OmniJsonArray)expandedValue).Add(tmp);
                             }
                             // 7.10.4)
-                            foreach (GenericJsonToken item in (GenericJsonArray)expandedValue)
+                            foreach (OmniJsonToken item in (OmniJsonArray)expandedValue)
                             {
                                 // 7.10.4.1)
-                                if (item is GenericJsonObject && (((GenericJsonObject)item).ContainsKey("@value") || ((GenericJsonObject)item).ContainsKey("@list")))
+                                if (item is OmniJsonObject && (JavaCompat.ContainsKey(((OmniJsonObject)item), "@value") || JavaCompat.ContainsKey(((OmniJsonObject)item), "@list")))
                                 {
                                     throw new JsonLdError(JsonLdError.Error.InvalidReversePropertyValue);
                                 }
                                 // 7.10.4.2)
                                 if (!reverseMap.ContainsKey(expandedProperty))
                                 {
-                                    reverseMap[expandedProperty] = new GenericJsonArray();
+                                    reverseMap[expandedProperty] = new OmniJsonArray();
                                 }
                                 // 7.10.4.3)
-                                if (item is GenericJsonArray)
+                                if (item is OmniJsonArray)
                                 {
-                                    JsonLD.Collections.AddAll(((GenericJsonArray)reverseMap[expandedProperty]), (GenericJsonArray)item);
+                                    JsonLD.Collections.AddAll(((OmniJsonArray)reverseMap[expandedProperty]), (OmniJsonArray)item);
                                 }
                                 else
                                 {
-                                    ((GenericJsonArray)reverseMap[expandedProperty]).Add(item);
+                                    ((OmniJsonArray)reverseMap[expandedProperty]).Add(item);
                                 }
                             }
                         }
@@ -908,16 +907,16 @@ namespace JsonLD.Core
                             // 7.11.1)
                             if (!result.ContainsKey(expandedProperty))
                             {
-                                result[expandedProperty] = new GenericJsonArray();
+                                result[expandedProperty] = new OmniJsonArray();
                             }
                             // 7.11.2)
-                            if (expandedValue is GenericJsonArray)
+                            if (expandedValue is OmniJsonArray)
                             {
-                                JsonLD.Collections.AddAll(((GenericJsonArray)result[expandedProperty]), (GenericJsonArray)expandedValue);
+                                JsonLD.Collections.AddAll(((OmniJsonArray)result[expandedProperty]), (OmniJsonArray)expandedValue);
                             }
                             else
                             {
-                                ((GenericJsonArray)result[expandedProperty]).Add(expandedValue);
+                                ((OmniJsonArray)result[expandedProperty]).Add(expandedValue);
                             }
                         }
                     }
@@ -938,7 +937,7 @@ namespace JsonLD.Core
                                 );
                         }
                         // 8.2)
-                        GenericJsonToken rval = result["@value"];
+                        OmniJsonToken rval = result["@value"];
                         if (rval.IsNull())
                         {
                             // nothing else is possible with result if we set it to
@@ -946,7 +945,7 @@ namespace JsonLD.Core
                             return null;
                         }
                         // 8.3)
-                        if (!(rval.Type == GenericJsonTokenType.String) && result.ContainsKey("@language"))
+                        if (!(rval.Type == OmniJsonTokenType.String) && result.ContainsKey("@language"))
                         {
                             throw new JsonLdError(JsonLdError.Error.InvalidLanguageTaggedValue, "when @language is used, @value must be a string"
                                 );
@@ -957,7 +956,7 @@ namespace JsonLD.Core
                             if (result.ContainsKey("@type"))
                             {
                                 // TODO: is this enough for "is an IRI"
-                                if (!(result["@type"].Type == GenericJsonTokenType.String) || ((string)result["@type"]).StartsWith("_:") ||
+                                if (!(result["@type"].Type == OmniJsonTokenType.String) || ((string)result["@type"]).StartsWith("_:") ||
                                      !((string)result["@type"]).Contains(":"))
                                 {
                                     throw new JsonLdError(JsonLdError.Error.InvalidTypedValue, "value of @type must be an IRI"
@@ -971,10 +970,10 @@ namespace JsonLD.Core
                         // 9)
                         if (result.ContainsKey("@type"))
                         {
-                            GenericJsonToken rtype = result["@type"];
-                            if (!(rtype is GenericJsonArray))
+                            OmniJsonToken rtype = result["@type"];
+                            if (!(rtype is OmniJsonArray))
                             {
-                                GenericJsonArray tmp = new GenericJsonArray();
+                                OmniJsonArray tmp = new OmniJsonArray();
                                 tmp.Add(rtype);
                                 result["@type"] = tmp;
                             }
@@ -1043,7 +1042,7 @@ namespace JsonLD.Core
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public virtual GenericJsonToken Expand(Context activeCtx, GenericJsonToken element)
+        public virtual OmniJsonToken Expand(Context activeCtx, OmniJsonToken element)
         {
             return Expand(activeCtx, null, element);
         }
@@ -1056,31 +1055,31 @@ namespace JsonLD.Core
         /// \_\_|\__, |\___/|_| |_|\__|_| |_|_| |_| |_| |___/
         /// </summary>
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        internal virtual void GenerateNodeMap(GenericJsonToken element, GenericJsonObject
+        internal virtual void GenerateNodeMap(OmniJsonToken element, OmniJsonObject
              nodeMap)
         {
             GenerateNodeMap(element, nodeMap, "@default", null, null, null);
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        internal virtual void GenerateNodeMap(GenericJsonToken element, GenericJsonObject
+        internal virtual void GenerateNodeMap(OmniJsonToken element, OmniJsonObject
              nodeMap, string activeGraph)
         {
             GenerateNodeMap(element, nodeMap, activeGraph, null, null, null);
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        internal virtual void GenerateNodeMap(GenericJsonToken element, GenericJsonObject
-             nodeMap, string activeGraph, GenericJsonToken activeSubject, string activeProperty, GenericJsonObject list)
+        internal virtual void GenerateNodeMap(OmniJsonToken element, OmniJsonObject
+             nodeMap, string activeGraph, OmniJsonToken activeSubject, string activeProperty, OmniJsonObject list)
         {
             GenerateNodeMap(element, nodeMap, activeGraph, activeSubject, activeProperty, list, skipSetContainsCheck: false);
         }
 
-        private void GenerateNodeMap(GenericJsonToken element, GenericJsonObject nodeMap,
-            string activeGraph, GenericJsonToken activeSubject, string activeProperty, GenericJsonObject list, bool skipSetContainsCheck)
+        private void GenerateNodeMap(OmniJsonToken element, OmniJsonObject nodeMap,
+            string activeGraph, OmniJsonToken activeSubject, string activeProperty, OmniJsonObject list, bool skipSetContainsCheck)
         {
             // 1)
-            if (element is GenericJsonArray)
+            if (element is OmniJsonArray)
             {
                 JsonLdSet set = null;
 
@@ -1090,7 +1089,7 @@ namespace JsonLD.Core
                 }
 
                 // 1.1)
-                foreach (GenericJsonToken item in (GenericJsonArray)element)
+                foreach (OmniJsonToken item in (OmniJsonArray)element)
                 {
                     skipSetContainsCheck = false;
 
@@ -1104,29 +1103,29 @@ namespace JsonLD.Core
                 return;
             }
             // for convenience
-            IDictionary<string, GenericJsonToken> elem = (IDictionary<string, GenericJsonToken>)element;
+            IDictionary<string, OmniJsonToken> elem = (IDictionary<string, OmniJsonToken>)element;
             // 2)
-            if (!((IDictionary<string,GenericJsonToken>)nodeMap).ContainsKey(activeGraph))
+            if (!((IDictionary<string,OmniJsonToken>)nodeMap).ContainsKey(activeGraph))
             {
-                nodeMap[activeGraph] = new GenericJsonObject();
+                nodeMap[activeGraph] = new OmniJsonObject();
             }
-            GenericJsonObject graph = (GenericJsonObject)nodeMap[activeGraph
+            OmniJsonObject graph = (OmniJsonObject)nodeMap[activeGraph
                 ];
-            GenericJsonObject node = (GenericJsonObject)((activeSubject.IsNull() || activeSubject.Type != GenericJsonTokenType.String) 
+            OmniJsonObject node = (OmniJsonObject)((activeSubject.IsNull() || activeSubject.Type != OmniJsonTokenType.String) 
                 ? null : graph[(string)activeSubject]);
             // 3)
             if (elem.ContainsKey("@type"))
             {
                 // 3.1)
-                GenericJsonArray oldTypes;
-                GenericJsonArray newTypes = new GenericJsonArray();
-                if (elem["@type"] is GenericJsonArray)
+                OmniJsonArray oldTypes;
+                OmniJsonArray newTypes = new OmniJsonArray();
+                if (elem["@type"] is OmniJsonArray)
                 {
-                    oldTypes = (GenericJsonArray)elem["@type"];
+                    oldTypes = (OmniJsonArray)elem["@type"];
                 }
                 else
                 {
-                    oldTypes = new GenericJsonArray();
+                    oldTypes = new OmniJsonArray();
                     oldTypes.Add((string)elem["@type"]);
                 }
                 foreach (string item in oldTypes)
@@ -1140,7 +1139,7 @@ namespace JsonLD.Core
                         newTypes.Add(item);
                     }
                 }
-                if (elem["@type"] is GenericJsonArray)
+                if (elem["@type"] is OmniJsonArray)
                 {
                     elem["@type"] = newTypes;
                 }
@@ -1155,12 +1154,12 @@ namespace JsonLD.Core
                 // 4.1)
                 if (list == null)
                 {
-                    JsonLdUtils.MergeValue(node, activeProperty, (GenericJsonObject)elem);
+                    JsonLdUtils.MergeValue(node, activeProperty, (OmniJsonObject)elem);
                 }
                 else
                 {
                     // 4.2)
-                    JsonLdUtils.MergeValue(list, "@list", (GenericJsonObject)elem);
+                    JsonLdUtils.MergeValue(list, "@list", (OmniJsonObject)elem);
                 }
             }
             else
@@ -1169,8 +1168,8 @@ namespace JsonLD.Core
                 if (elem.ContainsKey("@list"))
                 {
                     // 5.1)
-                    GenericJsonObject result = new GenericJsonObject();
-                    result["@list"] = new GenericJsonArray();
+                    OmniJsonObject result = new OmniJsonObject();
+                    result["@list"] = new OmniJsonArray();
                     // 5.2)
                     //for (final Object item : (List<Object>) elem.get("@list")) {
                     //    generateNodeMap(item, nodeMap, activeGraph, activeSubject, activeProperty, result);
@@ -1200,17 +1199,17 @@ namespace JsonLD.Core
                     // 6.3)
                     if (!graph.ContainsKey(id))
                     {
-                        GenericJsonObject tmp = new GenericJsonObject();
+                        OmniJsonObject tmp = new OmniJsonObject();
                         tmp["@id"] = id;
                         graph[id] = tmp;
                     }
                     // 6.4) TODO: SPEC this line is asked for by the spec, but it breaks various tests
                     //node = (Map<String, Object>) graph.get(id);
                     // 6.5)
-                    if (activeSubject is GenericJsonObject)
+                    if (activeSubject is OmniJsonObject)
                     {
                         // 6.5.1)
-                        JsonLdUtils.MergeValue((GenericJsonObject)graph[id], activeProperty, activeSubject
+                        JsonLdUtils.MergeValue((OmniJsonObject)graph[id], activeProperty, activeSubject
                             );
                     }
                     else
@@ -1218,7 +1217,7 @@ namespace JsonLD.Core
                         // 6.6)
                         if (activeProperty != null)
                         {
-                            GenericJsonObject reference = new GenericJsonObject();
+                            OmniJsonObject reference = new OmniJsonObject();
                             reference["@id"] = id;
                             // 6.6.2)
                             if (list == null)
@@ -1235,11 +1234,11 @@ namespace JsonLD.Core
                         }
                     }
                     // TODO: SPEC this is removed in the spec now, but it's still needed (see 6.4)
-                    node = (GenericJsonObject)graph[id];
+                    node = (OmniJsonObject)graph[id];
                     // 6.7)
                     if (elem.ContainsKey("@type"))
                     {
-                        foreach (GenericJsonToken type in (GenericJsonArray)JsonLD.Collections.Remove(elem, "@type"
+                        foreach (OmniJsonToken type in (OmniJsonArray)JsonLD.Collections.Remove(elem, "@type"
                             ))
                         {
                             JsonLdUtils.MergeValue(node, "@type", type);
@@ -1248,7 +1247,7 @@ namespace JsonLD.Core
                     // 6.8)
                     if (elem.ContainsKey("@index"))
                     {
-                        GenericJsonToken elemIndex = JsonLD.Collections.Remove(elem, "@index");
+                        OmniJsonToken elemIndex = JsonLD.Collections.Remove(elem, "@index");
                         if (node.ContainsKey("@index"))
                         {
                             if (!JsonLdUtils.DeepCompare(node["@index"], elemIndex))
@@ -1265,17 +1264,17 @@ namespace JsonLD.Core
                     if (elem.ContainsKey("@reverse"))
                     {
                         // 6.9.1)
-                        GenericJsonObject referencedNode = new GenericJsonObject();
+                        OmniJsonObject referencedNode = new OmniJsonObject();
                         referencedNode["@id"] = id;
                         // 6.9.2+6.9.4)
-                        GenericJsonObject reverseMap = (GenericJsonObject)JsonLD.Collections.Remove
+                        OmniJsonObject reverseMap = (OmniJsonObject)JsonLD.Collections.Remove
                             (elem, "@reverse");
                         // 6.9.3)
                         foreach (string property in reverseMap.GetKeys())
                         {
-                            GenericJsonArray values = (GenericJsonArray)reverseMap[property];
+                            OmniJsonArray values = (OmniJsonArray)reverseMap[property];
                             // 6.9.3.1)
-                            foreach (GenericJsonToken value in values)
+                            foreach (OmniJsonToken value in values)
                             {
                                 // 6.9.3.1.1)
                                 GenerateNodeMap(value, nodeMap, activeGraph, referencedNode, property, null);
@@ -1289,12 +1288,12 @@ namespace JsonLD.Core
                             null, null);
                     }
                     // 6.11)
-                    GenericJsonArray keys = new GenericJsonArray(element.GetKeys());
+                    OmniJsonArray keys = new OmniJsonArray(element.GetKeys());
                     keys.SortInPlace();
                     foreach (string property_1 in keys)
                     {
                         var eachProperty_1 = property_1;
-                        GenericJsonToken value = elem[eachProperty_1];
+                        OmniJsonToken value = elem[eachProperty_1];
                         // 6.11.1)
                         if (eachProperty_1.StartsWith("_:"))
                         {
@@ -1303,7 +1302,7 @@ namespace JsonLD.Core
                         // 6.11.2)
                         if (!node.ContainsKey(eachProperty_1))
                         {
-                            node[eachProperty_1] = new GenericJsonArray();
+                            node[eachProperty_1] = new OmniJsonArray();
                         }
                         // 6.11.3)
                         GenerateNodeMap(value, nodeMap, activeGraph, id, eachProperty_1, null);
@@ -1312,7 +1311,7 @@ namespace JsonLD.Core
             }
         }
 
-        private readonly GenericJsonObject blankNodeIdentifierMap = new GenericJsonObject();
+        private readonly OmniJsonObject blankNodeIdentifierMap = new OmniJsonObject();
 
         private int blankNodeCounter = 0;
 
@@ -1367,7 +1366,7 @@ namespace JsonLD.Core
 
         private class EmbedNode
         {
-            public GenericJsonToken parent = null;
+            public OmniJsonToken parent = null;
 
             public string property = null;
 
@@ -1379,7 +1378,7 @@ namespace JsonLD.Core
             private readonly JsonLdApi _enclosing;
         }
 
-        private GenericJsonObject nodeMap;
+        private OmniJsonObject nodeMap;
 
         /// <summary>Performs JSON-LD framing.</summary>
         /// <remarks>Performs JSON-LD framing.</remarks>
@@ -1389,7 +1388,7 @@ namespace JsonLD.Core
         /// <returns>the framed output.</returns>
         /// <exception cref="JSONLDProcessingError">JSONLDProcessingError</exception>
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public virtual GenericJsonArray Frame(GenericJsonToken input, GenericJsonArray frame)
+        public virtual OmniJsonArray Frame(OmniJsonToken input, OmniJsonArray frame)
         {
             // create framing state
             JsonLdApi.FramingContext state = new JsonLdApi.FramingContext(this);
@@ -1407,13 +1406,13 @@ namespace JsonLD.Core
             }
             // use tree map so keys are sorted by default
             // XXX BUG BUG BUG XXX (sblom) Figure out where this needs to be sorted and use extension methods to return sorted enumerators or something!
-            GenericJsonObject nodes = new GenericJsonObject();
+            OmniJsonObject nodes = new OmniJsonObject();
             GenerateNodeMap(input, nodes);
-            this.nodeMap = (GenericJsonObject)nodes["@default"];
-            GenericJsonArray framed = new GenericJsonArray();
+            this.nodeMap = (OmniJsonObject)nodes["@default"];
+            OmniJsonArray framed = new OmniJsonArray();
             // NOTE: frame validation is done by the function not allowing anything
             // other than list to me passed
-            Frame(state, this.nodeMap, (frame != null && frame.Count > 0 ? (GenericJsonObject)frame[0] : new GenericJsonObject()), framed, null);
+            Frame(state, this.nodeMap, (frame != null && frame.Count > 0 ? (OmniJsonObject)frame[0] : new OmniJsonObject()), framed, null);
             return framed;
         }
 
@@ -1426,16 +1425,16 @@ namespace JsonLD.Core
         /// <param name="property">the parent property, initialized to null.</param>
         /// <exception cref="JSONLDProcessingError">JSONLDProcessingError</exception>
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        private void Frame(JsonLdApi.FramingContext state, GenericJsonObject nodes
-            , GenericJsonObject frame, GenericJsonToken parent, string property)
+        private void Frame(JsonLdApi.FramingContext state, OmniJsonObject nodes
+            , OmniJsonObject frame, OmniJsonToken parent, string property)
         {
             // filter out subjects that match the frame
-            GenericJsonObject matches = FilterNodes(state, nodes, frame);
+            OmniJsonObject matches = FilterNodes(state, nodes, frame);
             // get flags for current frame
             bool embedOn = GetFrameFlag(frame, "@embed", state.embed);
             bool explicitOn = GetFrameFlag(frame, "@explicit", state.@explicit);
             // add matches to output
-            GenericJsonArray ids = new GenericJsonArray(matches.GetKeys());
+            OmniJsonArray ids = new OmniJsonArray(matches.GetKeys());
             ids.SortInPlace();
             foreach (string id in ids)
             {
@@ -1444,7 +1443,7 @@ namespace JsonLD.Core
                     state.embeds = new Dictionary<string, JsonLdApi.EmbedNode>();
                 }
                 // start output
-                GenericJsonObject output = new GenericJsonObject();
+                OmniJsonObject output = new OmniJsonObject();
                 output["@id"] = id;
                 // prepare embed meta info
                 JsonLdApi.EmbedNode embeddedNode = new JsonLdApi.EmbedNode(this);
@@ -1455,9 +1454,9 @@ namespace JsonLD.Core
                 {
                     JsonLdApi.EmbedNode existing = state.embeds[id];
                     embedOn = false;
-                    if (existing.parent is GenericJsonArray)
+                    if (existing.parent is OmniJsonArray)
                     {
-                        foreach (GenericJsonToken p in (GenericJsonArray)(existing.parent))
+                        foreach (OmniJsonToken p in (OmniJsonArray)(existing.parent))
                         {
                             if (JsonLdUtils.CompareValues(output, p))
                             {
@@ -1469,11 +1468,11 @@ namespace JsonLD.Core
                     else
                     {
                         // existing embed's parent is an object
-                        if (((GenericJsonObject)existing.parent).ContainsKey(existing.property))
+                        if (JavaCompat.ContainsKey(((OmniJsonObject)existing.parent), existing.property))
                         {
-                            foreach (GenericJsonToken v in (GenericJsonArray)((GenericJsonObject)existing.parent)[existing.property])
+                            foreach (OmniJsonToken v in (OmniJsonArray)((OmniJsonObject)existing.parent)[existing.property])
                             {
-                                if (v is GenericJsonObject && ((GenericJsonObject)v)["@id"].SafeCompare(id))
+                                if (v is OmniJsonObject && ((OmniJsonObject)v)["@id"].SafeCompare(id))
                                 {
                                     embedOn = true;
                                     break;
@@ -1497,8 +1496,8 @@ namespace JsonLD.Core
                     // add embed meta info
                     state.embeds[id] = embeddedNode;
                     // iterate over subject properties
-                    GenericJsonObject element = (GenericJsonObject)matches[id];
-                    GenericJsonArray props = new GenericJsonArray(element.GetKeys());
+                    OmniJsonObject element = (OmniJsonObject)matches[id];
+                    OmniJsonArray props = new OmniJsonArray(element.GetKeys());
                     props.SortInPlace();
                     foreach (string prop in props)
                     {
@@ -1519,29 +1518,29 @@ namespace JsonLD.Core
                             continue;
                         }
                         // add objects
-                        GenericJsonArray value = (GenericJsonArray)element[prop];
-                        foreach (GenericJsonToken item in value)
+                        OmniJsonArray value = (OmniJsonArray)element[prop];
+                        foreach (OmniJsonToken item in value)
                         {
                             // recurse into list
-                            if ((item is GenericJsonObject) && ((GenericJsonObject)item).ContainsKey("@list"))
+                            if ((item is OmniJsonObject) && JavaCompat.ContainsKey(((OmniJsonObject)item), "@list"))
                             {
                                 // add empty list
-                                GenericJsonObject list = new GenericJsonObject();
-                                list["@list"] = new GenericJsonArray();
+                                OmniJsonObject list = new OmniJsonObject();
+                                list["@list"] = new OmniJsonArray();
                                 AddFrameOutput(state, output, prop, list);
                                 // add list objects
-                                foreach (GenericJsonToken listitem in (GenericJsonArray)((GenericJsonObject)item)["@list"
+                                foreach (OmniJsonToken listitem in (OmniJsonArray)((OmniJsonObject)item)["@list"
                                     ])
                                 {
                                     // recurse into subject reference
                                     if (JsonLdUtils.IsNodeReference(listitem))
                                     {
-                                        GenericJsonObject tmp = new GenericJsonObject();
-                                        string itemid = (string)((IDictionary<string, GenericJsonToken>)listitem)["@id"];
+                                        OmniJsonObject tmp = new OmniJsonObject();
+                                        string itemid = (string)((IDictionary<string, OmniJsonToken>)listitem)["@id"];
                                         // TODO: nodes may need to be node_map,
                                         // which is global
                                         tmp[itemid] = this.nodeMap[itemid];
-                                        Frame(state, tmp, (GenericJsonObject)((GenericJsonArray)frame[prop])[0], list
+                                        Frame(state, tmp, (OmniJsonObject)((OmniJsonArray)frame[prop])[0], list
                                             , "@list");
                                     }
                                     else
@@ -1557,12 +1556,12 @@ namespace JsonLD.Core
                                 // recurse into subject reference
                                 if (JsonLdUtils.IsNodeReference(item))
                                 {
-                                    GenericJsonObject tmp = new GenericJsonObject();
-                                    string itemid = (string)((GenericJsonObject)item)["@id"];
+                                    OmniJsonObject tmp = new OmniJsonObject();
+                                    string itemid = (string)((OmniJsonObject)item)["@id"];
                                     // TODO: nodes may need to be node_map, which is
                                     // global
                                     tmp[itemid] = this.nodeMap[itemid];
-                                    Frame(state, tmp, (GenericJsonObject)((GenericJsonArray)frame[prop])[0], output
+                                    Frame(state, tmp, (OmniJsonObject)((OmniJsonArray)frame[prop])[0], output
                                         , prop);
                                 }
                                 else
@@ -1575,7 +1574,7 @@ namespace JsonLD.Core
                         }
                     }
                     // handle defaults
-                    props = new GenericJsonArray(frame.GetKeys());
+                    props = new OmniJsonArray(frame.GetKeys());
                     props.SortInPlace();
                     foreach (string prop_1 in props)
                     {
@@ -1584,30 +1583,30 @@ namespace JsonLD.Core
                         {
                             continue;
                         }
-                        GenericJsonArray pf = (GenericJsonArray)frame[prop_1];
-                        GenericJsonObject propertyFrame = pf.Count > 0 ? (GenericJsonObject)pf[0] : null;
+                        OmniJsonArray pf = (OmniJsonArray)frame[prop_1];
+                        OmniJsonObject propertyFrame = pf.Count > 0 ? (OmniJsonObject)pf[0] : null;
                         if (propertyFrame == null)
                         {
-                            propertyFrame = new GenericJsonObject();
+                            propertyFrame = new OmniJsonObject();
                         }
                         bool omitDefaultOn = GetFrameFlag(propertyFrame, "@omitDefault", state.omitDefault
                             );
                         if (!omitDefaultOn && !output.ContainsKey(prop_1))
                         {
-                            GenericJsonToken def = "@null";
+                            OmniJsonToken def = "@null";
                             if (propertyFrame.ContainsKey("@default"))
                             {
                                 def = JsonLdUtils.Clone(propertyFrame["@default"]);
                             }
-                            if (!(def is GenericJsonArray))
+                            if (!(def is OmniJsonArray))
                             {
-                                GenericJsonArray tmp = new GenericJsonArray();
+                                OmniJsonArray tmp = new OmniJsonArray();
                                 tmp.Add(def);
                                 def = tmp;
                             }
-                            GenericJsonObject tmp1 = new GenericJsonObject();
+                            OmniJsonObject tmp1 = new OmniJsonObject();
                             tmp1["@preserve"] = def;
-                            GenericJsonArray tmp2 = new GenericJsonArray();
+                            OmniJsonArray tmp2 = new OmniJsonArray();
                             tmp2.Add(tmp1);
                             output[prop_1] = tmp2;
                         }
@@ -1618,23 +1617,23 @@ namespace JsonLD.Core
             }
         }
 
-        private bool GetFrameFlag(GenericJsonObject frame, string name, bool thedefault
+        private bool GetFrameFlag(OmniJsonObject frame, string name, bool thedefault
             )
         {
-            GenericJsonToken value = frame[name];
-            if (value is GenericJsonArray)
+            OmniJsonToken value = frame[name];
+            if (value is OmniJsonArray)
             {
-                if (((GenericJsonArray)value).Count > 0)
+                if (((OmniJsonArray)value).Count > 0)
                 {
-                    value = ((GenericJsonArray)value)[0];
+                    value = ((OmniJsonArray)value)[0];
                 }
             }
-            if (value is GenericJsonObject && ((GenericJsonObject)value).ContainsKey("@value"
+            if (value is OmniJsonObject && JavaCompat.ContainsKey(((OmniJsonObject)value), "@value"
                 ))
             {
-                value = ((GenericJsonObject)value)["@value"];
+                value = ((OmniJsonObject)value)["@value"];
             }
-            if (value != null && value.Type == GenericJsonTokenType.Boolean)
+            if (value != null && value.Type == OmniJsonTokenType.Boolean)
             {
                 return (bool)value;
             }
@@ -1650,21 +1649,21 @@ namespace JsonLD.Core
             // get existing embed
             IDictionary<string, JsonLdApi.EmbedNode> embeds = state.embeds;
             JsonLdApi.EmbedNode embed = embeds[id];
-            GenericJsonToken parent = embed.parent;
+            OmniJsonToken parent = embed.parent;
             string property = embed.property;
             // create reference to replace embed
-            GenericJsonObject node = new GenericJsonObject();
+            OmniJsonObject node = new OmniJsonObject();
             node["@id"] = id;
             // remove existing embed
             if (JsonLdUtils.IsNode(parent))
             {
                 // replace subject with reference
-                GenericJsonArray newvals = new GenericJsonArray();
-                GenericJsonArray oldvals = (GenericJsonArray)((GenericJsonObject)parent)[property
+                OmniJsonArray newvals = new OmniJsonArray();
+                OmniJsonArray oldvals = (OmniJsonArray)((OmniJsonObject)parent)[property
                     ];
-                foreach (GenericJsonToken v in oldvals)
+                foreach (OmniJsonToken v in oldvals)
                 {
-                    if (v is GenericJsonObject && ((GenericJsonObject)v)["@id"].SafeCompare(id))
+                    if (v is OmniJsonObject && ((OmniJsonObject)v)["@id"].SafeCompare(id))
                     {
                         newvals.Add(node);
                     }
@@ -1673,7 +1672,7 @@ namespace JsonLD.Core
                         newvals.Add(v);
                     }
                 }
-                ((GenericJsonObject)parent)[property] = newvals;
+                ((OmniJsonObject)parent)[property] = newvals;
             }
             // recursively remove dependent dangling embeds
             RemoveDependents(embeds, id);
@@ -1691,12 +1690,12 @@ namespace JsonLD.Core
                 {
                     continue;
                 }
-                GenericJsonToken p = !e.parent.IsNull() ? e.parent : new GenericJsonObject();
-                if (!(p is GenericJsonObject))
+                OmniJsonToken p = !e.parent.IsNull() ? e.parent : new OmniJsonObject();
+                if (!(p is OmniJsonObject))
                 {
                     continue;
                 }
-                string pid = (string)((GenericJsonObject)p)["@id"];
+                string pid = (string)((OmniJsonObject)p)["@id"];
                 if (Obj.Equals(id, pid))
                 {
                     JsonLD.Collections.Remove(embeds, id_dep);
@@ -1706,12 +1705,12 @@ namespace JsonLD.Core
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        private GenericJsonObject FilterNodes(JsonLdApi.FramingContext state, GenericJsonObject nodes, GenericJsonObject frame)
+        private OmniJsonObject FilterNodes(JsonLdApi.FramingContext state, OmniJsonObject nodes, OmniJsonObject frame)
         {
-            GenericJsonObject rval = new GenericJsonObject();
+            OmniJsonObject rval = new OmniJsonObject();
             foreach (string id in nodes.GetKeys())
             {
-                GenericJsonObject element = (GenericJsonObject)nodes[id];
+                OmniJsonObject element = (OmniJsonObject)nodes[id];
                 if (element != null && FilterNode(state, element, frame))
                 {
                     rval[id] = element;
@@ -1721,39 +1720,39 @@ namespace JsonLD.Core
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        private bool FilterNode(JsonLdApi.FramingContext state, GenericJsonObject node, GenericJsonObject frame)
+        private bool FilterNode(JsonLdApi.FramingContext state, OmniJsonObject node, OmniJsonObject frame)
         {
-            GenericJsonToken types = frame["@type"];
+            OmniJsonToken types = frame["@type"];
             if (!types.IsNull())
             {
-                if (!(types is GenericJsonArray))
+                if (!(types is OmniJsonArray))
                 {
                     throw new JsonLdError(JsonLdError.Error.SyntaxError, "frame @type must be an array"
                         );
                 }
-                GenericJsonToken nodeTypes = node["@type"];
+                OmniJsonToken nodeTypes = node["@type"];
                 if (nodeTypes.IsNull())
                 {
-                    nodeTypes = new GenericJsonArray();
+                    nodeTypes = new OmniJsonArray();
                 }
                 else
                 {
-                    if (!(nodeTypes is GenericJsonArray))
+                    if (!(nodeTypes is OmniJsonArray))
                     {
                         throw new JsonLdError(JsonLdError.Error.SyntaxError, "node @type must be an array"
                             );
                     }
                 }
-                if (((GenericJsonArray)types).Count == 1 && ((GenericJsonArray)types)[0] is GenericJsonObject
-                     && ((GenericJsonObject)((GenericJsonArray)types)[0]).Count == 0)
+                if (((OmniJsonArray)types).Count == 1 && ((OmniJsonArray)types)[0] is OmniJsonObject
+                     && ((OmniJsonObject)((OmniJsonArray)types)[0]).Count == 0)
                 {
-                    return !((GenericJsonArray)nodeTypes).IsEmpty();
+                    return !((OmniJsonArray)nodeTypes).IsEmpty();
                 }
                 else
                 {
-                    foreach (GenericJsonToken i in (GenericJsonArray)nodeTypes)
+                    foreach (OmniJsonToken i in (OmniJsonArray)nodeTypes)
                     {
-                        foreach (GenericJsonToken j in (GenericJsonArray)types)
+                        foreach (OmniJsonToken j in (OmniJsonArray)types)
                         {
                             if (JsonLdUtils.DeepCompare(i, j))
                             {
@@ -1783,22 +1782,22 @@ namespace JsonLD.Core
         /// <param name="parent">the parent to add to.</param>
         /// <param name="property">the parent property.</param>
         /// <param name="output">the output to add.</param>
-        private static void AddFrameOutput(JsonLdApi.FramingContext state, GenericJsonToken parent, 
-            string property, GenericJsonToken output)
+        private static void AddFrameOutput(JsonLdApi.FramingContext state, OmniJsonToken parent, 
+            string property, OmniJsonToken output)
         {
-            if (parent is GenericJsonObject)
+            if (parent is OmniJsonObject)
             {
-                GenericJsonArray prop = (GenericJsonArray)((GenericJsonObject)parent)[property];
+                OmniJsonArray prop = (OmniJsonArray)((OmniJsonObject)parent)[property];
                 if (prop == null)
                 {
-                    prop = new GenericJsonArray();
-                    ((GenericJsonObject)parent)[property] = prop;
+                    prop = new OmniJsonArray();
+                    ((OmniJsonObject)parent)[property] = prop;
                 }
                 prop.Add(output);
             }
             else
             {
-                ((GenericJsonArray)parent).Add(output);
+                ((OmniJsonArray)parent).Add(output);
             }
         }
 
@@ -1814,33 +1813,33 @@ namespace JsonLD.Core
         /// <param name="element">the subject.</param>
         /// <param name="property">the property.</param>
         /// <param name="output">the output.</param>
-        private void EmbedValues(JsonLdApi.FramingContext state, GenericJsonObject element, string property, GenericJsonToken output)
+        private void EmbedValues(JsonLdApi.FramingContext state, OmniJsonObject element, string property, OmniJsonToken output)
         {
             // embed subject properties in output
-            GenericJsonArray objects = (GenericJsonArray)element[property];
-            foreach (GenericJsonToken o in objects)
+            OmniJsonArray objects = (OmniJsonArray)element[property];
+            foreach (OmniJsonToken o in objects)
             {
                 var eachObj = o;
 
-                if (eachObj is GenericJsonObject && ((GenericJsonObject)eachObj).ContainsKey("@list"))
+                if (eachObj is OmniJsonObject && JavaCompat.ContainsKey(((OmniJsonObject)eachObj), "@list"))
                 {
-                    GenericJsonObject list = new GenericJsonObject { { "@list", new GenericJsonArray() } };
-                    if (output is GenericJsonArray)
+                    OmniJsonObject list = new OmniJsonObject { { "@list", new OmniJsonArray() } };
+                    if (output is OmniJsonArray)
                     {
-                        ((GenericJsonArray)output).Add(list);
+                        ((OmniJsonArray)output).Add(list);
                     }
                     else
                     {
                         // TODO(sblom): What the hell does this even mean in JSON.NET?
                         //output[property] = new GenericJsonArray(list);
-                        output[property] = new GenericJsonArray();
+                        output[property] = new OmniJsonArray();
                     }
-                    EmbedValues(state, (GenericJsonObject)eachObj, "@list", list["@list"]);
+                    EmbedValues(state, (OmniJsonObject)eachObj, "@list", list["@list"]);
                 }
                 // handle subject reference
                 else if (JsonLdUtils.IsNodeReference(eachObj))
                 {
-                    string sid = (string)((GenericJsonObject)eachObj)["@id"];
+                    string sid = (string)((OmniJsonObject)eachObj)["@id"];
                     // embed full subject if isn't already embedded
                     if (!state.embeds.ContainsKey(sid))
                     {
@@ -1850,11 +1849,11 @@ namespace JsonLD.Core
                         embed.property = property;
                         state.embeds[sid] = embed;
                         // recurse into subject
-                        eachObj = new GenericJsonObject();
-                        GenericJsonObject s = (GenericJsonObject)this.nodeMap[sid];
+                        eachObj = new OmniJsonObject();
+                        OmniJsonObject s = (OmniJsonObject)this.nodeMap[sid];
                         if (s == null)
                         {
-                            s = new GenericJsonObject();
+                            s = new OmniJsonObject();
                             s["@id"] = sid;
                         }
                         foreach (string prop in s.GetKeys())
@@ -1862,7 +1861,7 @@ namespace JsonLD.Core
                             // copy keywords
                             if (JsonLdUtils.IsKeyword(prop))
                             {
-                                ((GenericJsonObject)eachObj)[prop] = JsonLdUtils.Clone(s[prop]);
+                                ((OmniJsonObject)eachObj)[prop] = JsonLdUtils.Clone(s[prop]);
                                 continue;
                             }
                             EmbedValues(state, s, prop, eachObj);
@@ -1883,7 +1882,7 @@ namespace JsonLD.Core
         private class UsagesNode
         {
             public UsagesNode(JsonLdApi _enclosing, JsonLdApi.NodeMapNode node, string property
-                , GenericJsonObject value)
+                , OmniJsonObject value)
             {
                 this._enclosing = _enclosing;
                 this.node = node;
@@ -1895,13 +1894,13 @@ namespace JsonLD.Core
 
             public string property = null;
 
-            public GenericJsonObject value = null;
+            public OmniJsonObject value = null;
 
             private readonly JsonLdApi _enclosing;
         }
 
         //[System.Serializable]
-        private class NodeMapNode : GenericJsonObject
+        private class NodeMapNode : OmniJsonObject
         {
             public IList<UsagesNode> usages = new List<UsagesNode>();
 
@@ -1922,7 +1921,7 @@ namespace JsonLD.Core
                 if (this.ContainsKey(JSONLDConsts.RdfFirst))
                 {
                     keys++;
-                    if (!(this[JSONLDConsts.RdfFirst] is GenericJsonArray && ((GenericJsonArray)this[JSONLDConsts.RdfFirst
+                    if (!(this[JSONLDConsts.RdfFirst] is OmniJsonArray && ((OmniJsonArray)this[JSONLDConsts.RdfFirst
                         ]).Count == 1))
                     {
                         return false;
@@ -1931,7 +1930,7 @@ namespace JsonLD.Core
                 if (this.ContainsKey(JSONLDConsts.RdfRest))
                 {
                     keys++;
-                    if (!(this[JSONLDConsts.RdfRest] is GenericJsonArray && ((GenericJsonArray)this[JSONLDConsts.RdfRest
+                    if (!(this[JSONLDConsts.RdfRest] is OmniJsonArray && ((OmniJsonArray)this[JSONLDConsts.RdfRest
                         ]).Count == 1))
                     {
                         return false;
@@ -1940,8 +1939,8 @@ namespace JsonLD.Core
                 if (this.ContainsKey("@type"))
                 {
                     keys++;
-                    if (!(this["@type"] is GenericJsonArray && ((GenericJsonArray)this["@type"]).Count == 1) && JSONLDConsts
-                        .RdfList.Equals(((GenericJsonArray)this["@type"])[0]))
+                    if (!(this["@type"] is OmniJsonArray && ((OmniJsonArray)this["@type"]).Count == 1) && JSONLDConsts
+                        .RdfList.Equals(((OmniJsonArray)this["@type"])[0]))
                     {
                         return false;
                     }
@@ -1959,9 +1958,9 @@ namespace JsonLD.Core
             }
 
             // return this node without the usages variable
-            public virtual GenericJsonObject Serialize()
+            public virtual OmniJsonObject Serialize()
             {
-                return new GenericJsonObject((IDictionary<string, object>)this.Unwrap());
+                return new OmniJsonObject((IDictionary<string, object>)this.Unwrap());
             }
 
             private readonly JsonLdApi _enclosing;
@@ -1974,27 +1973,27 @@ namespace JsonLD.Core
         /// <param name="callback">(err, output) called once the operation completes.</param>
         /// <exception cref="JSONLDProcessingError">JSONLDProcessingError</exception>
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public virtual GenericJsonArray FromRDF(RDFDataset dataset)
+        public virtual OmniJsonArray FromRDF(RDFDataset dataset)
         {
             // 1)
-            GenericJsonObject defaultGraph = new GenericJsonObject();
+            OmniJsonObject defaultGraph = new OmniJsonObject();
             // 2)
-            GenericJsonObject graphMap = new GenericJsonObject();
+            OmniJsonObject graphMap = new OmniJsonObject();
             graphMap["@default"] = defaultGraph;
             // 3/3.1)
             foreach (string name in dataset.GraphNames())
             {
                 IList<RDFDataset.Quad> graph = dataset.GetQuads(name);
                 // 3.2+3.4)
-                GenericJsonObject nodeMap;
+                OmniJsonObject nodeMap;
                 if (!graphMap.ContainsKey(name))
                 {
-                    nodeMap = new GenericJsonObject();
+                    nodeMap = new OmniJsonObject();
                     graphMap[name] = nodeMap;
                 }
                 else
                 {
-                    nodeMap = (GenericJsonObject)graphMap[name];
+                    nodeMap = (OmniJsonObject)graphMap[name];
                 }
                 // 3.3)
                 if (!"@default".Equals(name) && !Obj.Contains(defaultGraph, name))
@@ -2032,7 +2031,7 @@ namespace JsonLD.Core
                         continue;
                     }
                     // 3.5.5)
-                    GenericJsonObject value = @object.ToObject(opts.GetUseNativeTypes());
+                    OmniJsonObject value = @object.ToObject(opts.GetUseNativeTypes());
                     // 3.5.6+7)
                     JsonLdUtils.MergeValue(node, predicate, value);
                     // 3.5.8)
@@ -2047,7 +2046,7 @@ namespace JsonLD.Core
             // 4)
             foreach (string name_1 in graphMap.GetKeys())
             {
-                GenericJsonObject graph = (GenericJsonObject)graphMap[name_1];
+                OmniJsonObject graph = (OmniJsonObject)graphMap[name_1];
                 // 4.1)
                 if (!graph.ContainsKey(JSONLDConsts.RdfNil))
                 {
@@ -2061,15 +2060,15 @@ namespace JsonLD.Core
                     // 4.3.1)
                     JsonLdApi.NodeMapNode node = usage.node;
                     string property = usage.property;
-                    GenericJsonObject head = usage.value;
+                    OmniJsonObject head = usage.value;
                     // 4.3.2)
-                    GenericJsonArray list = new GenericJsonArray();
-                    GenericJsonArray listNodes = new GenericJsonArray();
+                    OmniJsonArray list = new OmniJsonArray();
+                    OmniJsonArray listNodes = new OmniJsonArray();
                     // 4.3.3)
                     while (JSONLDConsts.RdfRest.Equals(property) && node.IsWellFormedListNode())
                     {
                         // 4.3.3.1)
-                        list.Add(((GenericJsonArray)node[JSONLDConsts.RdfFirst])[0]);
+                        list.Add(((OmniJsonArray)node[JSONLDConsts.RdfFirst])[0]);
                         // 4.3.3.2)
                         listNodes.Add((string)node["@id"]);
                         // 4.3.3.3)
@@ -2095,7 +2094,7 @@ namespace JsonLD.Core
                         // 4.3.4.3)
                         string headId = (string)head["@id"];
                         // 4.3.4.4-5)
-                        head = (GenericJsonObject)((GenericJsonArray)graph[headId][JSONLDConsts.RdfRest
+                        head = (OmniJsonObject)((OmniJsonArray)graph[headId][JSONLDConsts.RdfRest
                             ])[0];
                         // 4.3.4.6)
                         list.RemoveAt(list.Count - 1);
@@ -2115,9 +2114,9 @@ namespace JsonLD.Core
                 }
             }
             // 5)
-            GenericJsonArray result = new GenericJsonArray();
+            OmniJsonArray result = new OmniJsonArray();
             // 6)
-            GenericJsonArray ids = new GenericJsonArray(defaultGraph.GetKeys());
+            OmniJsonArray ids = new OmniJsonArray(defaultGraph.GetKeys());
 
             if (opts.GetSortGraphsFromRdf())
             {
@@ -2131,9 +2130,9 @@ namespace JsonLD.Core
                 if (graphMap.ContainsKey(subject_1))
                 {
                     // 6.1.1)
-                    node["@graph"] = new GenericJsonArray();
+                    node["@graph"] = new OmniJsonArray();
                     // 6.1.2)
-                    GenericJsonArray keys = new GenericJsonArray(graphMap[subject_1].GetKeys());
+                    OmniJsonArray keys = new OmniJsonArray(graphMap[subject_1].GetKeys());
 
                     if (opts.GetSortGraphNodesFromRdf())
                     {
@@ -2147,7 +2146,7 @@ namespace JsonLD.Core
                         {
                             continue;
                         }
-                        ((GenericJsonArray)node["@graph"]).Add(n.Serialize());
+                        ((OmniJsonArray)node["@graph"]).Add(n.Serialize());
                     }
                 }
                 // 6.2)
@@ -2171,8 +2170,8 @@ namespace JsonLD.Core
         {
             // TODO: make the default generateNodeMap call (i.e. without a
             // graphName) create and return the nodeMap
-            GenericJsonObject nodeMap = new GenericJsonObject();
-            nodeMap["@default"] = new GenericJsonObject();
+            OmniJsonObject nodeMap = new OmniJsonObject();
+            nodeMap["@default"] = new OmniJsonObject();
             GenerateNodeMap(this.value, nodeMap);
             RDFDataset dataset = new RDFDataset(this);
             foreach (string graphName in nodeMap.GetKeys())
@@ -2182,7 +2181,7 @@ namespace JsonLD.Core
                 {
                     continue;
                 }
-                GenericJsonObject graph = (GenericJsonObject)nodeMap[graphName
+                OmniJsonObject graph = (OmniJsonObject)nodeMap[graphName
                     ];
                 dataset.GraphToRDF(graphName, graph);
             }

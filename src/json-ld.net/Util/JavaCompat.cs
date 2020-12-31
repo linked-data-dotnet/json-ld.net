@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Security.Cryptography;
-using JsonLD.GenericJson;
+using JsonLD.OmniJson;
+using System.Diagnostics;
 
 namespace JsonLD
 {
@@ -47,22 +47,23 @@ namespace JsonLD
                 default: throw new InvalidOperationException();
             }
         }
-        public static bool ContainsKey(this GenericJsonObject obj, string key)
+        public static bool ContainsKey(this OmniJsonObject obj, string key)
         {
             if (key == null)
             {
                 return false;
             }
-            return ((IDictionary<string, GenericJsonToken>)obj).ContainsKey(key);
+            return ((IDictionary<string, OmniJsonToken>)obj).ContainsKey(key);
         }
 
-        public static bool IsNull(this GenericJsonToken token)
+        public static bool IsNull(this OmniJsonToken token)
         {
-            return token == null || token.Type == GenericJsonTokenType.Null;
+            return token == null || token.Type == OmniJsonTokenType.Null;
         }
 
-        public static bool SafeCompare<T>(this GenericJsonToken token, T val)
+        public static bool SafeCompare<T>(this OmniJsonToken token, T val)
         {
+            Debug.Assert(!(val is OmniJsonToken));
             try
             {
                 return token == null ? val == null : token.Value<T>().Equals(val);
@@ -124,16 +125,16 @@ namespace JsonLD
         {
             list.Remove(key);
         }
-        public static GenericJsonToken Remove(GenericJsonObject dict, string key)
+        public static OmniJsonToken Remove(OmniJsonObject dict, string key)
         {
             var val = dict[key];
             dict.Remove(key);
             return val;
         }
 
-        public static IEnumerable<string> GetKeys(this GenericJsonToken obj)
+        public static IEnumerable<string> GetKeys(this OmniJsonToken obj)
         {
-            return ((GenericJsonObject)obj).Select(x => ((GenericJsonProperty)x).Name);
+            return ((OmniJsonObject)obj).Select(x => ((OmniJsonProperty)x).Name);
         }
 
         public static bool IsEmpty<T>(this ICollection<T> col)
@@ -141,7 +142,7 @@ namespace JsonLD
             return col.Count == 0;
         }
 
-        public static bool IsEmpty(this GenericJsonObject obj)
+        public static bool IsEmpty(this OmniJsonObject obj)
         {
             return obj.IsEmpty();
         }
@@ -152,13 +153,13 @@ namespace JsonLD
             {
                 ((List<T>)list).Reverse();
             }
-            else if (list is GenericJsonArray)
+            else if (list is OmniJsonArray)
             {
                 // TODO(sblom): This is really awful; figure out how to really sort a GenericJsonArray in place.
-                GenericJsonArray arr = (GenericJsonArray)list;
+                OmniJsonArray arr = (OmniJsonArray)list;
                 // .Select(x => x) is a workaround for .NET 3.5's List constructor's failure to
                 // disbelieve Newtonsoft.Json when IJCollection.Count returns 0.
-                List<GenericJsonToken> tmp = arr.Select(x => x).ToList();
+                List<OmniJsonToken> tmp = arr.Select(x => x).ToList();
                 tmp.Reverse();
                 arr.Clear();
                 foreach (var t in tmp)
@@ -172,9 +173,9 @@ namespace JsonLD
             }
         }
 
-        class GenericJsonTokenStringCompare : Comparer<GenericJsonToken>
+        class GenericJsonTokenStringCompare : Comparer<OmniJsonToken>
         {
-            public override int Compare(GenericJsonToken x, GenericJsonToken y)
+            public override int Compare(OmniJsonToken x, OmniJsonToken y)
             {
                 return string.Compare((string)x, (string)y);
             }
@@ -186,13 +187,13 @@ namespace JsonLD
             {
                 ((List<T>)list).Sort();
             }
-            else if (list is GenericJsonArray)
+            else if (list is OmniJsonArray)
             {
                 // TODO(sblom): This is really awful; figure out how to really sort a GenericJsonArray in place.
-                GenericJsonArray arr = (GenericJsonArray)list;
+                OmniJsonArray arr = (OmniJsonArray)list;
                 // .Select(x => x) is a workaround for .NET 3.5's List constructor's failure to
                 // disbelieve Newtonsoft.Json when IJCollection.Count returns 0.
-                List<GenericJsonToken> tmp = arr.Select(x => x).ToList();
+                List<OmniJsonToken> tmp = arr.Select(x => x).ToList();
                 tmp.Sort(new GenericJsonTokenStringCompare());
                 arr.Clear();
                 foreach (var t in tmp)
@@ -212,11 +213,11 @@ namespace JsonLD
             {
                 ((List<T>)list).Sort(cmp);
             }
-            else if (list is GenericJsonArray)
+            else if (list is OmniJsonArray)
             {
                 // TODO(sblom): This is really awful; figure out how to really sort a GenericJsonArray in place.
-                GenericJsonArray arr = (GenericJsonArray)list;
-                IComparer<GenericJsonToken> comparer = (IComparer<GenericJsonToken>)cmp;
+                OmniJsonArray arr = (OmniJsonArray)list;
+                IComparer<OmniJsonToken> comparer = (IComparer<OmniJsonToken>)cmp;
                 // .Select(x => x) is a workaround for .NET 3.5's List constructor's failure to
                 // disbelieve Newtonsoft.Json when IJCollection.Count returns 0.
                 var tmp = arr.Select(x => x).ToList();
@@ -244,7 +245,7 @@ namespace JsonLD
             }
         }
 
-        public static void PutAll(this IDictionary<string,GenericJsonToken> dest, IDictionary<string,string> src)
+        public static void PutAll(this IDictionary<string,OmniJsonToken> dest, IDictionary<string,string> src)
         {
             foreach (var entry in src)
             {

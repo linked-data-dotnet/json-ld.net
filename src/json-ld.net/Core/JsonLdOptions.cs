@@ -1,5 +1,4 @@
-using JsonLD.GenericJson;
-using Newtonsoft.Json.Linq;
+using JsonLD.OmniJson;
 
 namespace JsonLD.Core
 {
@@ -27,7 +26,7 @@ namespace JsonLD.Core
 
         private bool compactArrays = true;
 
-        private GenericJsonObject expandContext = null;
+        private OmniJsonObject expandContext = null;
 
         private string processingMode = "json-ld-1.0";
 
@@ -89,12 +88,12 @@ namespace JsonLD.Core
             this.compactArrays = compactArrays;
         }
 
-        public virtual GenericJsonObject GetExpandContext()
+        public virtual OmniJsonObject GetExpandContext()
         {
             return expandContext;
         }
 
-        public virtual void SetExpandContext(GenericJsonObject expandContext)
+        public virtual void SetExpandContext(OmniJsonObject expandContext)
         {
             this.expandContext = expandContext;
         }

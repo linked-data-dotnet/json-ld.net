@@ -2,8 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using JsonLD.Core;
-using JsonLD.GenericJson;
-using Newtonsoft.Json.Linq;
+using JsonLD.OmniJson;
 
 namespace JsonLD.Core
 {
@@ -15,20 +14,20 @@ namespace JsonLD.Core
         /// <param name="namer">a UniqueNamer for assigning blank node names.</param>
         /// <returns>the array of RDF triples for the given graph.</returns>
         [Obsolete]
-        internal static GenericJsonArray GraphToRDF(GenericJsonObject graph, UniqueNamer
+        internal static OmniJsonArray GraphToRDF(OmniJsonObject graph, UniqueNamer
              namer)
         {
             // use RDFDataset.graphToRDF
-            GenericJsonArray rval = new GenericJsonArray();
+            OmniJsonArray rval = new OmniJsonArray();
             foreach (string id in graph.GetKeys())
             {
-                GenericJsonObject node = (GenericJsonObject)graph[id];
-                GenericJsonArray properties = new GenericJsonArray(node.GetKeys());
+                OmniJsonObject node = (OmniJsonObject)graph[id];
+                OmniJsonArray properties = new OmniJsonArray(node.GetKeys());
                 properties.SortInPlace();
                 foreach (string property in properties)
                 {
                     var eachProperty = property;
-                    GenericJsonToken items = node[eachProperty];
+                    OmniJsonToken items = node[eachProperty];
                     if ("@type".Equals(eachProperty))
                     {
                         eachProperty = JSONLDConsts.RdfType;
@@ -40,10 +39,10 @@ namespace JsonLD.Core
                             continue;
                         }
                     }
-                    foreach (GenericJsonToken item in (GenericJsonArray)items)
+                    foreach (OmniJsonToken item in (OmniJsonArray)items)
                     {
                         // RDF subjects
-                        GenericJsonObject subject = new GenericJsonObject();
+                        OmniJsonObject subject = new OmniJsonObject();
                         if (id.IndexOf("_:") == 0)
                         {
                             subject["type"] = "blank node";
@@ -55,13 +54,13 @@ namespace JsonLD.Core
                             subject["value"] = id;
                         }
                         // RDF predicates
-                        GenericJsonObject predicate = new GenericJsonObject();
+                        OmniJsonObject predicate = new OmniJsonObject();
                         predicate["type"] = "IRI";
                         predicate["value"] = eachProperty;
                         // convert @list to triples
                         if (JsonLdUtils.IsList(item))
                         {
-                            ListToRDF((GenericJsonArray)((GenericJsonObject)item)["@list"], namer, subject
+                            ListToRDF((OmniJsonArray)((OmniJsonObject)item)["@list"], namer, subject
                                 , predicate, rval);
                         }
                         else
@@ -93,25 +92,25 @@ namespace JsonLD.Core
         /// <param name="subject">the subject for the head of the list.</param>
         /// <param name="predicate">the predicate for the head of the list.</param>
         /// <param name="triples">the array of triples to append to.</param>
-        private static void ListToRDF(GenericJsonArray list, UniqueNamer namer, GenericJsonObject subject, GenericJsonObject predicate, GenericJsonArray triples
+        private static void ListToRDF(OmniJsonArray list, UniqueNamer namer, OmniJsonObject subject, OmniJsonObject predicate, OmniJsonArray triples
             )
         {
-            GenericJsonObject first = new GenericJsonObject();
+            OmniJsonObject first = new OmniJsonObject();
             first["type"] = "IRI";
             first["value"] = JSONLDConsts.RdfFirst;
-            GenericJsonObject rest = new GenericJsonObject();
+            OmniJsonObject rest = new OmniJsonObject();
             rest["type"] = "IRI";
             rest["value"] = JSONLDConsts.RdfRest;
-            GenericJsonObject nil = new GenericJsonObject();
+            OmniJsonObject nil = new OmniJsonObject();
             nil["type"] = "IRI";
             nil["value"] = JSONLDConsts.RdfNil;
-            foreach (GenericJsonToken item in list)
+            foreach (OmniJsonToken item in list)
             {
-                GenericJsonObject blankNode = new GenericJsonObject();
+                OmniJsonObject blankNode = new OmniJsonObject();
                 blankNode["type"] = "blank node";
                 blankNode["value"] = namer.GetName();
                 {
-                    GenericJsonObject tmp = new GenericJsonObject();
+                    OmniJsonObject tmp = new OmniJsonObject();
                     tmp["subject"] = subject;
                     tmp["predicate"] = predicate;
                     tmp["object"] = blankNode;
@@ -119,9 +118,9 @@ namespace JsonLD.Core
                 }
                 subject = blankNode;
                 predicate = first;
-                GenericJsonToken @object = ObjectToRDF(item, namer);
+                OmniJsonToken @object = ObjectToRDF(item, namer);
                 {
-                    GenericJsonObject tmp = new GenericJsonObject();
+                    OmniJsonObject tmp = new OmniJsonObject();
                     tmp["subject"] = subject;
                     tmp["predicate"] = predicate;
                     tmp["object"] = @object;
@@ -129,7 +128,7 @@ namespace JsonLD.Core
                 }
                 predicate = rest;
             }
-            GenericJsonObject tmp_1 = new GenericJsonObject();
+            OmniJsonObject tmp_1 = new OmniJsonObject();
             tmp_1["subject"] = subject;
             tmp_1["predicate"] = predicate;
             tmp_1["object"] = nil;
@@ -147,27 +146,27 @@ namespace JsonLD.Core
         /// <param name="item">the JSON-LD value or node object.</param>
         /// <param name="namer">the UniqueNamer to use to assign blank node names.</param>
         /// <returns>the RDF literal or RDF resource.</returns>
-        private static GenericJsonObject ObjectToRDF(GenericJsonToken item, UniqueNamer namer)
+        private static OmniJsonObject ObjectToRDF(OmniJsonToken item, UniqueNamer namer)
         {
-            GenericJsonObject @object = new GenericJsonObject();
+            OmniJsonObject @object = new OmniJsonObject();
             // convert value object to RDF
             if (JsonLdUtils.IsValue(item))
             {
                 @object["type"] = "literal";
-                GenericJsonToken value = ((GenericJsonObject)item)["@value"];
-                GenericJsonToken datatype = ((GenericJsonObject)item)["@type"];
+                OmniJsonToken value = ((OmniJsonObject)item)["@value"];
+                OmniJsonToken datatype = ((OmniJsonObject)item)["@type"];
                 // convert to XSD datatypes as appropriate
-                if (value.Type == GenericJsonTokenType.Boolean || value.Type == GenericJsonTokenType.Float || value.Type == GenericJsonTokenType.Integer )
+                if (value.Type == OmniJsonTokenType.Boolean || value.Type == OmniJsonTokenType.Float || value.Type == OmniJsonTokenType.Integer )
                 {
                     // convert to XSD datatype
-                    if (value.Type == GenericJsonTokenType.Boolean)
+                    if (value.Type == OmniJsonTokenType.Boolean)
                     {
                         @object["value"] = value.ToString();
                         @object["datatype"] = datatype.IsNull() ? JSONLDConsts.XsdBoolean : datatype;
                     }
                     else
                     {
-                        if (value.Type == GenericJsonTokenType.Float)
+                        if (value.Type == OmniJsonTokenType.Float)
                         {
                             // canonical double representation
                             @object["value"] = string.Format("{0:0.0###############E0}", (double)value);
@@ -183,11 +182,11 @@ namespace JsonLD.Core
                 }
                 else
                 {
-                    if (((IDictionary<string, GenericJsonToken>)item).ContainsKey("@language"))
+                    if (((IDictionary<string, OmniJsonToken>)item).ContainsKey("@language"))
                     {
                         @object["value"] = value;
                         @object["datatype"] = datatype.IsNull() ? JSONLDConsts.RdfLangstring : datatype;
-                        @object["language"] = ((IDictionary<string, GenericJsonToken>)item)["@language"];
+                        @object["language"] = ((IDictionary<string, OmniJsonToken>)item)["@language"];
                     }
                     else
                     {
@@ -199,7 +198,7 @@ namespace JsonLD.Core
             else
             {
                 // convert string/node object to RDF
-                string id = JsonLdUtils.IsObject(item) ? (string)((GenericJsonObject)item
+                string id = JsonLdUtils.IsObject(item) ? (string)((OmniJsonObject)item
                     )["@id"] : (string)item;
                 if (id.IndexOf("_:") == 0)
                 {

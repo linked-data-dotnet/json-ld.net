@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using JsonLD.GenericJson;
+using JsonLD.OmniJson;
 using JsonLD.Util;
-using Newtonsoft.Json.Linq;
 
 namespace JsonLD.Util
 {
@@ -14,11 +13,11 @@ namespace JsonLD.Util
         /// <param name="map"></param>
         /// <param name="keys"></param>
         /// <returns></returns>
-        public static object Get(GenericJsonToken map, params string[] keys)
+        public static object Get(OmniJsonToken map, params string[] keys)
         {
             foreach (string key in keys)
             {
-                map = ((IDictionary<string, GenericJsonToken>)map)[key];
+                map = ((IDictionary<string, OmniJsonToken>)map)[key];
                 // make sure we don't crash if we get a null somewhere down the line
                 if (map == null)
                 {
@@ -60,7 +59,7 @@ namespace JsonLD.Util
         {
             foreach (string key in keys)
             {
-                map = ((IDictionary<string, GenericJsonToken>)map)[key];
+                map = ((IDictionary<string, OmniJsonToken>)map)[key];
                 if (map == null)
                 {
                     return false;

@@ -1,16 +1,15 @@
 using JsonLD.Core;
-using JsonLD.GenericJson;
+using JsonLD.OmniJson;
 using JsonLD.Impl;
-using Newtonsoft.Json.Linq;
 
 namespace JsonLD.Impl
 {
     internal class NQuadRDFParser : IRDFParser
     {
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public virtual RDFDataset Parse(GenericJsonToken input)
+        public virtual RDFDataset Parse(OmniJsonToken input)
         {
-            if (input.Type == GenericJsonTokenType.String)
+            if (input.Type == OmniJsonTokenType.String)
             {
                 return RDFDatasetUtils.ParseNQuads((string)input);
             }

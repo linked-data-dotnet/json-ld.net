@@ -1,5 +1,4 @@
-using JsonLD.GenericJson;
-using Newtonsoft.Json.Linq;
+using JsonLD.OmniJson;
 
 namespace JsonLD.Core
 {
@@ -17,7 +16,7 @@ namespace JsonLD.Core
             }
         }
 
-        public virtual GenericJsonToken Document
+        public virtual OmniJsonToken Document
         {
             get
             {
@@ -41,7 +40,7 @@ namespace JsonLD.Core
             }
         }
 
-        public virtual GenericJsonToken Context
+        public virtual OmniJsonToken Context
         {
             get
             {
@@ -55,18 +54,18 @@ namespace JsonLD.Core
 
         internal string documentUrl;
 
-        internal GenericJsonToken document;
+        internal OmniJsonToken document;
 
         internal string contextUrl;
 
-        internal GenericJsonToken context;
+        internal OmniJsonToken context;
 
-        public RemoteDocument(string url, GenericJsonToken document)
+        public RemoteDocument(string url, OmniJsonToken document)
             : this(url, document, null)
         {
         }
 
-        public RemoteDocument(string url, GenericJsonToken document, string context)
+        public RemoteDocument(string url, OmniJsonToken document, string context)
         {
             this.documentUrl = url;
             this.document = document;

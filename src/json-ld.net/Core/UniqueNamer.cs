@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using JsonLD.Core;
-using JsonLD.GenericJson;
-using Newtonsoft.Json.Linq;
+using JsonLD.OmniJson;
 
 namespace JsonLD.Core
 {
@@ -11,7 +10,7 @@ namespace JsonLD.Core
 
         private int counter;
 
-        private GenericJsonObject existing;
+        private OmniJsonObject existing;
 
         /// <summary>Creates a new UniqueNamer.</summary>
         /// <remarks>
@@ -23,7 +22,7 @@ namespace JsonLD.Core
         {
             this.prefix = prefix;
             this.counter = 0;
-            this.existing = new GenericJsonObject();
+            this.existing = new OmniJsonObject();
         }
 
         /// <summary>Copies this UniqueNamer.</summary>
@@ -33,7 +32,7 @@ namespace JsonLD.Core
         {
             JsonLD.Core.UniqueNamer copy = new JsonLD.Core.UniqueNamer(this.prefix);
             copy.counter = this.counter;
-            copy.existing = (GenericJsonObject)JsonLdUtils.Clone(this.existing);
+            copy.existing = (OmniJsonObject)JsonLdUtils.Clone(this.existing);
             return copy;
         }
 
@@ -49,7 +48,7 @@ namespace JsonLD.Core
         /// <returns>the new name.</returns>
         public virtual string GetName(string oldName)
         {
-            if (oldName != null && ((IDictionary<string,GenericJsonToken>)this.existing).ContainsKey(oldName))
+            if (oldName != null && ((IDictionary<string,OmniJsonToken>)this.existing).ContainsKey(oldName))
             {
                 return (string)(this.existing[oldName]);
             }
@@ -69,10 +68,10 @@ namespace JsonLD.Core
 
         public virtual bool IsNamed(string oldName)
         {
-            return ((IDictionary<string,GenericJsonToken>)this.existing).ContainsKey(oldName);
+            return ((IDictionary<string,OmniJsonToken>)this.existing).ContainsKey(oldName);
         }
 
-        public virtual GenericJsonObject Existing()
+        public virtual OmniJsonObject Existing()
         {
             return existing;
         }

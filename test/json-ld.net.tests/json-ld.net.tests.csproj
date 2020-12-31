@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\json-ld.net\json-ld.net.csproj" />
+    <ProjectReference Include="..\..\src\omnijson\OmniJson.SystemTextJson\OmniJson.SystemTextJson.csproj" />
   </ItemGroup>
 
   <ItemGroup>

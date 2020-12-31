@@ -1,6 +1,5 @@
 using JsonLD.Core;
-using JsonLD.GenericJson;
-using Newtonsoft.Json.Linq;
+using JsonLD.OmniJson;
 
 namespace JsonLD.Core
 {
@@ -45,6 +44,6 @@ namespace JsonLD.Core
         /// <returns>input in internal RDF Dataset format</returns>
         /// <exception cref="JsonLdError">JsonLdError</exception>
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        RDFDataset Parse(GenericJsonToken input);
+        RDFDataset Parse(OmniJsonToken input);
     }
 }

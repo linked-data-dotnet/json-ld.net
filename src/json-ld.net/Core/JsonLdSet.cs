@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
-using JsonLD.GenericJson;
-using Newtonsoft.Json.Linq;
+using JsonLD.OmniJson;
 
 namespace JsonLD.Core
 {
@@ -14,14 +13,14 @@ namespace JsonLD.Core
             _objects = new Lazy<HashSet<string>>(() => new HashSet<string>(StringComparer.Ordinal));
         }
 
-        internal bool Add(GenericJsonToken token)
+        internal bool Add(OmniJsonToken token)
         {
             if (token == null)
             {
                 throw new ArgumentNullException(nameof(token));
             }
 
-            if (token is GenericJsonObject)
+            if (token is OmniJsonObject)
             {
                 var id = token["@id"];
 

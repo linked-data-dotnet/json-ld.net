@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using JsonLD.Core;
-using JsonLD.GenericJson;
+using JsonLD.OmniJson;
 using JsonLD.Util;
-using Newtonsoft.Json.Linq;
 
 namespace JsonLD.Core
 {
@@ -248,7 +247,7 @@ namespace JsonLD.Core
             {
                 // create SHA-1 digest
                 md = MessageDigest.GetInstance("SHA-1");
-                GenericJsonObject groups = new GenericJsonObject();
+                OmniJsonObject groups = new OmniJsonObject();
                 IList<string> groupHashes;
                 IList<RDFDataset.Quad> quads = (IList<RDFDataset.Quad>)bnodes[id]["quads"];
                 for (int hpi = 0; ; hpi++)
@@ -273,16 +272,16 @@ namespace JsonLD.Core
                             // choose a path and namer from the permutations
                             string chosenPath = null;
                             UniqueNamer chosenNamer = null;
-                            NormalizeUtils.Permutator permutator = new NormalizeUtils.Permutator((GenericJsonArray)groups[groupHash]);
+                            NormalizeUtils.Permutator permutator = new NormalizeUtils.Permutator((OmniJsonArray)groups[groupHash]);
                             while (true)
                             {
                                 bool contPermutation = false;
                                 bool breakOut = false;
-                                GenericJsonArray permutation = permutator.Next();
+                                OmniJsonArray permutation = permutator.Next();
                                 UniqueNamer pathNamerCopy = pathNamer.Clone();
                                 // build adjacent path
                                 string path = string.Empty;
-                                GenericJsonArray recurse = new GenericJsonArray();
+                                OmniJsonArray recurse = new OmniJsonArray();
                                 foreach (string bnode in permutation)
                                 {
                                     // use canonical name if available
@@ -433,11 +432,11 @@ namespace JsonLD.Core
                             string groupHash = EncodeHex(md1.Digest());
                             if (groups.ContainsKey(groupHash))
                             {
-                                ((GenericJsonArray)groups[groupHash]).Add(bnode_2);
+                                ((OmniJsonArray)groups[groupHash]).Add(bnode_2);
                             }
                             else
                             {
-                                GenericJsonArray tmp = new GenericJsonArray();
+                                OmniJsonArray tmp = new OmniJsonArray();
                                 tmp.Add(bnode_2);
                                 groups[groupHash] = tmp;
                             }
@@ -539,15 +538,15 @@ namespace JsonLD.Core
 
         private class Permutator
         {
-            private readonly GenericJsonArray list;
+            private readonly OmniJsonArray list;
 
             private bool done;
 
             private readonly IDictionary<string, bool> left;
 
-            public Permutator(GenericJsonArray list)
+            public Permutator(OmniJsonArray list)
             {
-                this.list = (GenericJsonArray)JsonLdUtils.Clone(list);
+                this.list = (OmniJsonArray)JsonLdUtils.Clone(list);
                 this.list.SortInPlace();
                 this.done = false;
                 this.left = new Dictionary<string, bool>();
@@ -571,9 +570,9 @@ namespace JsonLD.Core
             /// one first.
             /// </remarks>
             /// <returns>the next permutation.</returns>
-            public virtual GenericJsonArray Next()
+            public virtual OmniJsonArray Next()
             {
-                GenericJsonArray rval = (GenericJsonArray)JsonLdUtils.Clone(this.list);
+                OmniJsonArray rval = (OmniJsonArray)JsonLdUtils.Clone(this.list);
                 // Calculate the next permutation using Steinhaus-Johnson-Trotter
                 // permutation algoritm
                 // get largest mobile element k
