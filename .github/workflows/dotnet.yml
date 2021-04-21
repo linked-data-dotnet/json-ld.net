@@ -2,10 +2,10 @@ name: dotnet
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     tags: ["*"]
   pull_request:
-    branches: [master]
+    branches: [main]
 
 jobs:
   build:
@@ -73,7 +73,7 @@ jobs:
 
   nuget-push-dev:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     needs: build
 
     steps:
