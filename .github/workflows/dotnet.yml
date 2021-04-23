@@ -2,10 +2,10 @@ name: dotnet
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     tags: ["*"]
   pull_request:
-    branches: [master]
+    branches: [main]
 
 jobs:
   build:
@@ -19,16 +19,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: gittools/actions/gitversion/setup@v0.9.7
+      - uses: gittools/actions/gitversion/setup@v0.9.9
         with:
-          versionSpec: "5.x"
+          versionSpec: 5.x
 
       - id: gitversion
-        uses: gittools/actions/gitversion/execute@v0.9.7
+        uses: gittools/actions/gitversion/execute@v0.9.9
 
       - uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 2.1.401
+          dotnet-version: 2.1.815
 
       - uses: actions/cache@v2
         env:
@@ -73,7 +73,7 @@ jobs:
 
   nuget-push-dev:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     needs: build
 
     steps:

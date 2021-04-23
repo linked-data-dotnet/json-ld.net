@@ -673,7 +673,7 @@ https://github.com/linked-data-dotnet/json-ld.net
   [coc]:                        https://opensource.microsoft.com/codeofconduct/
   [coc-faq]:                    https://opensource.microsoft.com/codeofconduct/faq/
   [codecov]:                    https://codecov.io/gh/linked-data-dotnet/json-ld.net
-  [codecov-badge]:              https://img.shields.io/codecov/c/github/linked-data-dotnet/json-ld.net/master.svg
+  [codecov-badge]:              https://img.shields.io/codecov/c/github/linked-data-dotnet/json-ld.net/main.svg
 
   [errata]:                     http://www.w3.org/2014/json-ld-errata
 
@@ -707,5 +707,5 @@ https://github.com/linked-data-dotnet/json-ld.net
 
   [sharpen]:                    http://community.versant.com/Projects/html/projectspaces/db4o_product_design/sharpen.html
 
-  [test-runner]:                https://github.com/linked-data-dotnet/json-ld.net/tree/master/test/json-ld.net.tests
+  [test-runner]:                https://github.com/linked-data-dotnet/json-ld.net/tree/main/test/json-ld.net.tests
   [wg-test-suite]:              https://github.com/w3c/json-ld-api/tree/master/tests
