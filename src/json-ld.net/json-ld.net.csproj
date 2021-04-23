@@ -11,7 +11,7 @@ Implements the W3C JSON-LD 1.0 standard.</Description>
     <PackageTags>json-ld;jsonld;json;linked-data;rdf;semantic;web</PackageTags>
     <PackageIconUrl>http://json-ld.org/images/json-ld-logo-64.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/linked-data-dotnet/json-ld.net/</PackageProjectUrl>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/linked-data-dotnet/json-ld.net/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/linked-data-dotnet/json-ld.net/main/LICENSE</PackageLicenseUrl>
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.1' ">$(PackageTargetFallback);dnxcore50;portable-net45+win8</PackageTargetFallback>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
