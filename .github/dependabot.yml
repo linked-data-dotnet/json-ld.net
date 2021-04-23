@@ -1,0 +1,25 @@
+version: 2
+updates:
+- package-ecosystem: nuget
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: Newtonsoft.Json
+    versions:
+    - ">= 10.a"
+    - "< 11"
+  - dependency-name: Newtonsoft.Json
+    versions:
+    - ">= 11.a"
+    - "< 12"
+  - dependency-name: Newtonsoft.Json
+    versions:
+    - ">= 12.0.a"
+    - "< 12.1"
+- package-ecosystem: github-actions
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
