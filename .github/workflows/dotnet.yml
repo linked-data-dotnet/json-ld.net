@@ -30,7 +30,7 @@ jobs:
         with:
           dotnet-version: 2.1.815
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v2.1.5
         env:
           NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
         with:
