@@ -3,8 +3,8 @@
 #> docker build -t json-ld.net .
 #> docker run --rm json-ld.net dotnet test -v normal
 
-# .NET Core 2.1 on Ubuntu 18.04 LTS
-FROM mcr.microsoft.com/dotnet/core/sdk:2.1-bionic
+# .NET Core 6.0 on Ubuntu 20.04 LTS
+FROM mcr.microsoft.com/dotnet/sdk:6.0-focal
 
 WORKDIR /App
 
