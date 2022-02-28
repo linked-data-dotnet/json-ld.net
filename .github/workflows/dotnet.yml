@@ -2,10 +2,10 @@ name: dotnet
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     tags: ["*"]
   pull_request:
-    branches: [master]
+    branches: [main]
 
 jobs:
   build:
@@ -15,22 +15,22 @@ jobs:
       fullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
         with:
           fetch-depth: 0
 
-      - uses: gittools/actions/gitversion/setup@v0.9.4
+      - uses: gittools/actions/gitversion/setup@v0.9.10
         with:
-          versionSpec: "5.x"
+          versionSpec: 5.x
 
       - id: gitversion
-        uses: gittools/actions/gitversion/execute@v0.9.4
+        uses: gittools/actions/gitversion/execute@v0.9.10
 
-      - uses: actions/setup-dotnet@v1
+      - uses: actions/setup-dotnet@v1.8.2
         with:
-          dotnet-version: 2.1.401
+          dotnet-version: 6.0.x
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v2.1.6
         env:
           NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
         with:
@@ -73,7 +73,7 @@ jobs:
 
   nuget-push-dev:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     needs: build
 
     steps:
@@ -83,9 +83,9 @@ jobs:
           name: nugets
 
       - name: setup dotnet
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v1.8.2
         with:
-          dotnet-version: 3.1
+          dotnet-version: 6.0.x
           source-url: https://nuget.pkg.github.com/linked-data-dotnet/index.json
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -103,9 +103,9 @@ jobs:
         with:
           name: nugets
 
-      - uses: actions/setup-dotnet@v1
+      - uses: actions/setup-dotnet@v1.8.2
         with:
-          dotnet-version: 2.1.401
+          dotnet-version: 6.0.x
           source-url: https://api.nuget.org/v3/index.json
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_API_KEY }}
