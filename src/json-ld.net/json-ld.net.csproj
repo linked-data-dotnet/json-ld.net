@@ -19,7 +19,7 @@ Implements the W3C JSON-LD 1.0 standard.</Description>
     <RepositoryUrl>https://github.com/linked-data-dotnet/json-ld.net</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
     <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" />
