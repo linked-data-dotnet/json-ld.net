@@ -1,0 +1,16 @@
+{
+    "@id": "http://example.org/ld-experts",
+    "http://schema.org/name": "LD Experts",
+    "http://schema.org/member": [
+        {
+            "@type": "http://schema.org/Person",
+            "http://schema.org/name": "Manu Sporny",
+            "http://schema.org/url": {
+                "@id": "http://manu.sporny.org/"
+            },
+            "http://schema.org/image": {
+                "@id": "http://manu.sporny.org/images/manu.png"
+            }
+        }
+    ]
+}

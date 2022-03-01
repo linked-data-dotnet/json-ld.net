@@ -8,7 +8,7 @@ Implements the W3C JSON-LD 1.0 standard.</Description>
     <TargetFrameworks>netstandard1.1;netstandard2.0;net40</TargetFrameworks>
     <AssemblyName>json-ld.net</AssemblyName>
     <PackageId>json-ld.net</PackageId>
-    <PackageTags>json-ld;jsonld;json;linked-data;rdf;semantic;web</PackageTags>
+    <PackageTags>json-ld;jsonld;json;linked-data;rdf;semantic;web;linqpad-samples</PackageTags>
     <PackageIconUrl>http://json-ld.org/images/json-ld-logo-64.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/linked-data-dotnet/json-ld.net/</PackageProjectUrl>
     <PackageLicenseUrl>https://raw.githubusercontent.com/linked-data-dotnet/json-ld.net/main/LICENSE</PackageLicenseUrl>
@@ -24,6 +24,10 @@ Implements the W3C JSON-LD 1.0 standard.</Description>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\doc\linqpad-samples\**" Pack="True" PackagePath="linqpad-samples\"/>
   </ItemGroup>
 
   <ItemGroup>
