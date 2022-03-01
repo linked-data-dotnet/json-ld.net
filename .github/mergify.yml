@@ -2,6 +2,7 @@ pull_request_rules:
   - name: Automatic approve on dependabot PR
     conditions:
       - author~=^dependabot(|-preview)\[bot\]$
+      - base=main
     actions:
       review:
         type: APPROVE
@@ -12,6 +13,7 @@ pull_request_rules:
       - '#commits-behind=0' # Only merge up to date pull requests
       - check-success=build
       - check-success=build & run tests
+      - base=main
     actions:
       merge:
 
