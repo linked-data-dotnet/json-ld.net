@@ -28,7 +28,7 @@ jobs:
 
       - uses: actions/setup-dotnet@v1.8.2
         with:
-          dotnet-version: 2.1.815
+          dotnet-version: 6.0.x
 
       - uses: actions/cache@v2.1.6
         env:
@@ -85,7 +85,7 @@ jobs:
       - name: setup dotnet
         uses: actions/setup-dotnet@v1.8.2
         with:
-          dotnet-version: 3.1
+          dotnet-version: 6.0.x
           source-url: https://nuget.pkg.github.com/linked-data-dotnet/index.json
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -105,7 +105,7 @@ jobs:
 
       - uses: actions/setup-dotnet@v1.8.2
         with:
-          dotnet-version: 2.1.401
+          dotnet-version: 6.0.x
           source-url: https://api.nuget.org/v3/index.json
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_API_KEY }}
