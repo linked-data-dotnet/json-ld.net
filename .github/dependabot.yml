@@ -11,6 +11,8 @@ updates:
   schedule:
     interval: daily
   target-branch: support/1.x
+  ignore:
+  - dependency-name: Newtonsoft.Json
 
 - package-ecosystem: github-actions
   directory: "/"
