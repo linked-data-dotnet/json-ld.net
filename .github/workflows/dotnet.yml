@@ -19,12 +19,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: gittools/actions/gitversion/setup@v0.9.10
+      - uses: gittools/actions/gitversion/setup@v0.9.11
         with:
           versionSpec: 5.x
 
       - id: gitversion
-        uses: gittools/actions/gitversion/execute@v0.9.10
+        uses: gittools/actions/gitversion/execute@v0.9.11
 
       - uses: actions/setup-dotnet@v1.8.2
         with:
