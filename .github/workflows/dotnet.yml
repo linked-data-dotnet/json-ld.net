@@ -111,7 +111,7 @@ jobs:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_API_KEY }}
 
       - name: nuget push
-        run: dotnet nuget push "*.nupkg" --skip-duplicate --api-key ${{ secrets.GITHUB_TOKEN }}
+        run: dotnet nuget push "*.nupkg" --skip-duplicate --api-key ${{ secrets.NUGET_API_KEY }}
 
   release-artifacts:
     runs-on: ubuntu-latest
