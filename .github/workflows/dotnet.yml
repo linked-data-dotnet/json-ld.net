@@ -2,10 +2,10 @@ name: dotnet
 
 on:
   push:
-    branches: [main]
+    branches: [main, support/*]
     tags: ["*"]
   pull_request:
-    branches: [main]
+    branches: [main, support/*]
 
 jobs:
   build:
