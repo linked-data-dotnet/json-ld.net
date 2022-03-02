@@ -15,7 +15,7 @@ jobs:
       fullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}
 
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
