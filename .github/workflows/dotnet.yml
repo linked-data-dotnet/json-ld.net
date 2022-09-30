@@ -26,7 +26,7 @@ jobs:
       - id: gitversion
         uses: gittools/actions/gitversion/execute@v0.9.13
 
-      - uses: actions/setup-dotnet@v2
+      - uses: actions/setup-dotnet@v3.0.0
         with:
           dotnet-version: 6.0.x
 
@@ -83,7 +83,7 @@ jobs:
           name: nugets
 
       - name: setup dotnet
-        uses: actions/setup-dotnet@v2
+        uses: actions/setup-dotnet@v3.0.0
         with:
           dotnet-version: 6.0.x
           source-url: https://nuget.pkg.github.com/linked-data-dotnet/index.json
@@ -103,7 +103,7 @@ jobs:
         with:
           name: nugets
 
-      - uses: actions/setup-dotnet@v2
+      - uses: actions/setup-dotnet@v3.0.0
         with:
           dotnet-version: 6.0.x
           source-url: https://api.nuget.org/v3/index.json
