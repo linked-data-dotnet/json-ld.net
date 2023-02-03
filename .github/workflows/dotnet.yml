@@ -124,7 +124,7 @@ jobs:
           name: nugets
 
       - name: Upload to stable release
-        uses: svenstaro/upload-release-action@2.3.0
+        uses: svenstaro/upload-release-action@2.4.1
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: nugets
