@@ -31,7 +31,7 @@ Implements the W3C JSON-LD 1.0 standard.</Description>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
     <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" />
