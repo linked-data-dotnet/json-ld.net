@@ -3,13 +3,13 @@ updates:
 - package-ecosystem: nuget
   directory: "/"
   schedule:
-    interval: daily
+    interval: monthly
   target-branch: main
 
 - package-ecosystem: nuget
   directory: "/"
   schedule:
-    interval: daily
+    interval: monthly
   target-branch: support/1.x
   ignore:
   - dependency-name: Newtonsoft.Json
@@ -17,11 +17,11 @@ updates:
 - package-ecosystem: github-actions
   directory: "/"
   schedule:
-    interval: daily
+    interval: monthly
   target-branch: main
 
 - package-ecosystem: github-actions
   directory: "/"
   schedule:
-    interval: daily
+    interval: monthly
   target-branch: support/1.x
