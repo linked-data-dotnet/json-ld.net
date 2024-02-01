@@ -30,7 +30,7 @@ jobs:
         with:
           dotnet-version: 6.0.x
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         env:
           NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
         with:
