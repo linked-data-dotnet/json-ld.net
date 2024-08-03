@@ -1,13 +1,25 @@
 version: 2
 updates:
 - package-ecosystem: nuget
-  directory: "/"
+  labels: [dependency]
+  groups:
+    microsoft:
+      patterns: [Microsoft.*, System.*]
+    xunit:
+      patterns: [xunit.*]
+  directory: /
   schedule:
     interval: monthly
   target-branch: main
 
 - package-ecosystem: nuget
-  directory: "/"
+  labels: [dependency, support]
+  groups:
+    microsoft:
+      patterns: [Microsoft.*, System.*]
+    xunit:
+      patterns: [xunit.*]
+  directory: /
   schedule:
     interval: monthly
   target-branch: support/1.x
@@ -15,13 +27,21 @@ updates:
   - dependency-name: Newtonsoft.Json
 
 - package-ecosystem: github-actions
-  directory: "/"
+  labels: [dependency]
+  groups:
+    actions:
+      patterns: [actions/*]
+  directory: /
   schedule:
     interval: monthly
   target-branch: main
 
 - package-ecosystem: github-actions
-  directory: "/"
+  labels: [dependency, support]
+  groups:
+    actions:
+      patterns: [actions/*]
+  directory: /
   schedule:
     interval: monthly
   target-branch: support/1.x
